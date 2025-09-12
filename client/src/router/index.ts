@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import TableWrapper from "../views/TableWrapper.vue";
-import AddEmployee from "../views/AddEmployee.vue";
+import EmployeeForm from "../views/EmployeeForm.vue";
 
 const routes = [
   {
@@ -10,13 +10,22 @@ const routes = [
     component: Home,
   },
   {
-    path: "/add-employee",
-    name: "Add Employee",
+    path: "/employee/new",
+    name: "employee-new",
     meta: {
       title: "Add Employee",
       description: "Add a new employee",
     },
-    component: AddEmployee,
+    component: EmployeeForm,
+  },
+  {
+    path: "/employee/:id",
+    name: "employee-edit",
+    meta: {
+      title: "Employee Record",
+      description: "View and edit employee record",
+    },
+    component: EmployeeForm,
   },
   {
     path: "/unassigned-hires",

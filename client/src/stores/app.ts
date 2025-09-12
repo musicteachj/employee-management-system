@@ -413,11 +413,11 @@ export const useAppStore = defineStore("app", () => {
     benefitsEligibleOptions: ["Yes", "No"] as BenefitsEligible[],
   };
 
-  const getUnassignedHires = async () => {
+  const getUnassignedHires = async (): Promise<Employee[]> => {
     return employees.value.filter((employee) => !employee.managerId);
   };
 
-  const getRecentHires = async () => {
+  const getRecentHires = async (): Promise<Employee[]> => {
     return employees.value.filter((employee) => {
       const hireDate = dayjs(employee.hireDate);
       const thirtyDaysAgo = dayjs().subtract(30, "day");
@@ -427,8 +427,24 @@ export const useAppStore = defineStore("app", () => {
     });
   };
 
-  const addEmployee = (employee: Employee) => {
+  const addEmployee = (employee: Employee): void => {
     employees.value.push(employee);
+  };
+
+  const updateEmployee = (updatedEmployee: Employee): void => {
+    const index = employees.value.findIndex(
+      (emp) => emp._id === updatedEmployee._id
+    );
+    if (index !== -1) {
+      // Update the updatedOn and updatedAt fields
+      updatedEmployee.updatedOn = new Date().toISOString().split("T")[0];
+      updatedEmployee.updatedAt = new Date().toISOString();
+      updatedEmployee.lastProfileUpdate = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      employees.value[index] = updatedEmployee;
+    }
   };
 
   return {
@@ -439,5 +455,6 @@ export const useAppStore = defineStore("app", () => {
     getUnassignedHires,
     getRecentHires,
     addEmployee,
+    updateEmployee,
   };
 });
