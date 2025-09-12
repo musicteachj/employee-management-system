@@ -11,7 +11,11 @@ const open = ref<string[]>([]);
     <v-layout>
       <v-app-bar color="primary" flat>
         <v-app-bar-nav-icon @click.stop="rail = !rail" />
-        <v-app-bar-title> Employee Management System </v-app-bar-title>
+        <v-app-bar-title>
+          <router-link to="/" class="text-white text-decoration-none">
+            Employee Management System
+          </router-link>
+        </v-app-bar-title>
       </v-app-bar>
       <v-navigation-drawer
         expand-on-hover
@@ -20,7 +24,7 @@ const open = ref<string[]>([]);
         permanent
       >
         <v-list density="compact" v-model:opened="open">
-          <v-list-item prepend-icon="mdi-account-plus">
+          <v-list-item prepend-icon="mdi-account-plus" to="/new-hires">
             <v-list-item-title>New Hires</v-list-item-title>
           </v-list-item>
           <v-list-item prepend-icon="mdi-clock-outline">
