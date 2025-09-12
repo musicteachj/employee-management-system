@@ -16,13 +16,23 @@ export interface Employee {
   city: string;
   state: string;
   country: string;
+  dateOfBirth?: string;
+  socialSecurityNumber?: string; // For duplicate detection (should be encrypted/hashed)
 
   // Employment Information
   employeeId: string;
   department: string;
   position: string;
   jobLevel: JobLevel;
+  employmentType:
+    | "Full-time"
+    | "Part-time"
+    | "Contract"
+    | "Intern"
+    | "Temporary";
   workLocation: "Office" | "Remote" | "Hybrid";
+  managerId?: string;
+  managerName?: string;
 
   // Dates
   hireDate: string;
@@ -45,6 +55,8 @@ export interface Employee {
     | "Unrated";
   trainingStatus: "Completed" | "In Progress" | "Not Started";
   developmentNotes: string;
+  nextReviewDate?: string;
+  performanceHistory?: PerformanceReview[];
 
   // Compliance & Verification
   backgroundCheckStatus: "Completed" | "In Progress" | "Not Started" | "Failed";
@@ -58,6 +70,8 @@ export interface Employee {
   updatedBy?: string;
   updatedOn?: string;
   updatedAt?: string;
+  lastProfileUpdate?: string;
+  profileUpdateHistory?: ProfileUpdate[];
 
   // Manager/HR Assignment
   hrAssignment: {
@@ -97,3 +111,32 @@ export type JobLevel =
   | "VP"
   | "C-Level"
   | "CEO";
+
+export interface PerformanceReview {
+  reviewId: string;
+  reviewDate: string;
+  reviewPeriodStart: string;
+  reviewPeriodEnd: string;
+  reviewerName: string;
+  reviewerEmail: string;
+  rating:
+    | "Exceeds Expectations"
+    | "Meets Expectations"
+    | "Needs Improvement"
+    | "Unsatisfactory";
+  goals?: string[];
+  achievements?: string[];
+  areasForImprovement?: string[];
+  comments?: string;
+  nextReviewDate?: string;
+}
+
+export interface ProfileUpdate {
+  updateId: string;
+  updateDate: string;
+  updatedBy: string;
+  updatedFields: string[];
+  updateReason?: string;
+  previousValues?: Record<string, any>;
+  newValues?: Record<string, any>;
+}
