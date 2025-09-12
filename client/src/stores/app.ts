@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import dayjs from "dayjs";
 import type { Employee } from "../types";
 
 export const useAppStore = defineStore("app", () => {
@@ -34,7 +35,7 @@ export const useAppStore = defineStore("app", () => {
       managerName: "David Chen",
 
       // Dates
-      hireDate: "2022-01-15",
+      hireDate: "2024-08-15", // Recent hire (within 30 days)
       lastReviewDate: "2024-06-15",
 
       // Compensation & Benefits
@@ -112,7 +113,7 @@ export const useAppStore = defineStore("app", () => {
       managerName: "David Chen",
 
       // Dates
-      hireDate: "2021-09-01",
+      hireDate: "2024-07-01", // Recent hire (within 90 days but not 30)
       lastReviewDate: "2024-03-01",
 
       // Compensation & Benefits
@@ -237,7 +238,23 @@ export const useAppStore = defineStore("app", () => {
     },
   ]);
 
+  const getNewHires = async () => {
+    return employees.value;
+  };
+
+  const getRecentHires = async () => {
+    return employees.value.filter((employee) => {
+      const hireDate = dayjs(employee.hireDate);
+      const thirtyDaysAgo = dayjs().subtract(30, "day");
+      return (
+        hireDate.isAfter(thirtyDaysAgo) || hireDate.isSame(thirtyDaysAgo, "day")
+      );
+    });
+  };
+
   return {
     employees,
+    getNewHires,
+    getRecentHires,
   };
 });
