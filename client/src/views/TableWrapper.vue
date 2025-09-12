@@ -37,15 +37,15 @@ const loadData = async () => {
     resetData();
     // Populate data based on route name
     switch (routeName.value) {
-      case "New Hires":
-        title.value = "New Hires";
+      case "Unassigned Hires":
+        title.value = "Unassigned Hires";
         subtitle.value = "Employees without managers";
         enableSearch.value = true;
         enableActions.value = true;
         enableExport.value = true;
         enableOpenRecord.value = true;
         enableSelect.value = true;
-        items.value = await appStore.getNewHires();
+        items.value = await appStore.getUnassignedHires();
         break;
       case "Recent Hires":
         title.value = "Recent Hires";

@@ -31,7 +31,7 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Senior",
       employmentType: "Full-time",
       workLocation: "Hybrid",
-      managerId: "emp_003",
+      managerId: "",
       managerName: "David Chen",
 
       // Dates
@@ -238,8 +238,8 @@ export const useAppStore = defineStore("app", () => {
     },
   ]);
 
-  const getNewHires = async () => {
-    return employees.value;
+  const getUnassignedHires = async () => {
+    return employees.value.filter((employee) => !employee.managerId);
   };
 
   const getRecentHires = async () => {
@@ -252,9 +252,14 @@ export const useAppStore = defineStore("app", () => {
     });
   };
 
+  const addEmployee = (employee: Employee) => {
+    employees.value.push(employee);
+  };
+
   return {
     employees,
-    getNewHires,
+    getUnassignedHires,
     getRecentHires,
+    addEmployee,
   };
 });
