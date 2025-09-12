@@ -1,6 +1,20 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { Employee } from "../types";
+import dayjs from "dayjs";
+import type {
+  Employee,
+  JobLevel,
+  EmploymentType,
+  WorkLocation,
+  ActiveStatus,
+  PerformanceRating,
+  TrainingStatus,
+  BackgroundCheckStatus,
+  EmployeeSource,
+  BenefitsEligible,
+  Department,
+  Manager,
+} from "../types";
 
 export const useAppStore = defineStore("app", () => {
   const employees = ref<Employee[]>([
@@ -30,11 +44,11 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Senior",
       employmentType: "Full-time",
       workLocation: "Hybrid",
-      managerId: "emp_003",
+      managerId: "",
       managerName: "David Chen",
 
       // Dates
-      hireDate: "2022-01-15",
+      hireDate: "2024-08-15", // Recent hire (within 30 days)
       lastReviewDate: "2024-06-15",
 
       // Compensation & Benefits
@@ -112,7 +126,7 @@ export const useAppStore = defineStore("app", () => {
       managerName: "David Chen",
 
       // Dates
-      hireDate: "2021-09-01",
+      hireDate: "2024-07-01", // Recent hire (within 90 days but not 30)
       lastReviewDate: "2024-03-01",
 
       // Compensation & Benefits
@@ -237,7 +251,193 @@ export const useAppStore = defineStore("app", () => {
     },
   ]);
 
+  // Departments - Centralized department data
+  const departments = ref<Department[]>([
+    {
+      id: "dept_001",
+      name: "Engineering",
+      description: "Software development and technical operations",
+    },
+    {
+      id: "dept_002",
+      name: "Marketing",
+      description: "Brand management and customer acquisition",
+    },
+    {
+      id: "dept_003",
+      name: "Sales",
+      description: "Revenue generation and client relationships",
+    },
+    {
+      id: "dept_004",
+      name: "Human Resources",
+      description: "Employee management and organizational development",
+    },
+    {
+      id: "dept_005",
+      name: "Finance",
+      description: "Financial planning and accounting operations",
+    },
+    {
+      id: "dept_006",
+      name: "Operations",
+      description: "Business operations and process management",
+    },
+    {
+      id: "dept_007",
+      name: "Product",
+      description: "Product strategy and development",
+    },
+    {
+      id: "dept_008",
+      name: "Design",
+      description: "User experience and visual design",
+    },
+  ]);
+
+  // Managers - Centralized manager data
+  const managers = ref<Manager[]>([
+    {
+      id: "mgr_001",
+      name: "David Chen",
+      email: "david.chen@company.com",
+      department: "Engineering",
+      jobLevel: "Director",
+    },
+    {
+      id: "mgr_002",
+      name: "Sarah Martinez",
+      email: "sarah.martinez@company.com",
+      department: "Marketing",
+      jobLevel: "Manager",
+    },
+    {
+      id: "mgr_003",
+      name: "Michael Thompson",
+      email: "michael.thompson@company.com",
+      department: "Sales",
+      jobLevel: "Manager",
+    },
+    {
+      id: "mgr_004",
+      name: "Jennifer Liu",
+      email: "jennifer.liu@company.com",
+      department: "Human Resources",
+      jobLevel: "Director",
+    },
+    {
+      id: "mgr_005",
+      name: "Robert Kim",
+      email: "robert.kim@company.com",
+      department: "Finance",
+      jobLevel: "Manager",
+    },
+    {
+      id: "mgr_006",
+      name: "Emily Davis",
+      email: "emily.davis@company.com",
+      department: "Operations",
+      jobLevel: "Manager",
+    },
+    {
+      id: "mgr_007",
+      name: "Alex Rodriguez",
+      email: "alex.rodriguez@company.com",
+      department: "Product",
+      jobLevel: "Director",
+    },
+    {
+      id: "mgr_008",
+      name: "Lisa Wang",
+      email: "lisa.wang@company.com",
+      department: "Design",
+      jobLevel: "Senior",
+    },
+  ]);
+
+  // Form Options - Centralized for consistency across the app
+  const formOptions = {
+    jobLevels: [
+      "Entry",
+      "Mid",
+      "Senior",
+      "Lead",
+      "Manager",
+      "Director",
+      "VP",
+      "C-Level",
+      "CEO",
+    ] as JobLevel[],
+
+    employmentTypes: [
+      "Full-time",
+      "Part-time",
+      "Contract",
+      "Intern",
+      "Temporary",
+    ] as EmploymentType[],
+
+    workLocations: ["Office", "Remote", "Hybrid"] as WorkLocation[],
+
+    activeStatuses: ["Active", "On Leave", "Terminated"] as ActiveStatus[],
+
+    performanceRatings: [
+      "Exceeds Expectations",
+      "Meets Expectations",
+      "Needs Improvement",
+      "Unsatisfactory",
+      "Unrated",
+    ] as PerformanceRating[],
+
+    trainingStatuses: [
+      "Completed",
+      "In Progress",
+      "Not Started",
+    ] as TrainingStatus[],
+
+    backgroundCheckStatuses: [
+      "Completed",
+      "In Progress",
+      "Not Started",
+      "Failed",
+    ] as BackgroundCheckStatus[],
+
+    sources: [
+      "HR",
+      "Onboarding",
+      "External",
+      "Transfer",
+      "Other",
+    ] as EmployeeSource[],
+
+    benefitsEligibleOptions: ["Yes", "No"] as BenefitsEligible[],
+  };
+
+  const getUnassignedHires = async () => {
+    return employees.value.filter((employee) => !employee.managerId);
+  };
+
+  const getRecentHires = async () => {
+    return employees.value.filter((employee) => {
+      const hireDate = dayjs(employee.hireDate);
+      const thirtyDaysAgo = dayjs().subtract(30, "day");
+      return (
+        hireDate.isAfter(thirtyDaysAgo) || hireDate.isSame(thirtyDaysAgo, "day")
+      );
+    });
+  };
+
+  const addEmployee = (employee: Employee) => {
+    employees.value.push(employee);
+  };
+
   return {
     employees,
+    departments,
+    managers,
+    formOptions,
+    getUnassignedHires,
+    getRecentHires,
+    addEmployee,
   };
 });
