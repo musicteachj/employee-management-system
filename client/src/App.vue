@@ -23,7 +23,7 @@ const open = ref<string[]>([]);
         v-model="drawer"
         permanent
       >
-        <v-list density="compact" v-model:opened="open">
+        <v-list density="compact" v-model:opened="open" color="primary">
           <v-list-item prepend-icon="mdi-account-plus" to="/new-hires">
             <v-list-item-title>New Hires</v-list-item-title>
           </v-list-item>
