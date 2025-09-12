@@ -24,8 +24,11 @@ const open = ref<string[]>([]);
         permanent
       >
         <v-list density="compact" v-model:opened="open" color="primary">
-          <v-list-item prepend-icon="mdi-account-plus" to="/new-hires">
-            <v-list-item-title>New Hires</v-list-item-title>
+          <v-list-item prepend-icon="mdi-plus" to="/add-employee">
+            <v-list-item-title>Add new employee</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-account-plus" to="/unassigned-hires">
+            <v-list-item-title>Unassigned Hires</v-list-item-title>
           </v-list-item>
           <v-list-item prepend-icon="mdi-clock-outline" to="/recent-hires">
             <v-list-item-title>Recent Hires</v-list-item-title>

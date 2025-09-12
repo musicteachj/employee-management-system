@@ -1,7 +1,7 @@
 export interface Employee {
   _id?: string;
   _attachments?: string[];
-  active: "Active" | "On Leave" | "Terminated";
+  active: ActiveStatus;
 
   // Personal Information
   firstName: string;
@@ -24,13 +24,8 @@ export interface Employee {
   department: string;
   position: string;
   jobLevel: JobLevel;
-  employmentType:
-    | "Full-time"
-    | "Part-time"
-    | "Contract"
-    | "Intern"
-    | "Temporary";
-  workLocation: "Office" | "Remote" | "Hybrid";
+  employmentType: EmploymentType;
+  workLocation: WorkLocation;
   managerId?: string;
   managerName?: string;
 
@@ -44,26 +39,21 @@ export interface Employee {
   salary: number;
   currency: number;
   paygrade: string;
-  benefitsEligibile: "Yes" | "No";
+  benefitsEligibile: BenefitsEligible;
 
   // Performance & Development
-  performanceRating:
-    | "Exceeds Expectations"
-    | "Meets Expectations"
-    | "Needs Improvement"
-    | "Unsatisfactory"
-    | "Unrated";
-  trainingStatus: "Completed" | "In Progress" | "Not Started";
+  performanceRating: PerformanceRating;
+  trainingStatus: TrainingStatus;
   developmentNotes: string;
   nextReviewDate?: string;
   performanceHistory?: PerformanceReview[];
 
   // Compliance & Verification
-  backgroundCheckStatus: "Completed" | "In Progress" | "Not Started" | "Failed";
+  backgroundCheckStatus: BackgroundCheckStatus;
 
   // System fields
   docType: "employee";
-  source: "HR" | "Onboarding" | "External" | "Transfer" | "Other";
+  source: EmployeeSource;
   sourceId?: string;
   createdBy?: string;
   createdOn?: string;
@@ -112,6 +102,55 @@ export type JobLevel =
   | "C-Level"
   | "CEO";
 
+export type EmploymentType =
+  | "Full-time"
+  | "Part-time"
+  | "Contract"
+  | "Intern"
+  | "Temporary";
+
+export type WorkLocation = "Office" | "Remote" | "Hybrid";
+
+export type ActiveStatus = "Active" | "On Leave" | "Terminated";
+
+export type PerformanceRating =
+  | "Exceeds Expectations"
+  | "Meets Expectations"
+  | "Needs Improvement"
+  | "Unsatisfactory"
+  | "Unrated";
+
+export type TrainingStatus = "Completed" | "In Progress" | "Not Started";
+
+export type BackgroundCheckStatus =
+  | "Completed"
+  | "In Progress"
+  | "Not Started"
+  | "Failed";
+
+export type EmployeeSource =
+  | "HR"
+  | "Onboarding"
+  | "External"
+  | "Transfer"
+  | "Other";
+
+export type BenefitsEligible = "Yes" | "No";
+
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface Manager {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  jobLevel: JobLevel;
+}
+
 export interface PerformanceReview {
   reviewId: string;
   reviewDate: string;
@@ -119,11 +158,7 @@ export interface PerformanceReview {
   reviewPeriodEnd: string;
   reviewerName: string;
   reviewerEmail: string;
-  rating:
-    | "Exceeds Expectations"
-    | "Meets Expectations"
-    | "Needs Improvement"
-    | "Unsatisfactory";
+  rating: Exclude<PerformanceRating, "Unrated">;
   goals?: string[];
   achievements?: string[];
   areasForImprovement?: string[];
