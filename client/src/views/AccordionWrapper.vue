@@ -1,6 +1,6 @@
 <template>
   <div>
-    <DataTable
+    <AccordionTable
       :items="items"
       :title="title"
       :subtitle="subtitle"
@@ -11,42 +11,46 @@
       :enableExport="enableExport"
       :enableOpenRecord="enableOpenRecord"
       :enableSelect="enableSelect"
-      :showTitles="true"
+      :enableOtherGroupings="enableOtherGroupings"
+      :groupByInfo="groupByInfo"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import DataTable from "../components/DataTable.vue";
-import { useAppStore } from "../stores/app";
-import { onMounted, ref, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import type { Employee } from "../types";
-
-const route = useRoute();
+import type { Employee, GroupByInfo } from "../types";
+import { useAppStore } from "../stores/app";
+import AccordionTable from "../components/AccordionTable.vue";
 
 const appStore = useAppStore();
+const route = useRoute();
 
 // Variables
 const title = ref("");
 const subtitle = ref("");
 const loading = ref(false);
-const loadingText = ref("Loading table data...");
+const loadingText = ref("Loading accordion data...");
 const routeName = ref(route.name as string);
 const enableSearch = ref(false);
 const enableActions = ref(false);
 const enableExport = ref(false);
 const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
+const enableOtherGroupings = ref(false);
 const tableActions = ref([]);
 const items = ref<Employee[]>([]);
+const groupByInfo = ref<GroupByInfo>({
+  groupBy: null,
+  groupByOptions: [],
+});
 
 // Lifecycle hooks
 onMounted(() => {
   loadData();
 });
 
-// Methods
 const loadData = async () => {
   try {
     loading.value = true;
@@ -54,55 +58,47 @@ const loadData = async () => {
     resetData();
     // Populate data based on route name
     switch (routeName.value) {
-      case "Unassigned Hires":
-        title.value = "Unassigned Hires";
-        subtitle.value = "Employees without managers";
+      case "By Manager":
+        title.value = "By Manager";
+        subtitle.value = "Employees by manager";
         enableSearch.value = true;
         enableActions.value = true;
         enableExport.value = true;
         enableOpenRecord.value = true;
         enableSelect.value = true;
-        items.value = await appStore.getUnassignedHires();
+        items.value = await appStore.getByManager();
+        groupByInfo.value = {
+          groupBy: "managerName",
+          groupByOptions: ["managerName"],
+        };
         break;
-      case "Recent Hires":
-        title.value = "Recent Hires";
-        subtitle.value = "Employees hired in the last 30 days";
+      case "By Department":
+        title.value = "By Department";
+        subtitle.value = "Employees by department";
         enableSearch.value = true;
         enableActions.value = true;
         enableExport.value = true;
         enableOpenRecord.value = true;
         enableSelect.value = true;
-        items.value = await appStore.getRecentHires();
+        items.value = await appStore.getByDepartment();
+        groupByInfo.value = {
+          groupBy: "department",
+          groupByOptions: ["department"],
+        };
         break;
-      case "Contract Employees":
-        title.value = "Contract Employees";
-        subtitle.value = "Employees with contract employment type";
+      case "By Status":
+        title.value = "By Status";
+        subtitle.value = "Employees by status";
         enableSearch.value = true;
         enableActions.value = true;
         enableExport.value = true;
         enableOpenRecord.value = true;
         enableSelect.value = true;
-        items.value = await appStore.getContractEmployees();
-        break;
-      case "Updated Profiles":
-        title.value = "Updated Profiles";
-        subtitle.value = "Employees with updated profiles";
-        enableSearch.value = true;
-        enableActions.value = true;
-        enableExport.value = true;
-        enableOpenRecord.value = true;
-        enableSelect.value = true;
-        items.value = await appStore.getUpdatedProfiles();
-        break;
-      case "Former Employees":
-        title.value = "Former Employees";
-        subtitle.value = "Employees with terminated status";
-        enableSearch.value = true;
-        enableActions.value = true;
-        enableExport.value = true;
-        enableOpenRecord.value = true;
-        enableSelect.value = true;
-        items.value = await appStore.getFormerEmployees();
+        items.value = await appStore.getActiveTerminated();
+        groupByInfo.value = {
+          groupBy: "status",
+          groupByOptions: ["status"],
+        };
         break;
       default:
         resetData();

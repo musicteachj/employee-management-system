@@ -1,7 +1,7 @@
 export interface Employee {
   _id?: string;
   _attachments?: string[];
-  active: ActiveStatus;
+  status: ActiveStatus;
 
   // Personal Information
   firstName: string;
@@ -111,7 +111,7 @@ export type EmploymentType =
 
 export type WorkLocation = "Office" | "Remote" | "Hybrid";
 
-export type ActiveStatus = "Active" | "On Leave" | "Terminated";
+export type ActiveStatus = "Active" | "Inactive" | "On Leave" | "Terminated";
 
 export type PerformanceRating =
   | "Exceeds Expectations"
@@ -175,3 +175,14 @@ export interface ProfileUpdate {
   previousValues?: Record<string, any>;
   newValues?: Record<string, any>;
 }
+
+export interface GroupByInfo {
+  groupBy: null | GroupByOption;
+  groupByOptions: GroupByOption[];
+}
+
+// This should match the keys in the Employee interface pick
+export type GroupByOption = keyof Pick<
+  Employee,
+  "managerName" | "department" | "status"
+>;

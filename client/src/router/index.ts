@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import TableWrapper from "../views/TableWrapper.vue";
+import AccordionWrapper from "../views/AccordionWrapper.vue";
 import EmployeeForm from "../views/EmployeeForm.vue";
 
 const routes = [
@@ -61,7 +62,7 @@ const routes = [
       title: "By Manager",
       description: "Employees groupedby manager",
     },
-    component: TableWrapper,
+    component: AccordionWrapper,
   },
   {
     path: "/by-department",
@@ -70,7 +71,7 @@ const routes = [
       title: "By Department",
       description: "Employees grouped by department",
     },
-    component: TableWrapper,
+    component: AccordionWrapper,
   },
   {
     path: "/performance-reviews",
@@ -91,13 +92,13 @@ const routes = [
     component: TableWrapper,
   },
   {
-    path: "/active-terminated",
-    name: "Active/Terminated",
+    path: "/by-status",
+    name: "By Status",
     meta: {
-      title: "Active/Terminated",
-      description: "Active/terminated employees",
+      title: "By Status",
+      description: "Employees by status",
     },
-    component: TableWrapper,
+    component: AccordionWrapper,
   },
   {
     path: "/contract-employees",
