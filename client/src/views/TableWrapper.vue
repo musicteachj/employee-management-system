@@ -1,6 +1,15 @@
 <template>
   <div>
-    <DataTable :items="items" :title="title" :subtitle="subtitle" />
+    <DataTable
+      :items="items"
+      :title="title"
+      :subtitle="subtitle"
+      :enableSearch="enableSearch"
+      :enableActions="enableActions"
+      :enableExport="enableExport"
+      :enableOpenRecord="enableOpenRecord"
+      :enableSelect="enableSelect"
+    />
   </div>
 </template>
 
@@ -9,6 +18,7 @@ import DataTable from "../components/DataTable.vue";
 import { useAppStore } from "../stores/app";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import type { Employee } from "../types";
 
 const route = useRoute();
 
@@ -25,11 +35,14 @@ const enableExport = ref(false);
 const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
 const tableActions = ref([]);
-const items = ref<any[]>([]);
+const items = ref<Employee[]>([]);
+
+// Lifecycle hooks
 onMounted(() => {
   loadData();
 });
 
+// Methods
 const loadData = async () => {
   try {
     loading.value = true;
@@ -76,8 +89,10 @@ const resetData = () => {
   enableOpenRecord.value = false;
   enableSelect.value = false;
   tableActions.value = [];
+  items.value = [];
 };
 
+// Watchers
 watch(
   () => route.name,
   (newRouteName) => {
