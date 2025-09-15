@@ -54,13 +54,6 @@ const props = defineProps<{
 const { items, title, subtitle, enableSearch, enableOpenRecord } =
   toRefs(props);
 
-// const headers = [
-//   { title: "Name", key: "firstName" },
-//   { title: "Email", key: "personalEmail" },
-//   { title: "Phone", key: "phoneNumber" },
-//   { title: "Hire Date", key: "hireDate" },
-// ];
-
 const computedHeaders = computed(() => {
   // if enableOpenRecord, add a new header with the key "Actions"
   const headers = [
