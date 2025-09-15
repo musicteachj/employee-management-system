@@ -38,11 +38,12 @@
 <script setup lang="ts">
 import { toRefs, ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import type { Employee } from "../types";
 
 const router = useRouter();
 
 const props = defineProps<{
-  items: any[];
+  items: Employee[];
   title: string;
   subtitle: string;
   enableSearch: boolean;
@@ -70,7 +71,7 @@ const computedHeaders = computed(() => {
 
 const search = ref("");
 
-const viewRecord = (item: any) => {
+const viewRecord = (item: Employee) => {
   router.push({ name: "employee-edit", params: { id: item._id } });
 };
 </script>
