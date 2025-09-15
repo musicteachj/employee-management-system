@@ -24,7 +24,7 @@ const open = ref<string[]>([]);
         permanent
       >
         <v-list density="compact" v-model:opened="open" color="primary">
-          <v-list-item prepend-icon="mdi-plus" to="/add-employee">
+          <v-list-item prepend-icon="mdi-plus" to="/employee/new">
             <v-list-item-title>Add new employee</v-list-item-title>
           </v-list-item>
           <v-list-item prepend-icon="mdi-account-plus" to="/unassigned-hires">
@@ -51,11 +51,8 @@ const open = ref<string[]>([]);
           >
             <v-list-item-title>Duplicate Records</v-list-item-title>
           </v-list-item>
-          <v-list-item
-            prepend-icon="mdi-account-switch"
-            to="/active-terminated"
-          >
-            <v-list-item-title>Active/Terminated</v-list-item-title>
+          <v-list-item prepend-icon="mdi-account-switch" to="/by-status">
+            <v-list-item-title>By Status</v-list-item-title>
           </v-list-item>
           <v-list-item prepend-icon="mdi-handshake" to="/contract-employees">
             <v-list-item-title>Contract Employees</v-list-item-title>

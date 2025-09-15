@@ -20,7 +20,7 @@ export const useAppStore = defineStore("app", () => {
   const employees = ref<Employee[]>([
     {
       _id: "emp_001",
-      active: "Active",
+      status: "Active",
 
       // Personal Information
       firstName: "Sarah",
@@ -98,7 +98,7 @@ export const useAppStore = defineStore("app", () => {
     },
     {
       _id: "emp_002",
-      active: "Active",
+      status: "Active",
 
       // Personal Information
       firstName: "Marcus",
@@ -176,7 +176,7 @@ export const useAppStore = defineStore("app", () => {
     },
     {
       _id: "emp_003",
-      active: "Active",
+      status: "Active",
 
       // Personal Information
       firstName: "David",
@@ -247,6 +247,546 @@ export const useAppStore = defineStore("app", () => {
         eventDate: "2019-03-01",
         eventName: "Onboarding",
         onboardingKey: "ONB_003",
+      },
+    },
+    {
+      _id: "emp_004",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Jennifer",
+      lastName: "Liu",
+      fullName: "Jennifer Liu",
+      personalEmail: "jennifer.liu@yahoo.com",
+      workEmail: "jennifer.liu@company.com",
+      phoneNumber: "+1-555-0321",
+      emergencyContactName: "James Liu",
+      emergencyContactPhone: "+1-555-0322",
+      address: "321 Cedar Lane",
+      city: "Denver",
+      state: "CO",
+      country: "USA",
+      dateOfBirth: "1987-12-03",
+
+      // Employment Information
+      employeeId: "EMP004",
+      department: "Human Resources",
+      position: "HR Director",
+      jobLevel: "Director",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "",
+      managerName: "CEO",
+
+      // Dates
+      hireDate: "2020-05-15",
+      lastReviewDate: "2024-02-01",
+
+      // Compensation & Benefits
+      salary: 165000,
+      currency: 1, // USD
+      paygrade: "D2",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes: "Strong HR leadership, excellent employee relations",
+      nextReviewDate: "2024-08-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2020-05-10",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-02-01",
+      updatedAt: "2024-02-01T11:45:00Z",
+      lastProfileUpdate: "2024-02-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2020-05-10",
+        managerEmail: "ceo@company.com",
+        managerAssignDate: "2020-05-15",
+        reviewComments: "Exceptional HR leadership and strategic thinking",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2020-05-15",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_004",
+      },
+    },
+    {
+      _id: "emp_005",
+      status: "On Leave",
+
+      // Personal Information
+      firstName: "Michael",
+      lastName: "Thompson",
+      fullName: "Michael Thompson",
+      personalEmail: "michael.thompson@hotmail.com",
+      workEmail: "michael.thompson@company.com",
+      phoneNumber: "+1-555-0654",
+      emergencyContactName: "Sarah Thompson",
+      emergencyContactPhone: "+1-555-0655",
+      address: "654 Maple Drive",
+      city: "Chicago",
+      state: "IL",
+      country: "USA",
+      dateOfBirth: "1992-04-18",
+
+      // Employment Information
+      employeeId: "EMP005",
+      department: "Sales",
+      position: "Sales Manager",
+      jobLevel: "Manager",
+      employmentType: "Full-time",
+      workLocation: "Hybrid",
+      managerId: "emp_003",
+      managerName: "David Chen",
+
+      // Dates
+      hireDate: "2023-01-20",
+      lastReviewDate: "2024-01-20",
+
+      // Compensation & Benefits
+      salary: 105000,
+      currency: 1, // USD
+      paygrade: "M3",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Meets Expectations",
+      trainingStatus: "In Progress",
+      developmentNotes: "Good sales performance, currently on paternity leave",
+      nextReviewDate: "2024-07-20",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2023-01-15",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-01-20",
+      updatedAt: "2024-01-20T16:30:00Z",
+      lastProfileUpdate: "2024-01-20",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2023-01-15",
+        managerEmail: "david.chen@company.com",
+        managerAssignDate: "2023-01-20",
+        reviewComments: "Solid sales performance, good team player",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2023-01-20",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_005",
+      },
+    },
+    {
+      _id: "emp_006",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Emily",
+      lastName: "Davis",
+      fullName: "Emily Davis",
+      personalEmail: "emily.davis@gmail.com",
+      workEmail: "emily.davis@company.com",
+      phoneNumber: "+1-555-0987",
+      emergencyContactName: "Robert Davis",
+      emergencyContactPhone: "+1-555-0988",
+      address: "987 Birch Street",
+      city: "Portland",
+      state: "OR",
+      country: "USA",
+      dateOfBirth: "1991-09-12",
+
+      // Employment Information
+      employeeId: "EMP006",
+      department: "Operations",
+      position: "Operations Manager",
+      jobLevel: "Manager",
+      employmentType: "Full-time",
+      workLocation: "Remote",
+      managerId: "emp_004",
+      managerName: "Jennifer Liu",
+
+      // Dates
+      hireDate: "2022-11-01",
+      lastReviewDate: "2024-05-01",
+
+      // Compensation & Benefits
+      salary: 98000,
+      currency: 1, // USD
+      paygrade: "M1",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes: "Excellent operational efficiency improvements",
+      nextReviewDate: "2024-11-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2022-10-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-05-01",
+      updatedAt: "2024-05-01T13:15:00Z",
+      lastProfileUpdate: "2024-05-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2022-10-25",
+        managerEmail: "jennifer.liu@company.com",
+        managerAssignDate: "2022-11-01",
+        reviewComments: "Outstanding operational leadership",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2022-11-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_006",
+      },
+    },
+    {
+      _id: "emp_007",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Alex",
+      lastName: "Kim",
+      fullName: "Alex Kim",
+      personalEmail: "alex.kim@protonmail.com",
+      workEmail: "alex.kim@company.com",
+      phoneNumber: "+1-555-0147",
+      emergencyContactName: "Grace Kim",
+      emergencyContactPhone: "+1-555-0148",
+      address: "147 Elm Avenue",
+      city: "Boston",
+      state: "MA",
+      country: "USA",
+      dateOfBirth: "1994-06-25",
+
+      // Employment Information
+      employeeId: "EMP007",
+      department: "Finance",
+      position: "Financial Analyst",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "emp_004",
+      managerName: "Jennifer Liu",
+
+      // Dates
+      hireDate: "2024-08-01", // Recent hire (within 30 days)
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 72000,
+      currency: 1, // USD
+      paygrade: "L3",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "New hire, completing onboarding training",
+      nextReviewDate: "2025-02-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2024-07-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-08-01",
+      updatedAt: "2024-08-01T08:00:00Z",
+      lastProfileUpdate: "2024-08-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2024-07-25",
+        managerEmail: "jennifer.liu@company.com",
+        managerAssignDate: "2024-08-01",
+        reviewComments: "New hire, strong academic background",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2024-08-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_007",
+      },
+    },
+    {
+      _id: "emp_008",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Lisa",
+      lastName: "Wang",
+      fullName: "Lisa Wang",
+      personalEmail: "lisa.wang@icloud.com",
+      workEmail: "lisa.wang@company.com",
+      phoneNumber: "+1-555-0258",
+      emergencyContactName: "Kevin Wang",
+      emergencyContactPhone: "+1-555-0259",
+      address: "258 Willow Court",
+      city: "San Diego",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1989-01-30",
+
+      // Employment Information
+      employeeId: "EMP008",
+      department: "Design",
+      position: "Senior UX Designer",
+      jobLevel: "Senior",
+      employmentType: "Full-time",
+      workLocation: "Hybrid",
+      managerId: "emp_003",
+      managerName: "David Chen",
+
+      // Dates
+      hireDate: "2021-09-15",
+      lastReviewDate: "2024-03-15",
+
+      // Compensation & Benefits
+      salary: 115000,
+      currency: 1, // USD
+      paygrade: "L4",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes: "Exceptional design skills, mentoring junior designers",
+      nextReviewDate: "2024-09-15",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2021-09-10",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-03-15",
+      updatedAt: "2024-03-15T10:45:00Z",
+      lastProfileUpdate: "2024-03-15",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2021-09-10",
+        managerEmail: "david.chen@company.com",
+        managerAssignDate: "2021-09-15",
+        reviewComments: "Outstanding design work and team collaboration",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2021-09-15",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_008",
+      },
+    },
+    {
+      _id: "emp_009",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Robert",
+      lastName: "Brown",
+      fullName: "Robert Brown",
+      personalEmail: "robert.brown@outlook.com",
+      workEmail: "robert.brown@company.com",
+      phoneNumber: "+1-555-0369",
+      emergencyContactName: "Maria Brown",
+      emergencyContactPhone: "+1-555-0370",
+      address: "369 Spruce Lane",
+      city: "Miami",
+      state: "FL",
+      country: "USA",
+      dateOfBirth: "1993-08-14",
+
+      // Employment Information
+      employeeId: "EMP009",
+      department: "Product",
+      position: "Product Manager",
+      jobLevel: "Manager",
+      employmentType: "Full-time",
+      workLocation: "Remote",
+      managerId: "emp_003",
+      managerName: "David Chen",
+
+      // Dates
+      hireDate: "2023-06-01",
+      lastReviewDate: "2024-06-01",
+
+      // Compensation & Benefits
+      salary: 135000,
+      currency: 1, // USD
+      paygrade: "M4",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Meets Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Good product strategy, working on stakeholder management",
+      nextReviewDate: "2024-12-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2023-05-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-06-01",
+      updatedAt: "2024-06-01T14:30:00Z",
+      lastProfileUpdate: "2024-06-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2023-05-25",
+        managerEmail: "david.chen@company.com",
+        managerAssignDate: "2023-06-01",
+        reviewComments: "Solid product management skills",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2023-06-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_009",
+      },
+    },
+    {
+      _id: "emp_010",
+      status: "Terminated",
+
+      // Personal Information
+      firstName: "Jessica",
+      lastName: "Taylor",
+      fullName: "Jessica Taylor",
+      personalEmail: "jessica.taylor@gmail.com",
+      workEmail: "jessica.taylor@company.com",
+      phoneNumber: "+1-555-0741",
+      emergencyContactName: "Mark Taylor",
+      emergencyContactPhone: "+1-555-0742",
+      address: "741 Poplar Street",
+      city: "Nashville",
+      state: "TN",
+      country: "USA",
+      dateOfBirth: "1990-11-27",
+
+      // Employment Information
+      employeeId: "EMP010",
+      department: "Marketing",
+      position: "Marketing Coordinator",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "emp_002",
+      managerName: "Marcus Rodriguez",
+
+      // Dates
+      hireDate: "2022-03-01",
+      lastReviewDate: "2024-01-15",
+
+      // Compensation & Benefits
+      salary: 65000,
+      currency: 1, // USD
+      paygrade: "L2",
+      benefitsEligibile: "No",
+
+      // Performance & Development
+      performanceRating: "Needs Improvement",
+      trainingStatus: "Not Started",
+      developmentNotes: "Performance issues led to termination",
+      nextReviewDate: "",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2022-02-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-07-15",
+      updatedAt: "2024-07-15T17:00:00Z",
+      lastProfileUpdate: "2024-07-15",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2022-02-25",
+        managerEmail: "marcus.rodriguez@company.com",
+        managerAssignDate: "2022-03-01",
+        reviewComments: "Terminated due to performance issues",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2022-03-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_010",
       },
     },
   ]);
@@ -413,11 +953,11 @@ export const useAppStore = defineStore("app", () => {
     benefitsEligibleOptions: ["Yes", "No"] as BenefitsEligible[],
   };
 
-  const getUnassignedHires = async () => {
+  const getUnassignedHires = async (): Promise<Employee[]> => {
     return employees.value.filter((employee) => !employee.managerId);
   };
 
-  const getRecentHires = async () => {
+  const getRecentHires = async (): Promise<Employee[]> => {
     return employees.value.filter((employee) => {
       const hireDate = dayjs(employee.hireDate);
       const thirtyDaysAgo = dayjs().subtract(30, "day");
@@ -427,8 +967,52 @@ export const useAppStore = defineStore("app", () => {
     });
   };
 
-  const addEmployee = (employee: Employee) => {
+  const getByManager = async (): Promise<Employee[]> => {
+    return employees.value.filter((employee) => employee.managerId);
+  };
+
+  const getByDepartment = async (): Promise<Employee[]> => {
+    return employees.value.filter((employee) => employee.department);
+  };
+
+  const getActiveTerminated = async (): Promise<Employee[]> => {
+    return employees.value.filter((employee) => employee.status);
+  };
+
+  const getUpdatedProfiles = async (): Promise<Employee[]> => {
+    return employees.value.filter((employee) => employee.lastProfileUpdate);
+  };
+
+  const getContractEmployees = async (): Promise<Employee[]> => {
+    return employees.value.filter(
+      (employee) => employee.employmentType === "Contract"
+    );
+  };
+
+  const getFormerEmployees = async (): Promise<Employee[]> => {
+    return employees.value.filter(
+      (employee) => employee.status === "Terminated"
+    );
+  };
+
+  const addEmployee = (employee: Employee): void => {
     employees.value.push(employee);
+  };
+
+  const updateEmployee = (updatedEmployee: Employee): void => {
+    const index = employees.value.findIndex(
+      (emp) => emp._id === updatedEmployee._id
+    );
+    if (index !== -1) {
+      // Update the updatedOn and updatedAt fields
+      updatedEmployee.updatedOn = new Date().toISOString().split("T")[0];
+      updatedEmployee.updatedAt = new Date().toISOString();
+      updatedEmployee.lastProfileUpdate = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      employees.value[index] = updatedEmployee;
+    }
   };
 
   return {
@@ -438,6 +1022,13 @@ export const useAppStore = defineStore("app", () => {
     formOptions,
     getUnassignedHires,
     getRecentHires,
+    getByManager,
+    getByDepartment,
+    getActiveTerminated,
+    getContractEmployees,
+    getFormerEmployees,
+    getUpdatedProfiles,
     addEmployee,
+    updateEmployee,
   };
 });
