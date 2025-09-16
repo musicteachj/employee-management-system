@@ -1,9 +1,10 @@
 <template>
   <div class="chart-container">
-    <v-card class="pa-4" elevation="1" rounded="lg">
-      <v-card-title class="text-h6 pb-2">
+    <v-card class="pa-4 chart-card" elevation="3" rounded="lg">
+      <v-card-title class="text-h6 pb-2 text-primary font-weight-bold">
         Performance Rating Distribution
       </v-card-title>
+      <v-divider class="mb-4 divider-gradient" />
       <div class="chart-wrapper" style="position: relative; height: 300px">
         <Doughnut
           :data="chartData"
@@ -148,9 +149,36 @@ const chartPlugins = computed(() => [
   width: 100%;
 }
 
+/* Chart card styling */
+.chart-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced divider with gradient */
+.divider-gradient {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #1976d2 50%,
+    transparent 100%
+  );
+  height: 2px;
+  border: none;
+}
+
 .chart-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 8px;
 }
 </style>
