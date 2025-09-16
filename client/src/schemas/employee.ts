@@ -215,6 +215,20 @@ export const addEmployeeSchema = z.object({
 
   managerName: z.string().nullable().optional(),
 
+  directReports: z.array(z.string()).optional(),
+
+  organizationLevel: z.number().min(0).max(10).optional(),
+
+  costCenter: z
+    .string()
+    .max(50, "Cost Center must be less than 50 characters")
+    .optional(),
+
+  businessUnit: z
+    .string()
+    .max(100, "Business Unit must be less than 100 characters")
+    .optional(),
+
   probationEndDate: z.string().optional(),
 
   // Compensation & Benefits - Required fields

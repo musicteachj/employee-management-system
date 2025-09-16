@@ -46,11 +46,15 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Senior",
       employmentType: "Full-time",
       workLocation: "Hybrid",
-      managerId: "",
+      managerId: "emp_003",
       managerName: "David Chen",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "ENG-001",
+      businessUnit: "Technology",
 
       // Dates
-      hireDate: "2024-08-15", // Recent hire (within 30 days)
+      hireDate: "2025-09-01", // Recent hire (within 30 days)
       lastReviewDate: "2024-06-15",
 
       // Compensation & Benefits
@@ -181,8 +185,12 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Manager",
       employmentType: "Full-time",
       workLocation: "Remote",
-      managerId: "emp_003",
-      managerName: "David Chen",
+      managerId: "emp_020",
+      managerName: "James Wilson",
+      directReports: ["emp_013"],
+      organizationLevel: 3,
+      costCenter: "MKT-000",
+      businessUnit: "Revenue",
 
       // Dates
       hireDate: "2024-07-01", // Recent hire (within 90 days but not 30)
@@ -278,6 +286,12 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Director",
       employmentType: "Full-time",
       workLocation: "Office",
+      managerId: "emp_020", // Will be the CEO
+      managerName: "James Wilson",
+      directReports: ["emp_001", "emp_005", "emp_008", "emp_009"],
+      organizationLevel: 2,
+      costCenter: "ENG-000",
+      businessUnit: "Technology",
 
       // Dates
       hireDate: "2019-03-01",
@@ -372,8 +386,12 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Director",
       employmentType: "Full-time",
       workLocation: "Office",
-      managerId: "",
-      managerName: "CEO",
+      managerId: "emp_020",
+      managerName: "James Wilson",
+      directReports: ["emp_006", "emp_007"],
+      organizationLevel: 2,
+      costCenter: "HR-000",
+      businessUnit: "Operations",
 
       // Dates
       hireDate: "2020-05-15",
@@ -449,8 +467,12 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Manager",
       employmentType: "Full-time",
       workLocation: "Hybrid",
-      managerId: "emp_003",
-      managerName: "David Chen",
+      managerId: "emp_020",
+      managerName: "James Wilson",
+      directReports: ["emp_012"],
+      organizationLevel: 3,
+      costCenter: "SAL-000",
+      businessUnit: "Revenue",
 
       // Dates
       hireDate: "2023-01-20",
@@ -528,6 +550,10 @@ export const useAppStore = defineStore("app", () => {
       workLocation: "Remote",
       managerId: "emp_004",
       managerName: "Jennifer Liu",
+      directReports: ["emp_019"],
+      organizationLevel: 3,
+      costCenter: "OPS-000",
+      businessUnit: "Operations",
 
       // Dates
       hireDate: "2022-11-01",
@@ -603,11 +629,15 @@ export const useAppStore = defineStore("app", () => {
       jobLevel: "Mid",
       employmentType: "Full-time",
       workLocation: "Office",
-      managerId: "emp_004",
-      managerName: "Jennifer Liu",
+      managerId: "emp_021",
+      managerName: "Victoria Chang",
+      directReports: ["emp_017"],
+      organizationLevel: 4,
+      costCenter: "FIN-001",
+      businessUnit: "Operations",
 
       // Dates
-      hireDate: "2024-08-01", // Recent hire (within 30 days)
+      hireDate: "2025-08-25", // Recent hire (within 30 days)
       lastReviewDate: "",
 
       // Compensation & Benefits
@@ -682,6 +712,10 @@ export const useAppStore = defineStore("app", () => {
       workLocation: "Hybrid",
       managerId: "emp_003",
       managerName: "David Chen",
+      directReports: ["emp_018"],
+      organizationLevel: 4,
+      costCenter: "DES-001",
+      businessUnit: "Technology",
 
       // Dates
       hireDate: "2021-09-15",
@@ -759,6 +793,10 @@ export const useAppStore = defineStore("app", () => {
       workLocation: "Remote",
       managerId: "emp_003",
       managerName: "David Chen",
+      directReports: ["emp_015"],
+      organizationLevel: 4,
+      costCenter: "PRD-000",
+      businessUnit: "Technology",
 
       // Dates
       hireDate: "2023-06-01",
@@ -910,6 +948,905 @@ export const useAppStore = defineStore("app", () => {
         onboardingKey: "ONB_010",
       },
     },
+    {
+      _id: "emp_011",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Amanda",
+      lastName: "Foster",
+      fullName: "Amanda Foster",
+      personalEmail: "amanda.foster@gmail.com",
+      workEmail: "amanda.foster@company.com",
+      phoneNumber: "+1-555-0111",
+      emergencyContactName: "Brian Foster",
+      emergencyContactPhone: "+1-555-0112",
+      address: "111 Oak Ridge Drive",
+      city: "Atlanta",
+      state: "GA",
+      country: "USA",
+      dateOfBirth: "1995-02-14",
+
+      // Employment Information
+      employeeId: "EMP011",
+      department: "Engineering",
+      position: "Junior Software Engineer",
+      jobLevel: "Entry",
+      employmentType: "Full-time",
+      workLocation: "Remote",
+      managerId: "emp_001",
+      managerName: "Sarah Johnson",
+      directReports: [],
+      organizationLevel: 5,
+      costCenter: "ENG-001",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2025-09-10", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 85000,
+      currency: 1, // USD
+      paygrade: "L1",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "New graduate hire, showing strong potential",
+      nextReviewDate: "2025-03-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-05",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-10",
+      updatedAt: "2025-09-10T09:00:00Z",
+      lastProfileUpdate: "2025-09-10",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2025-09-05",
+        managerEmail: "sarah.johnson@company.com",
+        managerAssignDate: "2025-09-10",
+        reviewComments: "New graduate hire with strong technical background",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-10",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_011",
+      },
+    },
+    {
+      _id: "emp_012",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Carlos",
+      lastName: "Martinez",
+      fullName: "Carlos Martinez",
+      personalEmail: "carlos.martinez@yahoo.com",
+      workEmail: "carlos.martinez@company.com",
+      phoneNumber: "+1-555-0222",
+      emergencyContactName: "Sofia Martinez",
+      emergencyContactPhone: "+1-555-0223",
+      address: "222 Sunset Boulevard",
+      city: "Los Angeles",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1992-06-18",
+
+      // Employment Information
+      employeeId: "EMP012",
+      department: "Sales",
+      position: "Sales Representative",
+      jobLevel: "Mid",
+      employmentType: "Part-time",
+      workLocation: "Hybrid",
+      managerId: "emp_005",
+      managerName: "Michael Thompson",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "SAL-001",
+      businessUnit: "Revenue",
+
+      // Dates
+      hireDate: "2025-09-05", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 45000, // Part-time salary
+      currency: 1, // USD
+      paygrade: "L2",
+      benefitsEligibile: "No",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes:
+        "Part-time sales rep, working towards full-time position",
+      nextReviewDate: "2025-02-20",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-01",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-05",
+      updatedAt: "2025-09-05T10:30:00Z",
+      lastProfileUpdate: "2025-09-05",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2025-09-01",
+        managerEmail: "michael.thompson@company.com",
+        managerAssignDate: "2025-09-05",
+        reviewComments: "Part-time hire with sales experience",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-05",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_012",
+      },
+    },
+    {
+      _id: "emp_013",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Rachel",
+      lastName: "Green",
+      fullName: "Rachel Green",
+      personalEmail: "rachel.green@outlook.com",
+      workEmail: "rachel.green@company.com",
+      phoneNumber: "+1-555-0333",
+      emergencyContactName: "Ross Green",
+      emergencyContactPhone: "+1-555-0334",
+      address: "333 Central Park West",
+      city: "New York",
+      state: "NY",
+      country: "USA",
+      dateOfBirth: "1990-05-05",
+
+      // Employment Information
+      employeeId: "EMP013",
+      department: "Marketing",
+      position: "Digital Marketing Specialist",
+      jobLevel: "Senior",
+      employmentType: "Contract",
+      workLocation: "Remote",
+      managerId: "emp_002",
+      managerName: "Marcus Rodriguez",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "MKT-001",
+      businessUnit: "Revenue",
+
+      // Dates
+      hireDate: "2024-07-15",
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 95000, // Contract rate annualized
+      currency: 1, // USD
+      paygrade: "C1",
+      benefitsEligibile: "No",
+
+      // Performance & Development
+      performanceRating: "Meets Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Contract specialist with strong digital marketing skills",
+      nextReviewDate: "2025-01-15",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2024-07-10",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-07-15",
+      updatedAt: "2024-07-15T14:00:00Z",
+      lastProfileUpdate: "2024-07-15",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2024-07-10",
+        managerEmail: "marcus.rodriguez@company.com",
+        managerAssignDate: "2024-07-15",
+        reviewComments: "Experienced contractor with proven track record",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2024-07-15",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_013",
+      },
+    },
+    {
+      _id: "emp_014",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Kevin",
+      lastName: "Park",
+      fullName: "Kevin Park",
+      personalEmail: "kevin.park@gmail.com",
+      workEmail: "kevin.park@company.com",
+      phoneNumber: "+1-555-0444",
+      emergencyContactName: "Jenny Park",
+      emergencyContactPhone: "+1-555-0445",
+      address: "444 Innovation Drive",
+      city: "San Jose",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1998-09-22",
+
+      // Employment Information
+      employeeId: "EMP014",
+      department: "Engineering",
+      position: "Software Engineering Intern",
+      jobLevel: "Entry",
+      employmentType: "Intern",
+      workLocation: "Office",
+      managerId: "emp_003",
+      managerName: "David Chen",
+      directReports: [],
+      organizationLevel: 6,
+      costCenter: "ENG-001",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2025-09-12", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 25000, // Intern stipend annualized
+      currency: 1, // USD
+      paygrade: "I1",
+      benefitsEligibile: "No",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "Computer Science student intern, summer program",
+      nextReviewDate: "2024-12-10",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-10",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-12",
+      updatedAt: "2025-09-12T08:00:00Z",
+      lastProfileUpdate: "2025-09-12",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2025-09-10",
+        managerEmail: "david.chen@company.com",
+        managerAssignDate: "2025-09-12",
+        reviewComments: "Promising CS student from Stanford",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-12",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_014",
+      },
+    },
+    {
+      _id: "emp_015",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Priya",
+      lastName: "Patel",
+      fullName: "Priya Patel",
+      personalEmail: "priya.patel@gmail.com",
+      workEmail: "priya.patel@company.com",
+      phoneNumber: "+1-555-0555",
+      emergencyContactName: "Raj Patel",
+      emergencyContactPhone: "+1-555-0556",
+      address: "555 Tech Center Boulevard",
+      city: "Austin",
+      state: "TX",
+      country: "USA",
+      dateOfBirth: "1993-11-30",
+
+      // Employment Information
+      employeeId: "EMP015",
+      department: "Product",
+      position: "Senior Product Manager",
+      jobLevel: "Senior",
+      employmentType: "Full-time",
+      workLocation: "Hybrid",
+      managerId: "emp_009",
+      managerName: "Robert Brown",
+      directReports: ["emp_016"],
+      organizationLevel: 4,
+      costCenter: "PRD-001",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2023-04-01",
+      lastReviewDate: "2024-04-01",
+
+      // Compensation & Benefits
+      salary: 145000,
+      currency: 1, // USD
+      paygrade: "L6",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Strong product leadership, excellent stakeholder management",
+      nextReviewDate: "2024-10-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2023-03-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-04-01",
+      updatedAt: "2024-04-01T12:00:00Z",
+      lastProfileUpdate: "2024-04-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2023-03-25",
+        managerEmail: "robert.brown@company.com",
+        managerAssignDate: "2023-04-01",
+        reviewComments: "Excellent product management skills and leadership",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2023-04-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_015",
+      },
+    },
+    {
+      _id: "emp_016",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Tyler",
+      lastName: "Johnson",
+      fullName: "Tyler Johnson",
+      personalEmail: "tyler.johnson@protonmail.com",
+      workEmail: "tyler.johnson@company.com",
+      phoneNumber: "+1-555-0666",
+      emergencyContactName: "Ashley Johnson",
+      emergencyContactPhone: "+1-555-0667",
+      address: "666 Innovation Way",
+      city: "Raleigh",
+      state: "NC",
+      country: "USA",
+      dateOfBirth: "1996-03-08",
+
+      // Employment Information
+      employeeId: "EMP016",
+      department: "Product",
+      position: "Product Analyst",
+      jobLevel: "Mid",
+      employmentType: "Temporary",
+      workLocation: "Remote",
+      managerId: "emp_015",
+      managerName: "Priya Patel",
+      directReports: [],
+      organizationLevel: 5,
+      costCenter: "PRD-001",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2025-08-30", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 70000, // Temporary position
+      currency: 1, // USD
+      paygrade: "T1",
+      benefitsEligibile: "No",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "Temporary analyst position, 6-month contract",
+      nextReviewDate: "2024-11-05",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-08-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-08-30",
+      updatedAt: "2025-08-30T09:30:00Z",
+      lastProfileUpdate: "2025-08-30",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2025-08-25",
+        managerEmail: "priya.patel@company.com",
+        managerAssignDate: "2025-08-30",
+        reviewComments: "Temporary analyst for product metrics project",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-08-30",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_016",
+      },
+    },
+    {
+      _id: "emp_017",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Samantha",
+      lastName: "Lee",
+      fullName: "Samantha Lee",
+      personalEmail: "samantha.lee@icloud.com",
+      workEmail: "samantha.lee@company.com",
+      phoneNumber: "+1-555-0777",
+      emergencyContactName: "Daniel Lee",
+      emergencyContactPhone: "+1-555-0778",
+      address: "777 Financial District",
+      city: "New York",
+      state: "NY",
+      country: "USA",
+      dateOfBirth: "1991-12-12",
+
+      // Employment Information
+      employeeId: "EMP017",
+      department: "Finance",
+      position: "Senior Financial Analyst",
+      jobLevel: "Senior",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "emp_007",
+      managerName: "Alex Kim",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "FIN-001",
+      businessUnit: "Operations",
+
+      // Dates
+      hireDate: "2022-06-15",
+      lastReviewDate: "2024-06-15",
+
+      // Compensation & Benefits
+      salary: 92000,
+      currency: 1, // USD
+      paygrade: "L4",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Meets Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Strong analytical skills, working on CPA certification",
+      nextReviewDate: "2024-12-15",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2022-06-10",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-06-15",
+      updatedAt: "2024-06-15T11:00:00Z",
+      lastProfileUpdate: "2024-06-15",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2022-06-10",
+        managerEmail: "alex.kim@company.com",
+        managerAssignDate: "2022-06-15",
+        reviewComments: "Reliable analyst with strong attention to detail",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2022-06-15",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_017",
+      },
+    },
+    {
+      _id: "emp_018",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Marcus",
+      lastName: "Williams",
+      fullName: "Marcus Williams",
+      personalEmail: "marcus.williams@yahoo.com",
+      workEmail: "marcus.williams@company.com",
+      phoneNumber: "+1-555-0888",
+      emergencyContactName: "Tanya Williams",
+      emergencyContactPhone: "+1-555-0889",
+      address: "888 Design Avenue",
+      city: "San Francisco",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1994-07-07",
+
+      // Employment Information
+      employeeId: "EMP018",
+      department: "Design",
+      position: "UX Designer",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Hybrid",
+      managerId: "emp_008",
+      managerName: "Lisa Wang",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "DES-001",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2025-09-08", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 88000,
+      currency: 1, // USD
+      paygrade: "L3",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "New UX designer with strong portfolio",
+      nextReviewDate: "2025-03-05",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-03",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-08",
+      updatedAt: "2025-09-08T10:00:00Z",
+      lastProfileUpdate: "2025-09-08",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2025-09-03",
+        managerEmail: "lisa.wang@company.com",
+        managerAssignDate: "2025-09-08",
+        reviewComments: "Talented designer with fresh perspective",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-08",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_018",
+      },
+    },
+    {
+      _id: "emp_019",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Nicole",
+      lastName: "Anderson",
+      fullName: "Nicole Anderson",
+      personalEmail: "nicole.anderson@outlook.com",
+      workEmail: "nicole.anderson@company.com",
+      phoneNumber: "+1-555-0999",
+      emergencyContactName: "Chris Anderson",
+      emergencyContactPhone: "+1-555-1000",
+      address: "999 Operations Center",
+      city: "Phoenix",
+      state: "AZ",
+      country: "USA",
+      dateOfBirth: "1988-04-25",
+
+      // Employment Information
+      employeeId: "EMP019",
+      department: "Operations",
+      position: "Operations Coordinator",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "emp_006",
+      managerName: "Emily Davis",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "OPS-001",
+      businessUnit: "Operations",
+
+      // Dates
+      hireDate: "2023-10-01",
+      lastReviewDate: "2024-04-01",
+
+      // Compensation & Benefits
+      salary: 68000,
+      currency: 1, // USD
+      paygrade: "L2",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Meets Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Reliable coordinator with strong organizational skills",
+      nextReviewDate: "2024-10-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2023-09-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-04-01",
+      updatedAt: "2024-04-01T15:30:00Z",
+      lastProfileUpdate: "2024-04-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2023-09-25",
+        managerEmail: "emily.davis@company.com",
+        managerAssignDate: "2023-10-01",
+        reviewComments: "Strong operational support and coordination",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2023-10-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_019",
+      },
+    },
+    {
+      _id: "emp_020",
+      status: "Active",
+
+      // Personal Information
+      firstName: "James",
+      lastName: "Wilson",
+      fullName: "James Wilson",
+      personalEmail: "james.wilson@gmail.com",
+      workEmail: "james.wilson@company.com",
+      phoneNumber: "+1-555-1111",
+      emergencyContactName: "Patricia Wilson",
+      emergencyContactPhone: "+1-555-1112",
+      address: "1000 Executive Plaza",
+      city: "San Francisco",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1975-08-15",
+
+      // Employment Information
+      employeeId: "EMP020",
+      department: "Executive",
+      position: "Chief Executive Officer",
+      jobLevel: "CEO",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "",
+      managerName: "",
+      directReports: ["emp_003", "emp_004", "emp_021"],
+      organizationLevel: 0,
+      costCenter: "EXE-000",
+      businessUnit: "Executive",
+
+      // Dates
+      hireDate: "2018-01-01",
+      lastReviewDate: "2024-01-01",
+
+      // Compensation & Benefits
+      salary: 350000,
+      currency: 1, // USD
+      paygrade: "CEO",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Visionary leader driving company growth and innovation",
+      nextReviewDate: "2025-01-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "board_admin",
+      createdOn: "2017-12-15",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-01-01",
+      updatedAt: "2024-01-01T00:00:00Z",
+      lastProfileUpdate: "2024-01-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2017-12-15",
+        managerEmail: "board@company.com",
+        managerAssignDate: "2018-01-01",
+        reviewComments: "Outstanding leadership and strategic vision",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "board_admin",
+        authorType: "HR",
+        eventDate: "2018-01-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_020",
+      },
+    },
+    {
+      _id: "emp_021",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Victoria",
+      lastName: "Chang",
+      fullName: "Victoria Chang",
+      personalEmail: "victoria.chang@gmail.com",
+      workEmail: "victoria.chang@company.com",
+      phoneNumber: "+1-555-1222",
+      emergencyContactName: "Michael Chang",
+      emergencyContactPhone: "+1-555-1223",
+      address: "1200 Financial Tower",
+      city: "New York",
+      state: "NY",
+      country: "USA",
+      dateOfBirth: "1982-10-03",
+
+      // Employment Information
+      employeeId: "EMP021",
+      department: "Finance",
+      position: "Chief Financial Officer",
+      jobLevel: "C-Level",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "emp_020",
+      managerName: "James Wilson",
+      directReports: ["emp_007", "emp_017"],
+      organizationLevel: 1,
+      costCenter: "FIN-000",
+      businessUnit: "Operations",
+
+      // Dates
+      hireDate: "2020-03-01",
+      lastReviewDate: "2024-03-01",
+
+      // Compensation & Benefits
+      salary: 275000,
+      currency: 1, // USD
+      paygrade: "C1",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Exceeds Expectations",
+      trainingStatus: "Completed",
+      developmentNotes:
+        "Strategic financial leadership, excellent stakeholder management",
+      nextReviewDate: "2025-03-01",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2020-02-25",
+      updatedBy: "hr_admin",
+      updatedOn: "2024-03-01",
+      updatedAt: "2024-03-01T12:00:00Z",
+      lastProfileUpdate: "2024-03-01",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2020-02-25",
+        managerEmail: "james.wilson@company.com",
+        managerAssignDate: "2020-03-01",
+        reviewComments:
+          "Exceptional financial leadership and strategic thinking",
+        revalidationStatus: "Completed",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2020-03-01",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_021",
+      },
+    },
   ]);
 
   // Departments - Centralized department data
@@ -953,6 +1890,11 @@ export const useAppStore = defineStore("app", () => {
       id: "dept_008",
       name: "Design",
       description: "User experience and visual design",
+    },
+    {
+      id: "dept_009",
+      name: "Executive",
+      description: "Executive leadership and strategic direction",
     },
   ]);
 
