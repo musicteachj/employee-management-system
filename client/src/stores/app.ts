@@ -1040,7 +1040,12 @@ export const useAppStore = defineStore("app", () => {
 
     workLocations: ["Office", "Remote", "Hybrid"] as WorkLocation[],
 
-    activeStatuses: ["Active", "On Leave", "Terminated"] as ActiveStatus[],
+    statuses: [
+      "Active",
+      "Inactive",
+      "On Leave",
+      "Terminated",
+    ] as ActiveStatus[],
 
     performanceRatings: [
       "Exceeds Expectations",

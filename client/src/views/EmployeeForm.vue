@@ -590,17 +590,17 @@
                       <v-col cols="12" md="6">
                         <v-select
                           v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="active"
-                          :items="activeStatuses"
+                          v-model="status"
+                          :items="statuses"
                           label="Status *"
                           required
                           variant="outlined"
                           density="compact"
-                          :error-messages="errors.active"
+                          :error-messages="errors.status"
                         />
                         <v-text-field
                           v-else
-                          :model-value="active"
+                          :model-value="status"
                           label="Status"
                           variant="outlined"
                           density="compact"
@@ -858,7 +858,7 @@ const {
 } = useForm({
   validationSchema: toTypedSchema(addEmployeeSchema),
   initialValues: {
-    active: "Active",
+    status: "Active",
     firstName: "",
     lastName: "",
     personalEmail: "",
@@ -932,7 +932,7 @@ const [performanceRating] = defineField("performanceRating");
 const [trainingStatus] = defineField("trainingStatus");
 const [developmentNotes] = defineField("developmentNotes");
 const [nextReviewDate] = defineField("nextReviewDate");
-const [active] = defineField("active");
+const [status] = defineField("status");
 const [backgroundCheckStatus] = defineField("backgroundCheckStatus");
 const [source] = defineField("source");
 const [sourceId] = defineField("sourceId");
@@ -956,7 +956,7 @@ const {
   jobLevels,
   employmentTypes,
   workLocations,
-  activeStatuses,
+  statuses,
   performanceRatings,
   trainingStatuses,
   backgroundCheckStatuses,
@@ -1025,7 +1025,7 @@ watch(
       trainingStatus.value = newEmployee.trainingStatus;
       developmentNotes.value = newEmployee.developmentNotes;
       nextReviewDate.value = newEmployee.nextReviewDate || "";
-      active.value = newEmployee.active;
+      status.value = newEmployee.status;
       backgroundCheckStatus.value = newEmployee.backgroundCheckStatus;
       source.value = newEmployee.source;
       sourceId.value = newEmployee.sourceId || "";
@@ -1138,7 +1138,7 @@ const cancelEdit = () => {
       trainingStatus.value = emp.trainingStatus;
       developmentNotes.value = emp.developmentNotes;
       nextReviewDate.value = emp.nextReviewDate || "";
-      active.value = emp.active;
+      status.value = emp.status;
       backgroundCheckStatus.value = emp.backgroundCheckStatus;
       source.value = emp.source;
       sourceId.value = emp.sourceId || "";
@@ -1206,7 +1206,7 @@ const saveEmployee = async () => {
         trainingStatus: trainingStatus.value,
         developmentNotes: developmentNotes.value,
         nextReviewDate: nextReviewDate.value || undefined,
-        active: active.value,
+        status: status.value,
         backgroundCheckStatus: backgroundCheckStatus.value,
         docType: "employee" as const,
         source: source.value,
@@ -1277,7 +1277,7 @@ const saveEmployee = async () => {
         trainingStatus: trainingStatus.value || employee.value.trainingStatus,
         developmentNotes:
           developmentNotes.value || employee.value.developmentNotes,
-        active: active.value || employee.value.active,
+        status: status.value || employee.value.status,
         backgroundCheckStatus:
           backgroundCheckStatus.value || employee.value.backgroundCheckStatus,
 
