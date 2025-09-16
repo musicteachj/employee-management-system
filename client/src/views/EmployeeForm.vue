@@ -459,6 +459,45 @@
                     </v-col>
                     <v-col cols="12" md="6">
                       <v-text-field
+                        v-model="organizationLevel"
+                        label="Organization Level"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.organizationLevel"
+                        hint="0 = CEO, 1 = C-Level, 2 = VP/Director, etc."
+                        min="0"
+                        max="10"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="costCenter"
+                        label="Cost Center"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.costCenter"
+                        hint="e.g., ENG-001, MKT-000"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="businessUnit"
+                        label="Business Unit"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.businessUnit"
+                        hint="e.g., Technology, Operations, Revenue"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
                         v-model="hireDate"
                         label="Hire Date *"
                         type="date"
@@ -953,6 +992,10 @@ const {
     workLocation: "Office" as WorkLocation,
     managerId: "",
     managerName: "",
+    directReports: [],
+    organizationLevel: undefined,
+    costCenter: "",
+    businessUnit: "",
     hireDate: "",
     probationEndDate: "",
     salary: 0,
@@ -997,6 +1040,10 @@ const [employmentType] = defineField("employmentType");
 const [workLocation] = defineField("workLocation");
 const [managerId] = defineField("managerId");
 const [managerName] = defineField("managerName");
+const [directReports] = defineField("directReports");
+const [organizationLevel] = defineField("organizationLevel");
+const [costCenter] = defineField("costCenter");
+const [businessUnit] = defineField("businessUnit");
 const [hireDate] = defineField("hireDate");
 const [probationEndDate] = defineField("probationEndDate");
 const [salary] = defineField("salary");
@@ -1090,6 +1137,10 @@ watch(
       workLocation.value = newEmployee.workLocation;
       managerId.value = newEmployee.managerId || "";
       managerName.value = newEmployee.managerName || "";
+      directReports.value = newEmployee.directReports || [];
+      organizationLevel.value = newEmployee.organizationLevel;
+      costCenter.value = newEmployee.costCenter || "";
+      businessUnit.value = newEmployee.businessUnit || "";
       hireDate.value = newEmployee.hireDate;
       probationEndDate.value = newEmployee.probationEndDate || "";
       salary.value = newEmployee.salary;
@@ -1203,6 +1254,10 @@ const cancelEdit = () => {
       workLocation.value = emp.workLocation;
       managerId.value = emp.managerId || "";
       managerName.value = emp.managerName || "";
+      directReports.value = emp.directReports || [];
+      organizationLevel.value = emp.organizationLevel;
+      costCenter.value = emp.costCenter || "";
+      businessUnit.value = emp.businessUnit || "";
       hireDate.value = emp.hireDate;
       probationEndDate.value = emp.probationEndDate || "";
       salary.value = emp.salary;
@@ -1247,6 +1302,10 @@ const saveEmployee = async () => {
       const cleanedValues = {
         managerId: managerId.value || undefined,
         managerName: managerName.value || undefined,
+        directReports: directReports.value || [],
+        organizationLevel: organizationLevel.value,
+        costCenter: costCenter.value || undefined,
+        businessUnit: businessUnit.value || undefined,
       };
 
       const newEmployee: Employee = {
@@ -1366,6 +1425,14 @@ const saveEmployee = async () => {
           socialSecurityNumber.value || employee.value.socialSecurityNumber,
         managerId: managerId.value || employee.value.managerId,
         managerName: managerName.value || employee.value.managerName,
+        directReports:
+          directReports.value || employee.value.directReports || [],
+        organizationLevel:
+          organizationLevel.value !== undefined
+            ? organizationLevel.value
+            : employee.value.organizationLevel,
+        costCenter: costCenter.value || employee.value.costCenter,
+        businessUnit: businessUnit.value || employee.value.businessUnit,
         probationEndDate:
           probationEndDate.value || employee.value.probationEndDate,
         nextReviewDate: nextReviewDate.value || employee.value.nextReviewDate,

@@ -28,6 +28,10 @@ export interface Employee {
   workLocation: WorkLocation;
   managerId?: string;
   managerName?: string;
+  directReports?: string[]; // Array of employee IDs who report to this person
+  organizationLevel?: number; // Hierarchy level (0 = CEO, 1 = C-Level, 2 = VP, etc.)
+  costCenter?: string; // For budgeting and organizational purposes
+  businessUnit?: string; // Larger organizational grouping
 
   // Dates
   hireDate: string;
