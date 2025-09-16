@@ -5,6 +5,7 @@ import AccordionWrapper from "../views/AccordionWrapper.vue";
 import EmployeeForm from "../views/EmployeeForm.vue";
 import PerformanceReviews from "../views/PerformanceReviews.vue";
 import Analytics from "../views/Analytics.vue";
+import OrgChart from "../views/OrgChart.vue";
 
 const routes = [
   {
@@ -85,6 +86,16 @@ const routes = [
     component: PerformanceReviews,
   },
   {
+    path: "/org-chart",
+    name: "Organization Chart",
+    meta: {
+      title: "Organization Chart",
+      description:
+        "Hierarchical view of organizational structure and reporting relationships",
+    },
+    component: OrgChart,
+  },
+  {
     path: "/analytics",
     name: "Analytics",
     meta: {
@@ -92,15 +103,6 @@ const routes = [
       description: "Comprehensive employee data analytics and insights",
     },
     component: Analytics,
-  },
-  {
-    path: "/duplicate-records",
-    name: "Duplicate Records",
-    meta: {
-      title: "Duplicate Records",
-      description: "Duplicate records",
-    },
-    component: TableWrapper,
   },
   {
     path: "/by-status",
