@@ -3,6 +3,7 @@ import Home from "../views/Home.vue";
 import TableWrapper from "../views/TableWrapper.vue";
 import AccordionWrapper from "../views/AccordionWrapper.vue";
 import EmployeeForm from "../views/EmployeeForm.vue";
+import PerformanceReviews from "../views/PerformanceReviews.vue";
 
 const routes = [
   {
@@ -78,9 +79,9 @@ const routes = [
     name: "Performance Reviews",
     meta: {
       title: "Performance Reviews",
-      description: "Performance reviews",
+      description: "Employee performance reviews and analytics",
     },
-    component: TableWrapper,
+    component: PerformanceReviews,
   },
   {
     path: "/duplicate-records",
