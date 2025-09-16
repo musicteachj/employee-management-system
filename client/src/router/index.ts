@@ -4,6 +4,7 @@ import TableWrapper from "../views/TableWrapper.vue";
 import AccordionWrapper from "../views/AccordionWrapper.vue";
 import EmployeeForm from "../views/EmployeeForm.vue";
 import PerformanceReviews from "../views/PerformanceReviews.vue";
+import Analytics from "../views/Analytics.vue";
 
 const routes = [
   {
@@ -82,6 +83,15 @@ const routes = [
       description: "Employee performance reviews and analytics",
     },
     component: PerformanceReviews,
+  },
+  {
+    path: "/analytics",
+    name: "Analytics",
+    meta: {
+      title: "Employee Analytics",
+      description: "Comprehensive employee data analytics and insights",
+    },
+    component: Analytics,
   },
   {
     path: "/duplicate-records",

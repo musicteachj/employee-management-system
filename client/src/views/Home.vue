@@ -85,6 +85,7 @@
               class="ma-2"
               prepend-icon="mdi-chart-box"
               variant="outlined"
+              @click="$router.push('/analytics')"
             >
               View Analytics
             </v-btn>
