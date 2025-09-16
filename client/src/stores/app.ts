@@ -14,6 +14,8 @@ import type {
   BenefitsEligible,
   Department,
   Manager,
+  PerformanceAnalytics,
+  ReviewStatus,
 } from "../types";
 
 export const useAppStore = defineStore("app", () => {
@@ -62,6 +64,63 @@ export const useAppStore = defineStore("app", () => {
       trainingStatus: "Completed",
       developmentNotes: "Strong technical skills, excellent team collaboration",
       nextReviewDate: "2024-12-15",
+      performanceHistory: [
+        {
+          reviewId: "rev_001_2024",
+          reviewDate: "2024-06-15",
+          reviewPeriodStart: "2023-12-15",
+          reviewPeriodEnd: "2024-06-15",
+          reviewerName: "David Chen",
+          reviewerEmail: "david.chen@company.com",
+          rating: "Exceeds Expectations",
+          goals: [
+            {
+              id: "goal_001",
+              title: "Lead microservices migration",
+              description:
+                "Migrate legacy monolith to microservices architecture",
+              status: "completed",
+              targetDate: "2024-05-01",
+              completionDate: "2024-04-28",
+              priority: "high",
+            },
+          ],
+          achievements: [
+            {
+              id: "ach_001",
+              title: "Reduced system latency by 40%",
+              description: "Optimized database queries and implemented caching",
+              date: "2024-03-15",
+              impact: "high",
+              category: "technical",
+            },
+          ],
+          areasForImprovement: ["Public speaking", "Cross-team collaboration"],
+          comments: "Exceptional technical performance, ready for senior role",
+          nextReviewDate: "2024-12-15",
+          managerFeedback:
+            "Outstanding contributor, consistently delivers high-quality work",
+          selfAssessment:
+            "Proud of technical achievements, want to improve leadership skills",
+        },
+        {
+          reviewId: "rev_001_2023",
+          reviewDate: "2023-12-15",
+          reviewPeriodStart: "2023-06-15",
+          reviewPeriodEnd: "2023-12-15",
+          reviewerName: "David Chen",
+          reviewerEmail: "david.chen@company.com",
+          rating: "Meets Expectations",
+          comments: "Solid performance, good technical skills",
+          nextReviewDate: "2024-06-15",
+        },
+      ],
+      performanceMetrics: {
+        averageRating: 4.5,
+        ratingTrend: "improving",
+        reviewsCompleted: 2,
+        overdueDays: 0,
+      },
 
       // Compliance & Verification
       backgroundCheckStatus: "Completed",
@@ -141,6 +200,25 @@ export const useAppStore = defineStore("app", () => {
       developmentNotes:
         "Good leadership skills, working on digital marketing certification",
       nextReviewDate: "2024-09-01",
+      performanceHistory: [
+        {
+          reviewId: "rev_002_2024",
+          reviewDate: "2024-03-01",
+          reviewPeriodStart: "2023-09-01",
+          reviewPeriodEnd: "2024-03-01",
+          reviewerName: "David Chen",
+          reviewerEmail: "david.chen@company.com",
+          rating: "Meets Expectations",
+          comments: "Good team management, needs to improve strategic thinking",
+          nextReviewDate: "2024-09-01",
+        },
+      ],
+      performanceMetrics: {
+        averageRating: 3.0,
+        ratingTrend: "stable",
+        reviewsCompleted: 1,
+        overdueDays: 15,
+      },
 
       // Compliance & Verification
       backgroundCheckStatus: "Completed",
@@ -216,6 +294,25 @@ export const useAppStore = defineStore("app", () => {
       trainingStatus: "Completed",
       developmentNotes: "Excellent leadership, driving technical strategy",
       nextReviewDate: "2024-07-15",
+      performanceHistory: [
+        {
+          reviewId: "rev_003_2024",
+          reviewDate: "2024-01-15",
+          reviewPeriodStart: "2023-07-15",
+          reviewPeriodEnd: "2024-01-15",
+          reviewerName: "CEO",
+          reviewerEmail: "ceo@company.com",
+          rating: "Exceeds Expectations",
+          comments: "Outstanding leadership and technical vision",
+          nextReviewDate: "2024-07-15",
+        },
+      ],
+      performanceMetrics: {
+        averageRating: 5.0,
+        ratingTrend: "stable",
+        reviewsCompleted: 1,
+        overdueDays: 62,
+      },
 
       // Compliance & Verification
       backgroundCheckStatus: "Completed",
@@ -756,6 +853,30 @@ export const useAppStore = defineStore("app", () => {
       trainingStatus: "Not Started",
       developmentNotes: "Performance issues led to termination",
       nextReviewDate: "",
+      performanceHistory: [
+        {
+          reviewId: "rev_010_2024",
+          reviewDate: "2024-01-15",
+          reviewPeriodStart: "2023-07-15",
+          reviewPeriodEnd: "2024-01-15",
+          reviewerName: "Marcus Rodriguez",
+          reviewerEmail: "marcus.rodriguez@company.com",
+          rating: "Needs Improvement",
+          comments:
+            "Performance below expectations, improvement plan initiated",
+          areasForImprovement: [
+            "Time management",
+            "Quality of work",
+            "Communication",
+          ],
+          nextReviewDate: "2024-04-15",
+        },
+      ],
+      performanceMetrics: {
+        averageRating: 2.0,
+        ratingTrend: "declining",
+        reviewsCompleted: 1,
+      },
 
       // Compliance & Verification
       backgroundCheckStatus: "Completed",
@@ -1015,6 +1136,179 @@ export const useAppStore = defineStore("app", () => {
     }
   };
 
+  // Performance Review Methods
+  const getPerformanceReviews = async (): Promise<Employee[]> => {
+    return employees.value.filter(
+      (employee) =>
+        employee.performanceHistory && employee.performanceHistory.length > 0
+    );
+  };
+
+  const getOverdueReviews = async (): Promise<ReviewStatus[]> => {
+    const today = dayjs();
+    return employees.value
+      .filter((employee) => employee.nextReviewDate)
+      .map((employee) => {
+        const nextReview = dayjs(employee.nextReviewDate);
+        const daysOverdue = today.diff(nextReview, "day");
+        return {
+          employeeId: employee._id || "",
+          employeeName: employee.fullName,
+          department: employee.department,
+          lastReviewDate: employee.lastReviewDate,
+          nextReviewDate: employee.nextReviewDate,
+          daysOverdue: daysOverdue > 0 ? daysOverdue : undefined,
+          currentRating: employee.performanceRating,
+          reviewStatus: (daysOverdue > 0
+            ? "overdue"
+            : daysOverdue > -30
+            ? "due_soon"
+            : "current") as ReviewStatus["reviewStatus"],
+        };
+      })
+      .filter((review) => review.reviewStatus === "overdue");
+  };
+
+  const getPerformanceAnalytics = async (): Promise<PerformanceAnalytics> => {
+    const activeEmployees = employees.value.filter(
+      (emp) => emp.status === "Active"
+    );
+    const reviewedEmployees = activeEmployees.filter(
+      (emp) => emp.performanceHistory && emp.performanceHistory.length > 0
+    );
+
+    // Calculate rating distribution
+    const ratingDistribution: Record<PerformanceRating, number> = {
+      "Exceeds Expectations": 0,
+      "Meets Expectations": 0,
+      "Needs Improvement": 0,
+      Unsatisfactory: 0,
+      Unrated: 0,
+    };
+
+    activeEmployees.forEach((emp) => {
+      ratingDistribution[emp.performanceRating]++;
+    });
+
+    // Calculate department performance
+    const departmentPerformance: Record<
+      string,
+      {
+        averageRating: number;
+        totalReviews: number;
+        employeeCount: number;
+      }
+    > = {};
+
+    activeEmployees.forEach((emp) => {
+      if (!departmentPerformance[emp.department]) {
+        departmentPerformance[emp.department] = {
+          averageRating: 0,
+          totalReviews: 0,
+          employeeCount: 0,
+        };
+      }
+
+      departmentPerformance[emp.department].employeeCount++;
+      if (emp.performanceHistory?.length) {
+        departmentPerformance[emp.department].totalReviews +=
+          emp.performanceHistory.length;
+      }
+    });
+
+    // Calculate average ratings for departments
+    Object.keys(departmentPerformance).forEach((dept) => {
+      const deptEmployees = activeEmployees.filter(
+        (emp) => emp.department === dept
+      );
+      const ratingSum = deptEmployees.reduce((sum, emp) => {
+        const ratingValue =
+          emp.performanceRating === "Exceeds Expectations"
+            ? 5
+            : emp.performanceRating === "Meets Expectations"
+            ? 3
+            : emp.performanceRating === "Needs Improvement"
+            ? 2
+            : emp.performanceRating === "Unsatisfactory"
+            ? 1
+            : 0;
+        return sum + ratingValue;
+      }, 0);
+      departmentPerformance[dept].averageRating =
+        ratingSum / deptEmployees.length;
+    });
+
+    // Calculate overall average rating
+    const totalRatingSum = activeEmployees.reduce((sum, emp) => {
+      const ratingValue =
+        emp.performanceRating === "Exceeds Expectations"
+          ? 5
+          : emp.performanceRating === "Meets Expectations"
+          ? 3
+          : emp.performanceRating === "Needs Improvement"
+          ? 2
+          : emp.performanceRating === "Unsatisfactory"
+          ? 1
+          : 0;
+      return sum + ratingValue;
+    }, 0);
+
+    const overdueReviews = await getOverdueReviews();
+
+    return {
+      totalReviews: reviewedEmployees.reduce(
+        (sum, emp) => sum + (emp.performanceHistory?.length || 0),
+        0
+      ),
+      overdueReviews: overdueReviews.length,
+      averageRating: totalRatingSum / activeEmployees.length,
+      ratingDistribution,
+      departmentPerformance,
+      performanceTrends: [
+        { period: "2024-Q1", averageRating: 3.2, reviewCount: 15 },
+        { period: "2024-Q2", averageRating: 3.4, reviewCount: 18 },
+        { period: "2024-Q3", averageRating: 3.6, reviewCount: 12 },
+      ],
+    };
+  };
+
+  const getReviewStatusList = async (): Promise<ReviewStatus[]> => {
+    const today = dayjs();
+    return employees.value
+      .filter((employee) => employee.status === "Active")
+      .map((employee) => {
+        let reviewStatus: ReviewStatus["reviewStatus"] = "never_reviewed";
+        let daysOverdue: number | undefined;
+
+        if (employee.nextReviewDate) {
+          const nextReview = dayjs(employee.nextReviewDate);
+          const daysDiff = today.diff(nextReview, "day");
+
+          if (daysDiff > 0) {
+            reviewStatus = "overdue";
+            daysOverdue = daysDiff;
+          } else if (daysDiff > -30) {
+            reviewStatus = "due_soon";
+          } else {
+            reviewStatus = "current";
+          }
+        } else if (employee.lastReviewDate) {
+          reviewStatus = "current";
+        }
+
+        return {
+          employeeId: employee._id || "",
+          employeeName: employee.fullName,
+          department: employee.department,
+          lastReviewDate: employee.lastReviewDate,
+          nextReviewDate: employee.nextReviewDate,
+          daysOverdue,
+          currentRating: employee.performanceRating,
+          reviewStatus,
+        };
+      });
+  };
+
   return {
     employees,
     departments,
@@ -1030,5 +1324,10 @@ export const useAppStore = defineStore("app", () => {
     getUpdatedProfiles,
     addEmployee,
     updateEmployee,
+    // Performance Review Methods
+    getPerformanceReviews,
+    getOverdueReviews,
+    getPerformanceAnalytics,
+    getReviewStatusList,
   };
 });

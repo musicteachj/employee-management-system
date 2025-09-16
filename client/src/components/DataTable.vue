@@ -30,7 +30,7 @@
       :hide-default-footer="items.length < 11"
     >
       <template v-slot:item.actions="{ item }">
-        <v-icon icon="mdi-eye" @click="viewRecord(item)" />
+        <v-icon icon="mdi-eye" color="primary" @click="viewRecord(item)" />
       </template>
     </v-data-table>
   </v-card>
