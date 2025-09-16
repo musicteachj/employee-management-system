@@ -49,7 +49,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: [],
-      organizationLevel: 4,
+      organizationLevel: 3,
       costCenter: "ENG-001",
       businessUnit: "Technology",
 
@@ -188,7 +188,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_013"],
-      organizationLevel: 3,
+      organizationLevel: 2,
       costCenter: "MKT-000",
       businessUnit: "Revenue",
 
@@ -288,7 +288,7 @@ export const useAppStore = defineStore("app", () => {
       workLocation: "Office",
       managerId: "emp_020", // Will be the CEO
       managerName: "James Wilson",
-      directReports: ["emp_001", "emp_005", "emp_008", "emp_009"],
+      directReports: ["emp_001", "emp_008", "emp_009", "emp_014"],
       organizationLevel: 2,
       costCenter: "ENG-000",
       businessUnit: "Technology",
@@ -470,7 +470,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_012"],
-      organizationLevel: 3,
+      organizationLevel: 2,
       costCenter: "SAL-000",
       businessUnit: "Revenue",
 
@@ -713,7 +713,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: ["emp_018"],
-      organizationLevel: 4,
+      organizationLevel: 3,
       costCenter: "DES-001",
       businessUnit: "Technology",
 
@@ -794,7 +794,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: ["emp_015"],
-      organizationLevel: 4,
+      organizationLevel: 3,
       costCenter: "PRD-000",
       businessUnit: "Technology",
 
@@ -1058,7 +1058,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_005",
       managerName: "Michael Thompson",
       directReports: [],
-      organizationLevel: 4,
+      organizationLevel: 3,
       costCenter: "SAL-001",
       businessUnit: "Revenue",
 
@@ -1140,7 +1140,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_002",
       managerName: "Marcus Rodriguez",
       directReports: [],
-      organizationLevel: 4,
+      organizationLevel: 3,
       costCenter: "MKT-001",
       businessUnit: "Revenue",
 
@@ -1222,7 +1222,7 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: [],
-      organizationLevel: 6,
+      organizationLevel: 3,
       costCenter: "ENG-001",
       businessUnit: "Technology",
 
@@ -1710,7 +1710,7 @@ export const useAppStore = defineStore("app", () => {
       workLocation: "Office",
       managerId: "",
       managerName: "",
-      directReports: ["emp_003", "emp_004", "emp_021"],
+      directReports: ["emp_002", "emp_003", "emp_004", "emp_005", "emp_021"],
       organizationLevel: 0,
       costCenter: "EXE-000",
       businessUnit: "Executive",
@@ -2256,6 +2256,10 @@ export const useAppStore = defineStore("app", () => {
       });
   };
 
+  const getEmployees = async (): Promise<Employee[]> => {
+    return employees.value;
+  };
+
   return {
     employees,
     departments,
@@ -2276,5 +2280,6 @@ export const useAppStore = defineStore("app", () => {
     getOverdueReviews,
     getPerformanceAnalytics,
     getReviewStatusList,
+    getEmployees,
   };
 });
