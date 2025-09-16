@@ -42,15 +42,6 @@ const open = ref<string[]>([]);
           <v-list-item prepend-icon="mdi-domain" to="/by-department">
             <v-list-item-title>By Department</v-list-item-title>
           </v-list-item>
-          <v-list-item prepend-icon="mdi-chart-line" to="/performance-reviews">
-            <v-list-item-title>Performance Reviews</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            prepend-icon="mdi-content-duplicate"
-            to="/duplicate-records"
-          >
-            <v-list-item-title>Duplicate Records</v-list-item-title>
-          </v-list-item>
           <v-list-item prepend-icon="mdi-account-switch" to="/by-status">
             <v-list-item-title>By Status</v-list-item-title>
           </v-list-item>
@@ -59,6 +50,15 @@ const open = ref<string[]>([]);
           </v-list-item>
           <v-list-item prepend-icon="mdi-account-minus" to="/former-employees">
             <v-list-item-title>Former Employees</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-chart-line" to="/performance-reviews">
+            <v-list-item-title>Performance Reviews</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-chart-box" to="/analytics">
+            <v-list-item-title>Analytics</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-sitemap" to="/org-chart">
+            <v-list-item-title>Organization Chart</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>

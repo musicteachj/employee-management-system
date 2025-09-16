@@ -1,803 +1,916 @@
 <template>
-  <v-row>
-    <v-col cols="12" class="pa-2">
-      <v-card>
-        <!-- Header with navigation and actions -->
-        <v-card-title class="py-3 d-flex justify-space-between align-center">
-          <div class="d-flex align-center">
+  <div>
+    <v-card class="pa-4 ma-2 main-form-card" elevation="3" rounded="lg">
+      <!-- Header with navigation and actions -->
+      <v-card-title
+        class="py-3 d-flex justify-space-between align-center header-section"
+      >
+        <div class="d-flex align-center">
+          <v-btn
+            v-if="isEditMode"
+            icon="mdi-arrow-left"
+            variant="text"
+            @click="backClicked"
+            class="mr-2"
+          />
+          <h5 class="text-h5 text-primary font-weight-bold">
+            {{ pageTitle }}
+          </h5>
+        </div>
+        <div class="d-flex gap-3">
+          <!-- Add Mode Buttons -->
+          <template v-if="isAddMode">
             <v-btn
-              v-if="isEditMode"
-              icon="mdi-arrow-left"
-              variant="text"
-              @click="backClicked"
+              color="grey"
+              variant="outlined"
+              @click="resetForm"
               class="mr-2"
-            />
-            <h5 class="text-h5">{{ pageTitle }}</h5>
-          </div>
-          <div class="d-flex gap-3">
-            <!-- Add Mode Buttons -->
-            <template v-if="isAddMode">
+            >
+              <v-icon class="mr-2" size="small">mdi-refresh</v-icon>
+              Reset
+            </v-btn>
+            <v-btn color="primary" @click="saveEmployee" :loading="isSaving">
+              <v-icon class="mr-2" size="small">mdi-content-save</v-icon>
+              Add Employee
+            </v-btn>
+          </template>
+
+          <!-- Edit Mode Buttons -->
+          <template v-else-if="isEditMode">
+            <v-btn
+              v-if="!isFormEditable"
+              color="primary"
+              variant="outlined"
+              @click="toggleEditMode"
+              :disabled="!employee"
+            >
+              <v-icon class="mr-2" size="small">mdi-pencil</v-icon>
+              Edit
+            </v-btn>
+            <template v-else>
               <v-btn
                 color="grey"
                 variant="outlined"
-                @click="resetForm"
+                @click="cancelEdit"
+                :disabled="isSaving"
                 class="mr-2"
               >
-                <v-icon class="mr-2" size="small">mdi-refresh</v-icon>
-                Reset
+                <v-icon class="mr-2" size="small">mdi-close</v-icon>
+                Cancel
               </v-btn>
-              <v-btn color="primary" @click="saveEmployee" :loading="isSaving">
-                <v-icon class="mr-2" size="small">mdi-content-save</v-icon>
-                Add Employee
-              </v-btn>
-            </template>
-
-            <!-- Edit Mode Buttons -->
-            <template v-else-if="isEditMode">
               <v-btn
-                v-if="!isFormEditable"
                 color="primary"
-                variant="outlined"
-                @click="toggleEditMode"
+                @click="saveEmployee"
+                :loading="isSaving"
                 :disabled="!employee"
               >
-                <v-icon class="mr-2" size="small">mdi-pencil</v-icon>
-                Edit
+                <v-icon class="mr-2" size="small">mdi-content-save</v-icon>
+                Save Changes
               </v-btn>
-              <template v-else>
-                <v-btn
-                  color="grey"
-                  variant="outlined"
-                  @click="cancelEdit"
-                  :disabled="isSaving"
-                  class="mr-2"
-                >
-                  <v-icon class="mr-2" size="small">mdi-close</v-icon>
-                  Cancel
-                </v-btn>
-                <v-btn
-                  color="primary"
-                  @click="saveEmployee"
-                  :loading="isSaving"
-                  :disabled="!employee"
-                >
-                  <v-icon class="mr-2" size="small">mdi-content-save</v-icon>
-                  Save Changes
-                </v-btn>
-              </template>
             </template>
-          </div>
-        </v-card-title>
+          </template>
+        </div>
+      </v-card-title>
+      <v-divider class="divider-gradient" />
 
-        <!-- Error Summary -->
-        <v-alert
-          v-if="errorCount > 0 && attemptedSave"
-          type="error"
-          variant="tonal"
-          class="ma-4 mb-0"
-          border="start"
-          closable
-          @click:close="attemptedSave = false"
-          icon="mdi-alert-circle"
-        >
-          <div class="d-flex align-center">
-            <div>
-              <strong
-                >{{ errorCount }} validation error{{
-                  errorCount > 1 ? "s" : ""
-                }}
-                found</strong
-              >
-              <div class="text-caption mt-1">
-                Please review and correct the highlighted fields below before
-                saving.
-              </div>
+      <!-- Error Summary -->
+      <v-alert
+        v-if="errorCount > 0 && attemptedSave"
+        type="error"
+        variant="tonal"
+        class="ma-4 mb-0"
+        border="start"
+        closable
+        @click:close="attemptedSave = false"
+        icon="mdi-alert-circle"
+      >
+        <div class="d-flex align-center">
+          <div>
+            <strong
+              >{{ errorCount }} validation error{{
+                errorCount > 1 ? "s" : ""
+              }}
+              found</strong
+            >
+            <div class="text-caption mt-1">
+              Please review and correct the highlighted fields below before
+              saving.
             </div>
           </div>
-        </v-alert>
+        </div>
+      </v-alert>
 
-        <v-card-text class="pa-4" v-if="employee || isAddMode">
-          <v-form @submit.prevent="saveEmployee">
-            <!-- Personal Information Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-account</v-icon>
-                    Personal Information
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="firstName"
-                          label="First Name *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.firstName"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="lastName"
-                          label="Last Name *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.lastName"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="personalEmail"
-                          label="Personal Email *"
-                          type="email"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.personalEmail"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="workEmail"
-                          label="Work Email *"
-                          type="email"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.workEmail"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="phoneNumber"
-                          label="Phone Number *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.phoneNumber"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="dateOfBirth"
-                          label="Date of Birth"
-                          type="date"
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.dateOfBirth"
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="address"
-                          label="Address *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.address"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="city"
-                          label="City *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.city"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="state"
-                          label="State *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.state"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="country"
-                          label="Country *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.country"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="emergencyContactName"
-                          label="Emergency Contact Name *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.emergencyContactName"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="emergencyContactPhone"
-                          label="Emergency Contact Phone *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.emergencyContactPhone"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="socialSecurityNumber"
-                          label="Social Security Number"
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.socialSecurityNumber"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
+      <v-card-text class="pa-4" v-if="employee || isAddMode">
+        <v-form @submit.prevent="saveEmployee">
+          <!-- Personal Information Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-account</v-icon>
+                  Personal Information
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="firstName"
+                        label="First Name *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.firstName"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="lastName"
+                        label="Last Name *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        class="form-field"
+                        color="primary"
+                        :error-messages="errors.lastName"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="personalEmail"
+                        label="Personal Email *"
+                        type="email"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.personalEmail"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="workEmail"
+                        label="Work Email *"
+                        type="email"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.workEmail"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="phoneNumber"
+                        label="Phone Number *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.phoneNumber"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="dateOfBirth"
+                        label="Date of Birth"
+                        type="date"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.dateOfBirth"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="address"
+                        label="Address *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.address"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="city"
+                        label="City *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.city"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="state"
+                        label="State *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.state"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="country"
+                        label="Country *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.country"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="emergencyContactName"
+                        label="Emergency Contact Name *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.emergencyContactName"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="emergencyContactPhone"
+                        label="Emergency Contact Phone *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.emergencyContactPhone"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="socialSecurityNumber"
+                        label="Social Security Number"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.socialSecurityNumber"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
 
-            <!-- Employment Information Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-briefcase</v-icon>
-                    Employment Information
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <!-- Readonly sensitive fields in edit mode -->
-                      <v-col cols="12" md="6" v-if="isEditMode">
-                        <v-text-field
-                          :model-value="employee?.employeeId"
-                          label="Employee ID"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6" v-if="isEditMode">
-                        <v-text-field
-                          :model-value="employee?.hireDate"
-                          label="Hire Date"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <!-- Editable fields -->
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="department"
-                          :items="departmentOptions"
-                          label="Department *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.department"
-                          item-title="title"
-                          item-value="value"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="department"
-                          label="Department"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="position"
-                          label="Position *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.position"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="jobLevel"
-                          :items="jobLevels"
-                          label="Job Level *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.jobLevel"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="jobLevel"
-                          label="Job Level"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="employmentType"
-                          :items="employmentTypes"
-                          label="Employment Type *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.employmentType"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="employmentType"
-                          label="Employment Type"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="workLocation"
-                          :items="workLocations"
-                          label="Work Location *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.workLocation"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="workLocation"
-                          label="Work Location"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="managerId"
-                          :items="filteredManagerOptions"
-                          label="Manager"
-                          variant="outlined"
-                          density="compact"
-                          :hint="
-                            !managerId
-                              ? 'Select a manager or leave empty if none assigned yet'
-                              : ''
-                          "
-                          :error-messages="errors.managerId"
-                          item-title="title"
-                          item-value="value"
-                          clearable
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="managerName || 'No manager assigned'"
-                          label="Manager"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="hireDate"
-                          label="Hire Date *"
-                          type="date"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.hireDate"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="probationEndDate"
-                          label="Probation End Date"
-                          type="date"
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.probationEndDate"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
+          <!-- Employment Information Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-briefcase</v-icon>
+                  Employment Information
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <!-- Readonly sensitive fields in edit mode -->
+                    <v-col cols="12" md="6" v-if="isEditMode">
+                      <v-text-field
+                        :model-value="employee?.employeeId"
+                        label="Employee ID"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6" v-if="isEditMode">
+                      <v-text-field
+                        :model-value="employee?.hireDate"
+                        label="Hire Date"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <!-- Editable fields -->
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="department"
+                        :items="departmentOptions"
+                        label="Department *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.department"
+                        class="form-field"
+                        color="primary"
+                        item-title="title"
+                        item-value="value"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="department"
+                        label="Department"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="position"
+                        label="Position *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.position"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="jobLevel"
+                        :items="jobLevels"
+                        label="Job Level *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.jobLevel"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="jobLevel"
+                        label="Job Level"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="employmentType"
+                        :items="employmentTypes"
+                        label="Employment Type *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.employmentType"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="employmentType"
+                        label="Employment Type"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="workLocation"
+                        :items="workLocations"
+                        label="Work Location *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.workLocation"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="workLocation"
+                        label="Work Location"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="managerId"
+                        :items="filteredManagerOptions"
+                        label="Manager"
+                        variant="outlined"
+                        density="compact"
+                        :hint="
+                          !managerId
+                            ? 'Select a manager or leave empty if none assigned yet'
+                            : ''
+                        "
+                        :error-messages="errors.managerId"
+                        class="form-field"
+                        color="primary"
+                        item-title="title"
+                        item-value="value"
+                        clearable
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="managerName || 'No manager assigned'"
+                        label="Manager"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="organizationLevel"
+                        label="Organization Level"
+                        type="number"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.organizationLevel"
+                        hint="0 = CEO, 1 = C-Level, 2 = VP/Director, etc."
+                        min="0"
+                        max="10"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="costCenter"
+                        label="Cost Center"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.costCenter"
+                        hint="e.g., ENG-001, MKT-000"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="businessUnit"
+                        label="Business Unit"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.businessUnit"
+                        hint="e.g., Technology, Operations, Revenue"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="hireDate"
+                        label="Hire Date *"
+                        type="date"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.hireDate"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="probationEndDate"
+                        label="Probation End Date"
+                        type="date"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.probationEndDate"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
 
-            <!-- Compensation & Benefits Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-currency-usd</v-icon>
-                    Compensation & Benefits
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="salary"
-                          label="Salary *"
-                          type="number"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.salary"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="paygrade"
-                          label="Pay Grade *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.paygrade"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="benefitsEligibile"
-                          :items="benefitsEligibleOptions"
-                          label="Benefits Eligible *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.benefitsEligibile"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="benefitsEligibile"
-                          label="Benefits Eligible"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
+          <!-- Compensation & Benefits Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-currency-usd</v-icon>
+                  Compensation & Benefits
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model.number="salary"
+                        label="Salary *"
+                        type="number"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.salary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="paygrade"
+                        label="Pay Grade *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.paygrade"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="benefitsEligibile"
+                        :items="benefitsEligibleOptions"
+                        label="Benefits Eligible *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.benefitsEligibile"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="benefitsEligibile"
+                        label="Benefits Eligible"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
 
-            <!-- Performance & Development Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-chart-line</v-icon>
-                    Performance & Development
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="performanceRating"
-                          :items="performanceRatings"
-                          label="Performance Rating *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.performanceRating"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="performanceRating"
-                          label="Performance Rating"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="trainingStatus"
-                          :items="trainingStatuses"
-                          label="Training Status *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.trainingStatus"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="trainingStatus"
-                          label="Training Status"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="developmentNotes"
-                          label="Development Notes *"
-                          required
-                          variant="outlined"
-                          rows="2"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.developmentNotes"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="nextReviewDate"
-                          label="Next Review Date"
-                          type="date"
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors.nextReviewDate"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
+          <!-- Performance & Development Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-chart-line</v-icon>
+                  Performance & Development
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="performanceRating"
+                        :items="performanceRatings"
+                        label="Performance Rating *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.performanceRating"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="performanceRating"
+                        label="Performance Rating"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="trainingStatus"
+                        :items="trainingStatuses"
+                        label="Training Status *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.trainingStatus"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="trainingStatus"
+                        label="Training Status"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-textarea
+                        v-model="developmentNotes"
+                        label="Development Notes *"
+                        required
+                        variant="outlined"
+                        rows="2"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.developmentNotes"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="nextReviewDate"
+                        label="Next Review Date"
+                        type="date"
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors.nextReviewDate"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
 
-            <!-- Compliance & System Information Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-shield-check</v-icon>
-                    Compliance & System Information
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="active"
-                          :items="activeStatuses"
-                          label="Status *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.active"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="active"
-                          label="Status"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode || (isEditMode && isFormEditable)"
-                          v-model="backgroundCheckStatus"
-                          :items="backgroundCheckStatuses"
-                          label="Background Check Status *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.backgroundCheckStatus"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="backgroundCheckStatus"
-                          label="Background Check Status"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-if="isAddMode"
-                          v-model="source"
-                          :items="sources"
-                          label="Source *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.source"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="source"
-                          label="Source"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-if="isAddMode"
-                          v-model="sourceId"
-                          label="Source ID"
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.sourceId"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="sourceId || 'N/A'"
-                          label="Source ID"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-if="isAddMode"
-                          v-model="createdBy"
-                          label="Created By"
-                          variant="outlined"
-                          density="compact"
-                          :error-messages="errors.createdBy"
-                        />
-                        <v-text-field
-                          v-else
-                          :model-value="createdBy || 'N/A'"
-                          label="Created By"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6" v-if="isEditMode">
-                        <v-text-field
-                          :model-value="employee?.createdOn || 'N/A'"
-                          label="Created On"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
+          <!-- Compliance & System Information Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-shield-check</v-icon>
+                  Compliance & System Information
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="status"
+                        :items="statuses"
+                        label="Status *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.status"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="status"
+                        label="Status"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
+                        v-model="backgroundCheckStatus"
+                        :items="backgroundCheckStatuses"
+                        label="Background Check Status *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.backgroundCheckStatus"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="backgroundCheckStatus"
+                        label="Background Check Status"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-if="isAddMode"
+                        v-model="source"
+                        :items="sources"
+                        label="Source *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.source"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="source"
+                        label="Source"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-if="isAddMode"
+                        v-model="sourceId"
+                        label="Source ID"
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.sourceId"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="sourceId || 'N/A'"
+                        label="Source ID"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-if="isAddMode"
+                        v-model="createdBy"
+                        label="Created By"
+                        variant="outlined"
+                        density="compact"
+                        :error-messages="errors.createdBy"
+                        class="form-field"
+                        color="primary"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="createdBy || 'N/A'"
+                        label="Created By"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6" v-if="isEditMode">
+                      <v-text-field
+                        :model-value="employee?.createdOn || 'N/A'"
+                        label="Created On"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
 
-            <!-- HR Assignment Section -->
-            <v-row>
-              <v-col cols="12">
-                <v-card variant="outlined" class="mb-3">
-                  <v-card-title class="text-subtitle-1 bg-grey-lighten-4 py-2">
-                    <v-icon class="mr-2" size="small">mdi-account-tie</v-icon>
-                    HR Assignment
-                  </v-card-title>
-                  <v-card-text class="pa-3">
-                    <v-row dense>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="hrAssignmentAssignedTo"
-                          label="Assigned To *"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors['hrAssignment.assignedTo']"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="hrAssignmentManagerEmail"
-                          label="Manager Email *"
-                          type="email"
-                          required
-                          variant="outlined"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="errors['hrAssignment.managerEmail']"
-                        />
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="hrAssignmentReviewComments"
-                          label="Review Comments"
-                          variant="outlined"
-                          rows="2"
-                          density="compact"
-                          :readonly="isEditMode && !isFormEditable"
-                          :error-messages="
-                            errors['hrAssignment.reviewComments']
-                          "
-                        />
-                      </v-col>
-                      <!-- Readonly HR fields in edit mode -->
-                      <v-col cols="12" md="6" v-if="isEditMode">
-                        <v-text-field
-                          :model-value="
-                            employee?.hrAssignment?.assignedDate || 'N/A'
-                          "
-                          label="Assigned Date"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                      <v-col cols="12" md="6" v-if="isEditMode">
-                        <v-text-field
-                          :model-value="
-                            employee?.hrAssignment?.revalidationStatus || 'N/A'
-                          "
-                          label="Revalidation Status"
-                          variant="outlined"
-                          density="compact"
-                          readonly
-                          bg-color="grey-lighten-5"
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
+          <!-- HR Assignment Section -->
+          <v-row>
+            <v-col cols="12">
+              <v-card variant="outlined" class="mb-3 section-card">
+                <v-card-title class="text-subtitle-1 section-header py-2">
+                  <v-icon class="mr-2" size="small">mdi-account-tie</v-icon>
+                  HR Assignment
+                </v-card-title>
+                <v-card-text class="pa-3">
+                  <v-row dense>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="hrAssignmentAssignedTo"
+                        label="Assigned To *"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors['hrAssignment.assignedTo']"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="hrAssignmentManagerEmail"
+                        label="Manager Email *"
+                        type="email"
+                        required
+                        variant="outlined"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors['hrAssignment.managerEmail']"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-textarea
+                        v-model="hrAssignmentReviewComments"
+                        label="Review Comments"
+                        variant="outlined"
+                        rows="2"
+                        density="compact"
+                        :readonly="isEditMode && !isFormEditable"
+                        :error-messages="errors['hrAssignment.reviewComments']"
+                        class="form-field"
+                        color="primary"
+                      />
+                    </v-col>
+                    <!-- Readonly HR fields in edit mode -->
+                    <v-col cols="12" md="6" v-if="isEditMode">
+                      <v-text-field
+                        :model-value="
+                          employee?.hrAssignment?.assignedDate || 'N/A'
+                        "
+                        label="Assigned Date"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="6" v-if="isEditMode">
+                      <v-text-field
+                        :model-value="
+                          employee?.hrAssignment?.revalidationStatus || 'N/A'
+                        "
+                        label="Revalidation Status"
+                        variant="outlined"
+                        density="compact"
+                        readonly
+                        bg-color="grey-lighten-5"
+                        color="primary"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-card-text>
 
-        <!-- Loading state -->
-        <v-card-text v-else-if="loading" class="text-center pa-8">
-          <v-progress-circular indeterminate color="primary" />
-          <p class="mt-4">Loading employee record...</p>
-        </v-card-text>
+      <!-- Loading state -->
+      <v-card-text v-else-if="loading" class="text-center pa-8">
+        <v-progress-circular indeterminate color="primary" />
+        <p class="mt-4">Loading employee record...</p>
+      </v-card-text>
 
-        <!-- Employee not found -->
-        <v-card-text v-else class="text-center pa-8">
-          <v-icon size="64" color="grey">mdi-account-off</v-icon>
-          <h3 class="mt-4">Employee Not Found</h3>
-          <p class="text-grey">
-            The requested employee record could not be found.
-          </p>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+      <!-- Employee not found -->
+      <v-card-text v-else class="text-center pa-8">
+        <v-icon size="64" color="grey">mdi-account-off</v-icon>
+        <h3 class="mt-4">Employee Not Found</h3>
+        <p class="text-grey">
+          The requested employee record could not be found.
+        </p>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -858,7 +971,7 @@ const {
 } = useForm({
   validationSchema: toTypedSchema(addEmployeeSchema),
   initialValues: {
-    active: "Active",
+    status: "Active",
     firstName: "",
     lastName: "",
     personalEmail: "",
@@ -879,6 +992,10 @@ const {
     workLocation: "Office" as WorkLocation,
     managerId: "",
     managerName: "",
+    directReports: [],
+    organizationLevel: undefined,
+    costCenter: "",
+    businessUnit: "",
     hireDate: "",
     probationEndDate: "",
     salary: 0,
@@ -923,6 +1040,10 @@ const [employmentType] = defineField("employmentType");
 const [workLocation] = defineField("workLocation");
 const [managerId] = defineField("managerId");
 const [managerName] = defineField("managerName");
+const [directReports] = defineField("directReports");
+const [organizationLevel] = defineField("organizationLevel");
+const [costCenter] = defineField("costCenter");
+const [businessUnit] = defineField("businessUnit");
 const [hireDate] = defineField("hireDate");
 const [probationEndDate] = defineField("probationEndDate");
 const [salary] = defineField("salary");
@@ -932,7 +1053,7 @@ const [performanceRating] = defineField("performanceRating");
 const [trainingStatus] = defineField("trainingStatus");
 const [developmentNotes] = defineField("developmentNotes");
 const [nextReviewDate] = defineField("nextReviewDate");
-const [active] = defineField("active");
+const [status] = defineField("status");
 const [backgroundCheckStatus] = defineField("backgroundCheckStatus");
 const [source] = defineField("source");
 const [sourceId] = defineField("sourceId");
@@ -956,7 +1077,7 @@ const {
   jobLevels,
   employmentTypes,
   workLocations,
-  activeStatuses,
+  statuses,
   performanceRatings,
   trainingStatuses,
   backgroundCheckStatuses,
@@ -1016,6 +1137,10 @@ watch(
       workLocation.value = newEmployee.workLocation;
       managerId.value = newEmployee.managerId || "";
       managerName.value = newEmployee.managerName || "";
+      directReports.value = newEmployee.directReports || [];
+      organizationLevel.value = newEmployee.organizationLevel;
+      costCenter.value = newEmployee.costCenter || "";
+      businessUnit.value = newEmployee.businessUnit || "";
       hireDate.value = newEmployee.hireDate;
       probationEndDate.value = newEmployee.probationEndDate || "";
       salary.value = newEmployee.salary;
@@ -1025,7 +1150,7 @@ watch(
       trainingStatus.value = newEmployee.trainingStatus;
       developmentNotes.value = newEmployee.developmentNotes;
       nextReviewDate.value = newEmployee.nextReviewDate || "";
-      active.value = newEmployee.active;
+      status.value = newEmployee.status;
       backgroundCheckStatus.value = newEmployee.backgroundCheckStatus;
       source.value = newEmployee.source;
       sourceId.value = newEmployee.sourceId || "";
@@ -1129,6 +1254,10 @@ const cancelEdit = () => {
       workLocation.value = emp.workLocation;
       managerId.value = emp.managerId || "";
       managerName.value = emp.managerName || "";
+      directReports.value = emp.directReports || [];
+      organizationLevel.value = emp.organizationLevel;
+      costCenter.value = emp.costCenter || "";
+      businessUnit.value = emp.businessUnit || "";
       hireDate.value = emp.hireDate;
       probationEndDate.value = emp.probationEndDate || "";
       salary.value = emp.salary;
@@ -1138,7 +1267,7 @@ const cancelEdit = () => {
       trainingStatus.value = emp.trainingStatus;
       developmentNotes.value = emp.developmentNotes;
       nextReviewDate.value = emp.nextReviewDate || "";
-      active.value = emp.active;
+      status.value = emp.status;
       backgroundCheckStatus.value = emp.backgroundCheckStatus;
       source.value = emp.source;
       sourceId.value = emp.sourceId || "";
@@ -1173,6 +1302,10 @@ const saveEmployee = async () => {
       const cleanedValues = {
         managerId: managerId.value || undefined,
         managerName: managerName.value || undefined,
+        directReports: directReports.value || [],
+        organizationLevel: organizationLevel.value,
+        costCenter: costCenter.value || undefined,
+        businessUnit: businessUnit.value || undefined,
       };
 
       const newEmployee: Employee = {
@@ -1206,7 +1339,7 @@ const saveEmployee = async () => {
         trainingStatus: trainingStatus.value,
         developmentNotes: developmentNotes.value,
         nextReviewDate: nextReviewDate.value || undefined,
-        active: active.value,
+        status: status.value,
         backgroundCheckStatus: backgroundCheckStatus.value,
         docType: "employee" as const,
         source: source.value,
@@ -1277,7 +1410,7 @@ const saveEmployee = async () => {
         trainingStatus: trainingStatus.value || employee.value.trainingStatus,
         developmentNotes:
           developmentNotes.value || employee.value.developmentNotes,
-        active: active.value || employee.value.active,
+        status: status.value || employee.value.status,
         backgroundCheckStatus:
           backgroundCheckStatus.value || employee.value.backgroundCheckStatus,
 
@@ -1292,6 +1425,14 @@ const saveEmployee = async () => {
           socialSecurityNumber.value || employee.value.socialSecurityNumber,
         managerId: managerId.value || employee.value.managerId,
         managerName: managerName.value || employee.value.managerName,
+        directReports:
+          directReports.value || employee.value.directReports || [],
+        organizationLevel:
+          organizationLevel.value !== undefined
+            ? organizationLevel.value
+            : employee.value.organizationLevel,
+        costCenter: costCenter.value || employee.value.costCenter,
+        businessUnit: businessUnit.value || employee.value.businessUnit,
         probationEndDate:
           probationEndDate.value || employee.value.probationEndDate,
         nextReviewDate: nextReviewDate.value || employee.value.nextReviewDate,
@@ -1324,11 +1465,171 @@ const saveEmployee = async () => {
 </script>
 
 <style scoped>
-.v-card-title {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+/* Main form card styling */
+.main-form-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.main-form-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Header section styling */
+.header-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
+  border-bottom: 2px solid #1976d2;
+  margin: -16px -16px 0 -16px;
+  padding: 16px 24px;
+}
+
+/* Enhanced divider with gradient */
+.divider-gradient {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #1976d2 50%,
+    transparent 100%
+  );
+  height: 2px;
+  border: none;
+  margin: 0;
+}
+
+/* Section cards styling */
+.section-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border: 1px solid rgba(25, 118, 210, 0.1);
+  transition: all 0.3s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.1);
+  border-color: rgba(25, 118, 210, 0.2);
+}
+
+/* Section headers styling */
+.section-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%);
+  color: #1976d2;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+/* Form fields styling */
+.form-field {
+  transition: all 0.3s ease;
+}
+
+.form-field :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+.form-field :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+.form-field :deep(.v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+/* Global form field styling for consistency */
+:deep(.v-text-field .v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+:deep(.v-text-field .v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+:deep(.v-text-field .v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+:deep(.v-select .v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+:deep(.v-select .v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+:deep(.v-select .v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+:deep(.v-textarea .v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+:deep(.v-textarea .v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+:deep(.v-textarea .v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+/* Readonly field styling */
+:deep(.v-field--readonly) {
+  background: #f5f7fa !important;
+  opacity: 0.8;
 }
 
 .bg-grey-lighten-5 {
-  background-color: #fafafa !important;
+  background-color: #f5f7fa !important;
+}
+
+/* Error alert styling */
+:deep(.v-alert) {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+}
+
+/* Loading and not found states */
+:deep(.v-progress-circular) {
+  filter: drop-shadow(0 4px 8px rgba(25, 118, 210, 0.3));
+}
+
+/* Section header icon styling */
+.section-header :deep(.v-icon) {
+  color: #1976d2;
+}
+
+/* Form validation styling */
+:deep(.v-messages__message) {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+/* Hover effects for form sections */
+.section-card .v-card-text:hover {
+  background: rgba(25, 118, 210, 0.01);
+  transition: background 0.3s ease;
+}
+
+/* Enhanced spacing and typography */
+:deep(.v-label) {
+  font-weight: 500;
+  color: #424242;
+}
+
+:deep(.v-field--focused .v-label) {
+  color: #4caf50;
+  /* font-weight: 600; */
 }
 </style>

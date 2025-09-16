@@ -3,6 +3,9 @@ import Home from "../views/Home.vue";
 import TableWrapper from "../views/TableWrapper.vue";
 import AccordionWrapper from "../views/AccordionWrapper.vue";
 import EmployeeForm from "../views/EmployeeForm.vue";
+import PerformanceReviews from "../views/PerformanceReviews.vue";
+import Analytics from "../views/Analytics.vue";
+import OrgChart from "../views/OrgChart.vue";
 
 const routes = [
   {
@@ -78,18 +81,28 @@ const routes = [
     name: "Performance Reviews",
     meta: {
       title: "Performance Reviews",
-      description: "Performance reviews",
+      description: "Employee performance reviews and analytics",
     },
-    component: TableWrapper,
+    component: PerformanceReviews,
   },
   {
-    path: "/duplicate-records",
-    name: "Duplicate Records",
+    path: "/org-chart",
+    name: "Organization Chart",
     meta: {
-      title: "Duplicate Records",
-      description: "Duplicate records",
+      title: "Organization Chart",
+      description:
+        "Hierarchical view of organizational structure and reporting relationships",
     },
-    component: TableWrapper,
+    component: OrgChart,
+  },
+  {
+    path: "/analytics",
+    name: "Analytics",
+    meta: {
+      title: "Employee Analytics",
+      description: "Comprehensive employee data analytics and insights",
+    },
+    component: Analytics,
   },
   {
     path: "/by-status",

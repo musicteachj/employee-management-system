@@ -28,6 +28,10 @@ export interface Employee {
   workLocation: WorkLocation;
   managerId?: string;
   managerName?: string;
+  directReports?: string[]; // Array of employee IDs who report to this person
+  organizationLevel?: number; // Hierarchy level (0 = CEO, 1 = C-Level, 2 = VP, etc.)
+  costCenter?: string; // For budgeting and organizational purposes
+  businessUnit?: string; // Larger organizational grouping
 
   // Dates
   hireDate: string;
@@ -47,6 +51,7 @@ export interface Employee {
   developmentNotes: string;
   nextReviewDate?: string;
   performanceHistory?: PerformanceReview[];
+  performanceMetrics?: PerformanceMetrics;
 
   // Compliance & Verification
   backgroundCheckStatus: BackgroundCheckStatus;
@@ -159,11 +164,15 @@ export interface PerformanceReview {
   reviewerName: string;
   reviewerEmail: string;
   rating: Exclude<PerformanceRating, "Unrated">;
-  goals?: string[];
-  achievements?: string[];
+  goals?: Goal[];
+  achievements?: Achievement[];
   areasForImprovement?: string[];
   comments?: string;
   nextReviewDate?: string;
+  skillAssessments?: SkillAssessment[];
+  managerFeedback?: string;
+  selfAssessment?: string;
+  developmentPlan?: DevelopmentItem[];
 }
 
 export interface ProfileUpdate {
@@ -186,3 +195,87 @@ export type GroupByOption = keyof Pick<
   Employee,
   "managerName" | "department" | "status"
 >;
+
+// Performance Review Enhanced Types
+export interface PerformanceMetrics {
+  averageRating: number;
+  ratingTrend: "improving" | "declining" | "stable";
+  reviewsCompleted: number;
+  overdueDays?: number;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  status: "not_started" | "in_progress" | "completed" | "cancelled";
+  targetDate?: string;
+  completionDate?: string;
+  priority: "low" | "medium" | "high";
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  impact: "low" | "medium" | "high";
+  category:
+    | "technical"
+    | "leadership"
+    | "collaboration"
+    | "innovation"
+    | "other";
+}
+
+export interface SkillAssessment {
+  skillName: string;
+  currentLevel: 1 | 2 | 3 | 4 | 5;
+  targetLevel: 1 | 2 | 3 | 4 | 5;
+  category: "technical" | "soft_skills" | "leadership" | "domain_knowledge";
+  assessorNotes?: string;
+}
+
+export interface DevelopmentItem {
+  id: string;
+  title: string;
+  description: string;
+  type: "training" | "mentoring" | "project" | "certification" | "other";
+  status: "planned" | "in_progress" | "completed" | "cancelled";
+  startDate?: string;
+  targetDate?: string;
+  completionDate?: string;
+  cost?: number;
+}
+
+// Performance Analytics Types
+export interface PerformanceAnalytics {
+  totalReviews: number;
+  overdueReviews: number;
+  averageRating: number;
+  ratingDistribution: Record<PerformanceRating, number>;
+  departmentPerformance: Record<
+    string,
+    {
+      averageRating: number;
+      totalReviews: number;
+      employeeCount: number;
+    }
+  >;
+  performanceTrends: {
+    period: string;
+    averageRating: number;
+    reviewCount: number;
+  }[];
+}
+
+export interface ReviewStatus {
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  lastReviewDate?: string;
+  nextReviewDate?: string;
+  daysOverdue?: number;
+  currentRating: PerformanceRating;
+  reviewStatus: "current" | "due_soon" | "overdue" | "never_reviewed";
+}

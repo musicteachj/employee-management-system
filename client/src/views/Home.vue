@@ -22,7 +22,7 @@
           <v-icon size="x-large" color="primary" class="mb-2"
             >mdi-account-multiple</v-icon
           >
-          <h3 class="text-h4">150</h3>
+          <h3 class="text-h4">{{ totalEmployees }}</h3>
           <p class="text-subtitle1">Total Employees</p>
         </v-card>
       </v-col>
@@ -31,7 +31,7 @@
           <v-icon size="x-large" color="success" class="mb-2"
             >mdi-account-plus</v-icon
           >
-          <h3 class="text-h4">12</h3>
+          <h3 class="text-h4">{{ newHires }}</h3>
           <p class="text-subtitle1">New Hires</p>
         </v-card>
       </v-col>
@@ -40,7 +40,7 @@
           <v-icon size="x-large" color="warning" class="mb-2"
             >mdi-domain</v-icon
           >
-          <h3 class="text-h4">8</h3>
+          <h3 class="text-h4">{{ totalDepartments }}</h3>
           <p class="text-subtitle1">Departments</p>
         </v-card>
       </v-col>
@@ -49,7 +49,7 @@
           <v-icon size="x-large" color="info" class="mb-2"
             >mdi-chart-line</v-icon
           >
-          <h3 class="text-h4">95%</h3>
+          <h3 class="text-h4">{{ activeRate }}%</h3>
           <p class="text-subtitle1">Active Rate</p>
         </v-card>
       </v-col>
@@ -85,6 +85,7 @@
               class="ma-2"
               prepend-icon="mdi-chart-box"
               variant="outlined"
+              @click="$router.push('/analytics')"
             >
               View Analytics
             </v-btn>
@@ -124,7 +125,41 @@
 </template>
 
 <script setup lang="ts">
-// Simple home page component
+import { computed } from "vue";
+import { useAppStore } from "../stores/app";
+import dayjs from "dayjs";
+
+const appStore = useAppStore();
+
+// Calculate total employees (excluding terminated)
+const totalEmployees = computed(() => {
+  return appStore.employees.filter((emp) => emp.status !== "Terminated").length;
+});
+
+// Calculate new hires (within 30 days)
+const newHires = computed(() => {
+  const thirtyDaysAgo = dayjs().subtract(30, "day");
+  return appStore.employees.filter((emp) => {
+    const hireDate = dayjs(emp.hireDate);
+    return (
+      hireDate.isAfter(thirtyDaysAgo) || hireDate.isSame(thirtyDaysAgo, "day")
+    );
+  }).length;
+});
+
+// Get total departments count
+const totalDepartments = computed(() => {
+  return appStore.departments.length;
+});
+
+// Calculate active rate (active employees / total employees * 100)
+const activeRate = computed(() => {
+  const totalEmps = appStore.employees.length;
+  const activeEmps = appStore.employees.filter(
+    (emp) => emp.status === "Active"
+  ).length;
+  return totalEmps > 0 ? Math.round((activeEmps / totalEmps) * 100) : 0;
+});
 </script>
 
 <style scoped></style>

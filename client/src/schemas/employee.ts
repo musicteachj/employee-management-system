@@ -25,9 +25,10 @@ const employmentTypeSchema = z.enum([
 // Define work location schema
 const workLocationSchema = z.enum(["Office", "Remote", "Hybrid"] as const);
 
-// Define active status schema
-const activeStatusSchema = z.enum([
+// Define active status schema Active" | "Inactive" | "On Leave" | "Terminated
+const statusSchema = z.enum([
   "Active",
+  "Inactive",
   "On Leave",
   "Terminated",
 ] as const);
@@ -214,6 +215,20 @@ export const addEmployeeSchema = z.object({
 
   managerName: z.string().nullable().optional(),
 
+  directReports: z.array(z.string()).optional(),
+
+  organizationLevel: z.number().min(0).max(10).optional(),
+
+  costCenter: z
+    .string()
+    .max(50, "Cost Center must be less than 50 characters")
+    .optional(),
+
+  businessUnit: z
+    .string()
+    .max(100, "Business Unit must be less than 100 characters")
+    .optional(),
+
   probationEndDate: z.string().optional(),
 
   // Compensation & Benefits - Required fields
@@ -243,7 +258,7 @@ export const addEmployeeSchema = z.object({
   nextReviewDate: z.string().optional(),
 
   // Compliance & System Information - Required fields
-  active: activeStatusSchema,
+  status: statusSchema,
 
   backgroundCheckStatus: backgroundCheckStatusSchema,
 
@@ -269,7 +284,7 @@ export {
   jobLevelSchema,
   employmentTypeSchema,
   workLocationSchema,
-  activeStatusSchema,
+  statusSchema,
   performanceRatingSchema,
   trainingStatusSchema,
   backgroundCheckStatusSchema,
