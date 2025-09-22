@@ -3,7 +3,11 @@
     <!-- Employee Card -->
     <v-card
       class="employee-card"
-      :class="{ highlighted: isHighlighted, 'no-top-line': level === 0 }"
+      :class="{
+        highlighted: isHighlighted,
+        'no-top-line': level === 0,
+        'has-children': hasChildren,
+      }"
       elevation="4"
       rounded="lg"
       @click="$emit('employee-click', employee)"
@@ -102,9 +106,27 @@
     </v-card>
 
     <!-- Children -->
-    <div v-if="hasChildren" class="children-container">
+    <div
+      v-if="hasChildren"
+      class="children-container"
+      ref="childrenContainerRef"
+    >
+      <!-- Horizontal connector across children -->
+      <div
+        class="connection-line horizontal-line"
+        v-if="children.length > 1"
+        :style="{
+          left: `${horizontalLineLeft}px`,
+          width: `${horizontalLineWidth}px`,
+        }"
+      ></div>
+
       <!-- Children nodes -->
-      <div class="children-grid" :class="`level-${level + 1}`">
+      <div
+        class="children-grid"
+        :class="`level-${level + 1}`"
+        ref="childrenGridRef"
+      >
         <div
           v-for="(child, index) in children"
           :key="child._id"
@@ -114,6 +136,7 @@
             'last-child': index === children.length - 1,
             'single-child': children.length === 1,
           }"
+          :ref="(el) => setChildRef(el, index)"
         >
           <!-- Recursive child node -->
           <OrgChartNode
@@ -129,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import dayjs from "dayjs";
 import type {
   Employee,
@@ -184,6 +207,62 @@ const getInitials = (fullName: string): string => {
 const formatDate = (dateString: string): string => {
   return dayjs(dateString).format("MMM YYYY");
 };
+
+// Horizontal connector measurement
+const childrenContainerRef = ref<HTMLElement | null>(null);
+const childrenGridRef = ref<HTMLElement | null>(null);
+const childRefs = ref<HTMLElement[]>([]);
+const horizontalLineLeft = ref(0);
+const horizontalLineWidth = ref(0);
+
+const setChildRef = (el: any, index: number) => {
+  if (el && el instanceof HTMLElement) {
+    childRefs.value[index] = el as HTMLElement;
+  }
+};
+
+const computeHorizontalLine = () => {
+  if (
+    !childrenContainerRef.value ||
+    childRefs.value.filter(Boolean).length < 2
+  ) {
+    horizontalLineLeft.value = 0;
+    horizontalLineWidth.value = 0;
+    return;
+  }
+  const containerRect = childrenContainerRef.value.getBoundingClientRect();
+  const centers = childRefs.value
+    .filter(Boolean)
+    .map((el) => {
+      const r = el.getBoundingClientRect();
+      return r.left - containerRect.left + r.width / 2;
+    })
+    .sort((a, b) => a - b);
+  if (centers.length < 2) {
+    horizontalLineLeft.value = 0;
+    horizontalLineWidth.value = 0;
+    return;
+  }
+  // Start slightly to the left of the first child center and end slightly to the right of the last child center
+  const halfStub = 0; // stubs are centered on cards, no extra padding needed
+  horizontalLineLeft.value = centers[0] - halfStub;
+  horizontalLineWidth.value =
+    centers[centers.length - 1] - centers[0] + halfStub * 2;
+};
+
+onMounted(() => {
+  nextTick(() => computeHorizontalLine());
+  window.addEventListener("resize", computeHorizontalLine);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", computeHorizontalLine);
+});
+
+watch(children, async () => {
+  await nextTick();
+  computeHorizontalLine();
+});
 
 const getJobLevelColor = (jobLevel: JobLevel): string => {
   const colorMap: Record<JobLevel, string> = {
@@ -263,6 +342,20 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   display: none;
 }
 
+.employee-card.has-children::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 34px;
+  background-color: #1976d2;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
 .employee-card:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
@@ -300,14 +393,18 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 
 /* vertical-line removed */
 
-/* horizontal-line removed */
+.horizontal-line {
+  height: 3px;
+  top: 0;
+  border-radius: 2px;
+}
 
 /* child-vertical-line removed */
 
 /* Children container */
 .children-container {
   position: relative;
-  margin-top: 60px;
+  margin-top: 30px;
   width: 100%;
   overflow-x: visible;
   padding: 0 20px;
@@ -319,7 +416,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   justify-content: center;
   gap: 25px;
   flex-wrap: nowrap;
-  margin-top: 30px;
+  margin-top: 24px;
   align-items: flex-start;
   min-width: fit-content;
   padding: 0 20px;
