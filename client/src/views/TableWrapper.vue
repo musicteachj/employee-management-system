@@ -11,6 +11,7 @@
       :enableExport="enableExport"
       :enableOpenRecord="enableOpenRecord"
       :enableSelect="enableSelect"
+      :tableActions="tableActions"
       :showTitles="true"
     />
   </div>
@@ -21,7 +22,7 @@ import DataTable from "../components/DataTable.vue";
 import { useAppStore } from "../stores/app";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import type { Employee } from "../types";
+import type { Employee, ActionType } from "../types";
 
 const route = useRoute();
 
@@ -38,7 +39,7 @@ const enableActions = ref(false);
 const enableExport = ref(false);
 const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
-const tableActions = ref([]);
+const tableActions = ref<ActionType[]>([]);
 const items = ref<Employee[]>([]);
 
 // Lifecycle hooks
@@ -63,6 +64,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getUnassignedHires();
+        tableActions.value = ["assign-to-manager"];
         break;
       case "Recent Hires":
         title.value = "Recent Hires";

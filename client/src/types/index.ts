@@ -286,3 +286,12 @@ export interface DialogState {
   size: "x-small" | "small" | "medium" | "large";
   type: string | null;
 }
+
+export interface Action {
+  text: string;
+  icon: string;
+  action: () => void;
+  type: ActionType;
+}
+
+export type ActionType = "assign-to-manager";

@@ -16,7 +16,7 @@
           @click="dialogStore.closeAndResetDialog()"
         ></v-icon>
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="ml-n1 mr-n1">
         <slot />
       </v-card-text>
       <v-card-actions>

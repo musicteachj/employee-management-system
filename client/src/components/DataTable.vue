@@ -27,6 +27,7 @@
       :items="items"
       density="compact"
       class="elevation-0 rounded-lg data-table-custom"
+      :show-select="enableSelect"
       :items-per-page="10"
       :items-per-page-options="[5, 10, 25, 50]"
       :hide-default-footer="items.length < 11"
@@ -42,6 +43,16 @@
         >
           <v-icon icon="mdi-eye" color="primary" />
         </v-btn>
+        <v-btn
+          v-for="action in actions"
+          :key="action.type"
+          icon
+          size="small"
+          variant="text"
+          @click="action.action()"
+        >
+          <v-icon :icon="action.icon" color="primary" />
+        </v-btn>
       </template>
     </v-data-table>
   </v-card>
@@ -50,8 +61,10 @@
 <script setup lang="ts">
 import { toRefs, ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import type { Employee } from "../types";
+import type { Employee, ActionType } from "../types";
+import { useDialogStore } from "../stores/dialog";
 
+const dialogStore = useDialogStore();
 const router = useRouter();
 
 const props = defineProps<{
@@ -65,6 +78,7 @@ const props = defineProps<{
   enableExport: boolean;
   enableOpenRecord: boolean;
   enableSelect: boolean;
+  tableActions: ActionType[];
   showTitles: boolean;
 }>();
 const { items, title, subtitle, enableSearch, enableOpenRecord } =
@@ -91,6 +105,10 @@ const trimmedSearch = computed(() => search.value.trim());
 const viewRecord = (item: Employee) => {
   router.push({ name: "employee-edit", params: { id: item._id } });
 };
+
+const actions = computed(() => {
+  return dialogStore.getActions(props.tableActions);
+});
 </script>
 
 <style scoped>
