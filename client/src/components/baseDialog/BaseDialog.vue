@@ -19,11 +19,6 @@
       <v-card-text class="ml-n1 mr-n1">
         <slot />
       </v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" @click="dialogStore.closeAndResetDialog()">
-          Close
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

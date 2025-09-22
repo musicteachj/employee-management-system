@@ -21,6 +21,14 @@
       class="search-field mb-4"
       color="primary"
     ></v-text-field>
+
+    <!-- Bulk Actions Toolbar -->
+    <BulkActionsToolbar
+      v-if="enableActions && enableActions"
+      :selected-items="selectedItems"
+      :actions="actions"
+    />
+
     <v-data-table
       :search="trimmedSearch"
       :headers="computedHeaders"
@@ -32,6 +40,9 @@
       :items-per-page-options="[5, 10, 25, 50]"
       :hide-default-footer="items.length < 11"
       hover
+      v-model="selectedItems"
+      item-value="_id"
+      return-object
     >
       <template v-slot:item.actions="{ item }">
         <v-btn
@@ -42,16 +53,9 @@
           @click="viewRecord(item)"
         >
           <v-icon icon="mdi-eye" color="primary" />
-        </v-btn>
-        <v-btn
-          v-for="action in actions"
-          :key="action.type"
-          icon
-          size="small"
-          variant="text"
-          @click="action.action()"
-        >
-          <v-icon :icon="action.icon" color="primary" />
+          <v-tooltip activator="parent" location="top">
+            View Details
+          </v-tooltip>
         </v-btn>
       </template>
     </v-data-table>
@@ -59,11 +63,13 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, ref, computed } from "vue";
+import { toRefs, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { Employee, ActionType } from "../types";
 import { useDialogStore } from "../stores/dialog";
-
+import BulkActionsToolbar from "./BulkActionsToolbar.vue";
+import { useAppStore } from "../stores/app";
+const appStore = useAppStore();
 const dialogStore = useDialogStore();
 const router = useRouter();
 
@@ -81,8 +87,14 @@ const props = defineProps<{
   tableActions: ActionType[];
   showTitles: boolean;
 }>();
-const { items, title, subtitle, enableSearch, enableOpenRecord } =
-  toRefs(props);
+const {
+  items,
+  title,
+  subtitle,
+  enableSearch,
+  enableOpenRecord,
+  enableActions,
+} = toRefs(props);
 
 const computedHeaders = computed(() => {
   // if enableOpenRecord, add a new header with the key "Actions"
@@ -99,6 +111,7 @@ const computedHeaders = computed(() => {
 });
 
 const search = ref("");
+const selectedItems = ref<Employee[]>([]);
 
 const trimmedSearch = computed(() => search.value.trim());
 
@@ -109,6 +122,22 @@ const viewRecord = (item: Employee) => {
 const actions = computed(() => {
   return dialogStore.getActions(props.tableActions);
 });
+
+// Watch items change to clear selections
+watch(
+  () => items.value,
+  () => {
+    selectedItems.value = [];
+  }
+);
+
+// Watch selected items from app store
+watch(
+  () => appStore.selectedEmployees,
+  () => {
+    selectedItems.value = appStore.selectedEmployees;
+  }
+);
 </script>
 
 <style scoped>

@@ -42,11 +42,6 @@ const enableSelect = ref(false);
 const tableActions = ref<ActionType[]>([]);
 const items = ref<Employee[]>([]);
 
-// Lifecycle hooks
-onMounted(() => {
-  loadData();
-});
-
 // Methods
 const loadData = async () => {
   try {
@@ -128,6 +123,11 @@ const resetData = () => {
   items.value = [];
 };
 
+// Lifecycle hooks
+onMounted(() => {
+  loadData();
+});
+
 // Watchers
 watch(
   () => route.name,
@@ -136,6 +136,14 @@ watch(
       routeName.value = newRouteName as string;
       loadData();
     }
+  }
+);
+
+// Watch for refresh key changes to reload data
+watch(
+  () => appStore.refreshKey,
+  () => {
+    loadData();
   }
 );
 </script>
