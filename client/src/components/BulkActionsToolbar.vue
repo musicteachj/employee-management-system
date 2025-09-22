@@ -32,6 +32,7 @@
         color="white"
         variant="text"
         @click="clearSelection"
+        :disabled="selectedItems.length === 0"
       />
     </v-toolbar>
   </v-slide-y-transition>
