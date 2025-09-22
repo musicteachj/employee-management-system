@@ -58,7 +58,7 @@
             <v-col cols="12" md="6">
               <v-select
                 v-model="newJobLevel"
-                :items="jobLevelOptions"
+                :items="appStore.formOptions.jobLevels as string[]"
                 label="Job Level *"
                 required
                 variant="outlined"
@@ -68,8 +68,6 @@
                 color="primary"
                 hint="Job level for the rehired employee"
                 persistent-hint
-                item-title="text"
-                item-value="value"
               />
             </v-col>
             <v-col cols="12" md="6">
@@ -91,7 +89,7 @@
             <v-col cols="12" md="6">
               <v-select
                 v-model="newEmploymentType"
-                :items="employmentTypeOptions"
+                :items="appStore.formOptions.employmentTypes as string[]"
                 label="Employment Type *"
                 required
                 variant="outlined"
@@ -101,8 +99,6 @@
                 color="primary"
                 hint="Employment type for the rehired employee"
                 persistent-hint
-                item-title="text"
-                item-value="value"
               />
             </v-col>
           </v-row>
@@ -144,10 +140,6 @@
                         <v-icon icon="mdi-account-tie" />
                       </v-avatar>
                     </template>
-                    <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      item.raw.subtitle
-                    }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
               </v-select>
@@ -255,20 +247,6 @@ const isRehiring = ref(false);
 
 const departmentOptions = computed(() =>
   appStore.departments.map((dept) => dept.name)
-);
-
-const jobLevelOptions = computed(() =>
-  appStore.formOptions.jobLevels.map((level) => ({
-    text: level,
-    value: level,
-  }))
-);
-
-const employmentTypeOptions = computed(() =>
-  appStore.formOptions.employmentTypes.map((type) => ({
-    text: type,
-    value: type,
-  }))
 );
 
 const managerOptions = computed(() =>

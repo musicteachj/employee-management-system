@@ -242,7 +242,7 @@ export const addEmployeeSchema = z.object({
     .min(1, "Pay Grade is required")
     .max(25, "Pay Grade must be less than 25 characters"),
 
-  benefitsEligibile: benefitsEligibleSchema,
+  benefitsEligible: benefitsEligibleSchema,
 
   // Performance & Development - Required fields
   performanceRating: performanceRatingSchema,

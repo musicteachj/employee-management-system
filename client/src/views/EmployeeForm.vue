@@ -561,19 +561,19 @@
                     <v-col cols="12" md="6">
                       <v-select
                         v-if="isAddMode || (isEditMode && isFormEditable)"
-                        v-model="benefitsEligibile"
+                        v-model="benefitsEligible"
                         :items="benefitsEligibleOptions"
                         label="Benefits Eligible *"
                         required
                         variant="outlined"
                         density="compact"
-                        :error-messages="errors.benefitsEligibile"
+                        :error-messages="errors.benefitsEligible"
                         class="form-field"
                         color="primary"
                       />
                       <v-text-field
                         v-else
-                        :model-value="benefitsEligibile"
+                        :model-value="benefitsEligible"
                         label="Benefits Eligible"
                         variant="outlined"
                         density="compact"
@@ -1001,7 +1001,7 @@ const {
     salary: 0,
     currency: 1,
     paygrade: "",
-    benefitsEligibile: "Yes" as BenefitsEligible,
+    benefitsEligible: "Yes" as BenefitsEligible,
     performanceRating: "Unrated" as PerformanceRating,
     trainingStatus: "Not Started" as TrainingStatus,
     developmentNotes: "",
@@ -1048,7 +1048,7 @@ const [hireDate] = defineField("hireDate");
 const [probationEndDate] = defineField("probationEndDate");
 const [salary] = defineField("salary");
 const [paygrade] = defineField("paygrade");
-const [benefitsEligibile] = defineField("benefitsEligibile");
+const [benefitsEligible] = defineField("benefitsEligible");
 const [performanceRating] = defineField("performanceRating");
 const [trainingStatus] = defineField("trainingStatus");
 const [developmentNotes] = defineField("developmentNotes");
@@ -1145,7 +1145,7 @@ watch(
       probationEndDate.value = newEmployee.probationEndDate || "";
       salary.value = newEmployee.salary;
       paygrade.value = newEmployee.paygrade;
-      benefitsEligibile.value = newEmployee.benefitsEligibile;
+      benefitsEligible.value = newEmployee.benefitsEligible;
       performanceRating.value = newEmployee.performanceRating;
       trainingStatus.value = newEmployee.trainingStatus;
       developmentNotes.value = newEmployee.developmentNotes;
@@ -1262,7 +1262,7 @@ const cancelEdit = () => {
       probationEndDate.value = emp.probationEndDate || "";
       salary.value = emp.salary;
       paygrade.value = emp.paygrade;
-      benefitsEligibile.value = emp.benefitsEligibile;
+      benefitsEligible.value = emp.benefitsEligible;
       performanceRating.value = emp.performanceRating;
       trainingStatus.value = emp.trainingStatus;
       developmentNotes.value = emp.developmentNotes;
@@ -1334,7 +1334,7 @@ const saveEmployee = async () => {
         salary: salary.value,
         currency: 1,
         paygrade: paygrade.value,
-        benefitsEligibile: benefitsEligibile.value,
+        benefitsEligible: benefitsEligible.value,
         performanceRating: performanceRating.value,
         trainingStatus: trainingStatus.value,
         developmentNotes: developmentNotes.value,
@@ -1403,8 +1403,8 @@ const saveEmployee = async () => {
         workLocation: workLocation.value || employee.value.workLocation,
         salary: salary.value || employee.value.salary,
         paygrade: paygrade.value || employee.value.paygrade,
-        benefitsEligibile:
-          benefitsEligibile.value || employee.value.benefitsEligibile,
+        benefitsEligible:
+          benefitsEligible.value || employee.value.benefitsEligible,
         performanceRating:
           performanceRating.value || employee.value.performanceRating,
         trainingStatus: trainingStatus.value || employee.value.trainingStatus,

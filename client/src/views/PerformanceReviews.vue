@@ -434,4 +434,157 @@ onMounted(() => {
 
 <style scoped>
 /* Component-specific styles only - common styles are in global CSS */
+
+/* Enhanced divider with gradient */
+.divider-gradient {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #1976d2 50%,
+    transparent 100%
+  );
+  height: 2px;
+  border: none;
+}
+
+/* Search field enhancements */
+.search-field {
+  transition: all 0.3s ease;
+}
+
+.search-field :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+.search-field :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+.search-field :deep(.v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+/* Filter field enhancements */
+.filter-field {
+  transition: all 0.3s ease;
+}
+
+.filter-field :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+.filter-field :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+/* Table styling */
+.performance-data-table {
+  background: transparent;
+}
+
+/* Table headers with enhanced styling */
+.performance-data-table :deep(.v-data-table-header__content) {
+  font-weight: 700;
+  color: #1976d2;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.performance-data-table :deep(.v-data-table__th) {
+  background: #f5f7fa !important;
+  border-bottom: 2px solid #1976d2;
+}
+
+/* Row hover effects */
+.performance-data-table :deep(.v-data-table__tr:hover) {
+  background: linear-gradient(
+    135deg,
+    rgba(25, 118, 210, 0.04) 0%,
+    rgba(25, 118, 210, 0.08) 100%
+  );
+  transform: scale(1.005);
+  transition: all 0.2s ease;
+}
+
+.performance-data-table :deep(.v-data-table__td) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Alternating row colors for better readability */
+.performance-data-table :deep(.v-data-table__tr:nth-child(even)) {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+/* Action button styling */
+.action-btn {
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.action-btn:hover {
+  background: rgba(25, 118, 210, 0.1);
+  transform: scale(1.1);
+}
+
+.action-btn :deep(.v-icon) {
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover :deep(.v-icon) {
+  transform: scale(1.2);
+  color: #1565c0;
+}
+
+/* Footer styling */
+.performance-data-table :deep(.v-data-table-footer) {
+  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
+  border-top: 1px solid rgba(25, 118, 210, 0.2);
+  border-radius: 0 0 12px 12px;
+}
+
+/* Pagination button styling */
+.performance-data-table :deep(.v-pagination__item) {
+  transition: all 0.3s ease;
+}
+
+.performance-data-table :deep(.v-pagination__item:hover) {
+  background: rgba(25, 118, 210, 0.1);
+  transform: scale(1.05);
+}
+
+.performance-data-table :deep(.v-pagination__item--is-active) {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+/* Card styling with subtle gradient */
+.header-card,
+.filters-card,
+.table-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.header-card:hover,
+.filters-card:hover,
+.table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Summary card enhancements */
+.summary-card {
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
 </style>

@@ -82,6 +82,24 @@ export const useDialogStore = defineStore("dialog", () => {
           ? "Only terminated employees can be rehired"
           : undefined,
     },
+    {
+      text: "Update Training Status",
+      icon: "mdi-book-open-page-variant",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Update Training Status",
+          size: "medium",
+          type: "training-status-update",
+        });
+      },
+      type: "training-status-update",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to update training status"
+          : undefined,
+    },
   ]);
 
   const getActions = (actionList: ActionType[]) => {

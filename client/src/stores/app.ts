@@ -79,7 +79,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 125000,
       currency: 1, // USD
       paygrade: "L5",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -218,7 +218,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 95000,
       currency: 1, // USD
       paygrade: "M2",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -319,7 +319,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 180000,
       currency: 1, // USD
       paygrade: "D1",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -419,7 +419,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 165000,
       currency: 1, // USD
       paygrade: "D2",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -500,7 +500,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 105000,
       currency: 1, // USD
       paygrade: "M3",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -581,7 +581,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 98000,
       currency: 1, // USD
       paygrade: "M1",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -662,7 +662,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 72000,
       currency: 1, // USD
       paygrade: "L3",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -743,7 +743,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 115000,
       currency: 1, // USD
       paygrade: "L4",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -824,7 +824,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 135000,
       currency: 1, // USD
       paygrade: "M4",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -902,7 +902,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 65000,
       currency: 1, // USD
       paygrade: "L2",
-      benefitsEligibile: "No",
+      benefitsEligible: "No",
 
       // Performance & Development
       performanceRating: "Needs Improvement",
@@ -1007,7 +1007,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 85000,
       currency: 1, // USD
       paygrade: "L1",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1088,7 +1088,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 45000, // Part-time salary
       currency: 1, // USD
       paygrade: "L2",
-      benefitsEligibile: "No",
+      benefitsEligible: "No",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1170,7 +1170,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 95000, // Contract rate annualized
       currency: 1, // USD
       paygrade: "C1",
-      benefitsEligibile: "No",
+      benefitsEligible: "No",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -1252,7 +1252,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 25000, // Intern stipend annualized
       currency: 1, // USD
       paygrade: "I1",
-      benefitsEligibile: "No",
+      benefitsEligible: "No",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1333,7 +1333,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 145000,
       currency: 1, // USD
       paygrade: "L6",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -1415,7 +1415,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 70000, // Temporary position
       currency: 1, // USD
       paygrade: "T1",
-      benefitsEligibile: "No",
+      benefitsEligible: "No",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1496,7 +1496,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 92000,
       currency: 1, // USD
       paygrade: "L4",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -1578,7 +1578,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 88000,
       currency: 1, // USD
       paygrade: "L3",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1659,7 +1659,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 68000,
       currency: 1, // USD
       paygrade: "L2",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Meets Expectations",
@@ -1741,7 +1741,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 350000,
       currency: 1, // USD
       paygrade: "CEO",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -1823,7 +1823,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 275000,
       currency: 1, // USD
       paygrade: "C1",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Exceeds Expectations",
@@ -1907,7 +1907,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 95000,
       currency: 1,
       paygrade: "L3",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -1988,7 +1988,7 @@ export const useAppStore = defineStore("app", () => {
       salary: 75000,
       currency: 1,
       paygrade: "L3",
-      benefitsEligibile: "Yes",
+      benefitsEligible: "Yes",
 
       // Performance & Development
       performanceRating: "Unrated",
@@ -2435,6 +2435,62 @@ export const useAppStore = defineStore("app", () => {
     refreshKey.value += 1;
   };
 
+  const bulkUpdateTrainingStatus = (
+    employeeIds: string[],
+    newTrainingStatus: TrainingStatus,
+    trainingData: {
+      trainingProgram: string;
+      startDate: string;
+      completionDate: string;
+      effectiveDate: string;
+      notes: string;
+    }
+  ): void => {
+    console.log(
+      `Bulk updating training status to ${newTrainingStatus} for employees:`,
+      employeeIds,
+      "with data:",
+      trainingData
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Updating training status for employee ${employee.fullName} from ${employee.trainingStatus} to ${newTrainingStatus}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          trainingStatus: newTrainingStatus,
+          hrAssignment: {
+            ...employee.hrAssignment,
+            reviewComments: trainingData.notes
+              ? `Training status updated to ${newTrainingStatus} on ${trainingData.effectiveDate}. Program: ${trainingData.trainingProgram}. ${trainingData.notes}`
+              : `Training status updated to ${newTrainingStatus} on ${
+                  trainingData.effectiveDate
+                }${
+                  trainingData.trainingProgram
+                    ? `. Program: ${trainingData.trainingProgram}`
+                    : ""
+                }`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} training status updated to: ${updatedEmployee.trainingStatus}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
   // Performance Review Methods
   const getPerformanceReviews = async (): Promise<Employee[]> => {
     return employees.value.filter(
@@ -2630,6 +2686,7 @@ export const useAppStore = defineStore("app", () => {
     bulkAssignManager,
     bulkConvertEmploymentType,
     bulkRehireEmployees,
+    bulkUpdateTrainingStatus,
     // Performance Review Methods
     getPerformanceReviews,
     getOverdueReviews,
