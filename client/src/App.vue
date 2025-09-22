@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import BaseDialog from "./components/baseDialog/BaseDialog.vue";
 
 const rail = ref(false);
 const drawer = ref(true);
@@ -64,6 +65,7 @@ const open = ref<string[]>([]);
       </v-navigation-drawer>
       <v-main>
         <router-view class="pa-4" />
+        <BaseDialog />
       </v-main>
     </v-layout>
   </v-app>

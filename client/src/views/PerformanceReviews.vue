@@ -264,9 +264,11 @@ import type {
 import PerformanceDistributionChart from "../components/charts/PerformanceDistributionChart.vue";
 import PerformanceTrendChart from "../components/charts/PerformanceTrendChart.vue";
 import DepartmentComparisonChart from "../components/charts/DepartmentComparisonChart.vue";
+import { useDialogStore } from "../stores/dialog";
 
 const router = useRouter();
 const appStore = useAppStore();
+const dialogStore = useDialogStore();
 
 // Reactive data
 const loading = ref(true);
@@ -415,9 +417,13 @@ const viewEmployee = (item: ReviewStatus) => {
 };
 
 const scheduleReview = (item: ReviewStatus) => {
-  // TODO: Implement review scheduling functionality
-  console.log("Schedule review for:", item.employeeName);
-  // This could open a dialog or navigate to a review scheduling page
+  console.log(item);
+  dialogStore.setDialog({
+    show: true,
+    header: "Schedule Review",
+    size: "medium",
+    type: "review-scheduling",
+  });
 };
 
 // Lifecycle

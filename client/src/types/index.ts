@@ -279,3 +279,10 @@ export interface ReviewStatus {
   currentRating: PerformanceRating;
   reviewStatus: "current" | "due_soon" | "overdue" | "never_reviewed";
 }
+
+export interface DialogState {
+  show: boolean;
+  header: string;
+  size: "x-small" | "small" | "medium" | "large";
+  type: string | null;
+}
