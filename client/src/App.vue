@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
+// Components
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
+import AssignManager from "./components/baseDialog/dialogContent/AssignManager.vue";
+import { useDialogStore } from "./stores/dialog";
 
 const rail = ref(false);
 const drawer = ref(true);
 const open = ref<string[]>([]);
+const dialogStore = useDialogStore();
 </script>
 
 <template>
@@ -65,7 +69,11 @@ const open = ref<string[]>([]);
       </v-navigation-drawer>
       <v-main>
         <router-view class="pa-4" />
-        <BaseDialog />
+        <BaseDialog>
+          <AssignManager
+            v-if="dialogStore.dialogState.type === 'assign-to-manager'"
+          />
+        </BaseDialog>
       </v-main>
     </v-layout>
   </v-app>
