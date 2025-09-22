@@ -1,0 +1,135 @@
+/* Utility Classes and Layout Helpers */
+
+/* Page container styling */
+.analytics,
+.performance-reviews,
+.org-chart {
+  padding: 8px;
+}
+
+/* Enhanced spacing */
+.gap-3 {
+  gap: 12px;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  background: rgba(245, 247, 250, 0.5);
+  border-radius: 8px;
+  border: 2px dashed rgba(158, 158, 158, 0.3);
+}
+
+.empty-state .v-icon {
+  opacity: 0.6;
+}
+
+/* Employee list styling */
+.employee-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Organization chart container */
+.org-chart-container {
+  min-height: 400px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.org-hierarchy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: fit-content;
+}
+
+.root-level {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: nowrap;
+  margin-bottom: 20px;
+  padding: 0 40px;
+  min-width: fit-content;
+}
+
+/* Responsive adjustments */
+@media (min-width: 1200px) {
+  .org-chart-container {
+    padding: 40px;
+  }
+
+  .root-level {
+    padding: 0 60px;
+  }
+}
+
+/* Common color utilities */
+.text-primary {
+  color: #1976d2 !important;
+}
+
+.text-success {
+  color: #4caf50 !important;
+}
+
+.text-warning {
+  color: #ff9800 !important;
+}
+
+.text-error {
+  color: #f44336 !important;
+}
+
+.text-info {
+  color: #2196f3 !important;
+}
+
+/* Background utilities */
+.bg-primary-light {
+  background: rgba(25, 118, 210, 0.1) !important;
+}
+
+.bg-success-light {
+  background: rgba(76, 175, 80, 0.1) !important;
+}
+
+.bg-warning-light {
+  background: rgba(255, 152, 0, 0.1) !important;
+}
+
+.bg-error-light {
+  background: rgba(244, 67, 54, 0.1) !important;
+}
+
+/* Shadow utilities */
+.shadow-light {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-heavy {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Transition utilities */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.transition-fast {
+  transition: all 0.2s ease;
+}
+
+.transition-slow {
+  transition: all 0.5s ease;
+}
