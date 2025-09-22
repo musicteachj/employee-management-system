@@ -37,6 +37,32 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "assign-to-manager",
     },
+    {
+      text: "Convert Employee Type",
+      icon: "mdi-account-convert",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Convert Employee Type",
+          size: "medium",
+          type: "convert-employee-type",
+        });
+      },
+      type: "convert-employee-type",
+    },
+    {
+      text: "Rehire Employee",
+      icon: "mdi-account-plus",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Rehire Employee",
+          size: "medium",
+          type: "rehire-employee",
+        });
+      },
+      type: "rehire-employee",
+    },
   ]);
 
   const getActions = (actionList: ActionType[]) => {

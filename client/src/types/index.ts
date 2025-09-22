@@ -294,4 +294,7 @@ export interface Action {
   type: ActionType;
 }
 
-export type ActionType = "assign-to-manager";
+export type ActionType =
+  | "assign-to-manager"
+  | "convert-employee-type"
+  | "rehire-employee";

@@ -2323,6 +2323,118 @@ export const useAppStore = defineStore("app", () => {
     refreshKey.value += 1;
   };
 
+  const bulkConvertEmploymentType = (
+    employeeIds: string[],
+    newEmploymentType: EmploymentType,
+    effectiveDate: string,
+    notes?: string
+  ): void => {
+    console.log(
+      `Bulk converting employment type to ${newEmploymentType} for employees:`,
+      employeeIds
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Converting employee ${employee.fullName} from ${employee.employmentType} to ${newEmploymentType}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          employmentType: newEmploymentType,
+          hrAssignment: {
+            ...employee.hrAssignment,
+            reviewComments: notes
+              ? `Employment type converted to ${newEmploymentType} on ${effectiveDate}. ${notes}`
+              : `Employment type converted to ${newEmploymentType} on ${effectiveDate}`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} employment type updated to: ${updatedEmployee.employmentType}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
+  const bulkRehireEmployees = (
+    employeeIds: string[],
+    rehireData: {
+      rehireDate: string;
+      department: string;
+      position: string;
+      jobLevel: JobLevel;
+      salary: number;
+      employmentType: EmploymentType;
+      managerId: string;
+      managerName: string;
+      notes: string;
+    }
+  ): void => {
+    console.log(
+      `Bulk rehiring employees:`,
+      employeeIds,
+      "with data:",
+      rehireData
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Rehiring employee ${employee.fullName} to ${rehireData.department} as ${rehireData.position}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          status: "Active",
+          department: rehireData.department,
+          position: rehireData.position,
+          jobLevel: rehireData.jobLevel,
+          salary: rehireData.salary,
+          employmentType: rehireData.employmentType,
+          managerId: rehireData.managerId || undefined,
+          managerName: rehireData.managerName || undefined,
+          hireDate: rehireData.rehireDate, // Update hire date to rehire date
+          terminationDate: undefined, // Clear termination date
+          hrAssignment: {
+            ...employee.hrAssignment,
+            managerEmail: rehireData.managerId
+              ? managers.value.find((m) => m.id === rehireData.managerId)
+                  ?.email || ""
+              : "",
+            managerAssignDate: rehireData.managerId
+              ? rehireData.rehireDate
+              : undefined,
+            reviewComments: rehireData.notes
+              ? `Employee rehired on ${rehireData.rehireDate}. ${rehireData.notes}`
+              : `Employee rehired on ${rehireData.rehireDate}`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} rehired successfully with status: ${updatedEmployee.status}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
   // Performance Review Methods
   const getPerformanceReviews = async (): Promise<Employee[]> => {
     return employees.value.filter(
@@ -2516,6 +2628,8 @@ export const useAppStore = defineStore("app", () => {
     addEmployee,
     updateEmployee,
     bulkAssignManager,
+    bulkConvertEmploymentType,
+    bulkRehireEmployees,
     // Performance Review Methods
     getPerformanceReviews,
     getOverdueReviews,

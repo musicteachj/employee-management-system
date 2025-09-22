@@ -3,6 +3,8 @@ import { ref } from "vue";
 // Components
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
 import AssignManager from "./components/baseDialog/dialogContent/AssignManager.vue";
+import ConvertEmployeeType from "./components/baseDialog/dialogContent/ConvertEmployeeType.vue";
+import RehireEmployee from "./components/baseDialog/dialogContent/RehireEmployee.vue";
 import { useDialogStore } from "./stores/dialog";
 
 const rail = ref(false);
@@ -72,6 +74,12 @@ const dialogStore = useDialogStore();
         <BaseDialog>
           <AssignManager
             v-if="dialogStore.dialogState.type === 'assign-to-manager'"
+          />
+          <ConvertEmployeeType
+            v-if="dialogStore.dialogState.type === 'convert-employee-type'"
+          />
+          <RehireEmployee
+            v-if="dialogStore.dialogState.type === 'rehire-employee'"
           />
         </BaseDialog>
       </v-main>
