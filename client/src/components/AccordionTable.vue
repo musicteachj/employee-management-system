@@ -49,6 +49,7 @@
               :enableOpenRecord="true"
               :enableSelect="false"
               :showTitles="false"
+              :tableActions="[]"
             />
           </v-card>
         </td>

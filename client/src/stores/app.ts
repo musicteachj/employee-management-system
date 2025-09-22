@@ -19,6 +19,24 @@ import type {
 } from "../types";
 
 export const useAppStore = defineStore("app", () => {
+  const refreshKey = ref(0);
+
+  const selectedEmployees = ref<Employee[]>([]);
+
+  const setSelectedEmployees = (employees: Employee[]) => {
+    selectedEmployees.value = employees;
+  };
+
+  const removeSelectedEmployee = (employeeId: string) => {
+    selectedEmployees.value = selectedEmployees.value.filter(
+      (emp) => emp._id !== employeeId
+    );
+  };
+
+  const getEmployees = async (): Promise<Employee[]> => {
+    return employees.value;
+  };
+
   const employees = ref<Employee[]>([
     {
       _id: "emp_001",
@@ -1847,6 +1865,169 @@ export const useAppStore = defineStore("app", () => {
         onboardingKey: "ONB_021",
       },
     },
+    // Add some unassigned employees for testing
+    {
+      _id: "emp_100",
+      status: "Active",
+
+      // Personal Information
+      firstName: "John",
+      lastName: "Unassigned",
+      fullName: "John Unassigned",
+      personalEmail: "john.unassigned@gmail.com",
+      workEmail: "john.unassigned@company.com",
+      phoneNumber: "+1-555-1001",
+      emergencyContactName: "Jane Unassigned",
+      emergencyContactPhone: "+1-555-1002",
+      address: "100 Test Street",
+      city: "Test City",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1990-01-01",
+
+      // Employment Information
+      employeeId: "EMP100",
+      department: "Engineering",
+      position: "Software Engineer",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Remote",
+      managerId: "", // No manager assigned
+      managerName: "",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "ENG-002",
+      businessUnit: "Technology",
+
+      // Dates
+      hireDate: "2025-09-15", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 95000,
+      currency: 1,
+      paygrade: "L3",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "In Progress",
+      developmentNotes: "New hire awaiting manager assignment",
+      nextReviewDate: "",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "Completed",
+
+      // System fields
+      docType: "employee",
+      source: "HR",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-15",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-15",
+      updatedAt: "2025-09-15T10:00:00Z",
+      lastProfileUpdate: "2025-09-15",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_1",
+        assignedDate: "2025-09-15",
+        managerEmail: "",
+        managerAssignDate: "",
+        reviewComments: "Awaiting manager assignment",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-15",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_100",
+      },
+    },
+    {
+      _id: "emp_101",
+      status: "Active",
+
+      // Personal Information
+      firstName: "Sarah",
+      lastName: "NoManager",
+      fullName: "Sarah NoManager",
+      personalEmail: "sarah.nomanager@gmail.com",
+      workEmail: "sarah.nomanager@company.com",
+      phoneNumber: "+1-555-1003",
+      emergencyContactName: "Bob NoManager",
+      emergencyContactPhone: "+1-555-1004",
+      address: "101 Test Avenue",
+      city: "Test City",
+      state: "CA",
+      country: "USA",
+      dateOfBirth: "1992-05-15",
+
+      // Employment Information
+      employeeId: "EMP101",
+      department: "Marketing",
+      position: "Marketing Specialist",
+      jobLevel: "Mid",
+      employmentType: "Full-time",
+      workLocation: "Office",
+      managerId: "", // No manager assigned
+      managerName: "",
+      directReports: [],
+      organizationLevel: 4,
+      costCenter: "MKT-002",
+      businessUnit: "Revenue",
+
+      // Dates
+      hireDate: "2025-09-18", // Recent hire
+      lastReviewDate: "",
+
+      // Compensation & Benefits
+      salary: 75000,
+      currency: 1,
+      paygrade: "L3",
+      benefitsEligibile: "Yes",
+
+      // Performance & Development
+      performanceRating: "Unrated",
+      trainingStatus: "Not Started",
+      developmentNotes: "New hire in onboarding process",
+      nextReviewDate: "",
+
+      // Compliance & Verification
+      backgroundCheckStatus: "In Progress",
+
+      // System fields
+      docType: "employee",
+      source: "External",
+      createdBy: "hr_admin",
+      createdOn: "2025-09-18",
+      updatedBy: "hr_admin",
+      updatedOn: "2025-09-18",
+      updatedAt: "2025-09-18T14:00:00Z",
+      lastProfileUpdate: "2025-09-18",
+
+      // Manager/HR Assignment
+      hrAssignment: {
+        assignedTo: "hr_manager_2",
+        assignedDate: "2025-09-18",
+        managerEmail: "",
+        managerAssignDate: "",
+        reviewComments: "Pending manager assignment",
+        revalidationStatus: "Pending",
+      },
+
+      // Onboarding/Event tracking
+      onboarding: {
+        author: "hr_admin",
+        authorType: "HR",
+        eventDate: "2025-09-18",
+        eventName: "Onboarding",
+        onboardingKey: "ONB_101",
+      },
+    },
   ]);
 
   // Departments - Centralized department data
@@ -1898,63 +2079,70 @@ export const useAppStore = defineStore("app", () => {
     },
   ]);
 
-  // Managers - Centralized manager data
+  // Managers - Centralized manager data (using employee IDs for consistency)
   const managers = ref<Manager[]>([
     {
-      id: "mgr_001",
+      id: "emp_003",
       name: "David Chen",
       email: "david.chen@company.com",
       department: "Engineering",
       jobLevel: "Director",
     },
     {
-      id: "mgr_002",
-      name: "Sarah Martinez",
-      email: "sarah.martinez@company.com",
+      id: "emp_002",
+      name: "Marcus Rodriguez",
+      email: "marcus.rodriguez@company.com",
       department: "Marketing",
       jobLevel: "Manager",
     },
     {
-      id: "mgr_003",
+      id: "emp_005",
       name: "Michael Thompson",
       email: "michael.thompson@company.com",
       department: "Sales",
       jobLevel: "Manager",
     },
     {
-      id: "mgr_004",
+      id: "emp_004",
       name: "Jennifer Liu",
       email: "jennifer.liu@company.com",
       department: "Human Resources",
       jobLevel: "Director",
     },
     {
-      id: "mgr_005",
-      name: "Robert Kim",
-      email: "robert.kim@company.com",
+      id: "emp_021",
+      name: "Victoria Chang",
+      email: "victoria.chang@company.com",
       department: "Finance",
-      jobLevel: "Manager",
+      jobLevel: "C-Level",
     },
     {
-      id: "mgr_006",
+      id: "emp_006",
       name: "Emily Davis",
       email: "emily.davis@company.com",
       department: "Operations",
       jobLevel: "Manager",
     },
     {
-      id: "mgr_007",
-      name: "Alex Rodriguez",
-      email: "alex.rodriguez@company.com",
+      id: "emp_009",
+      name: "Robert Brown",
+      email: "robert.brown@company.com",
       department: "Product",
-      jobLevel: "Director",
+      jobLevel: "Manager",
     },
     {
-      id: "mgr_008",
+      id: "emp_008",
       name: "Lisa Wang",
       email: "lisa.wang@company.com",
       department: "Design",
       jobLevel: "Senior",
+    },
+    {
+      id: "emp_020",
+      name: "James Wilson",
+      email: "james.wilson@company.com",
+      department: "Executive",
+      jobLevel: "CEO",
     },
   ]);
 
@@ -2022,7 +2210,11 @@ export const useAppStore = defineStore("app", () => {
   };
 
   const getUnassignedHires = async (): Promise<Employee[]> => {
-    return employees.value.filter((employee) => !employee.managerId);
+    console.log("Getting unassigned hires");
+    return employees.value.filter((employee) => {
+      // Filter employees who don't have a manager assigned
+      return !employee.managerId || employee.managerId.trim() === "";
+    });
   };
 
   const getRecentHires = async (): Promise<Employee[]> => {
@@ -2081,6 +2273,166 @@ export const useAppStore = defineStore("app", () => {
 
       employees.value[index] = updatedEmployee;
     }
+  };
+
+  const bulkAssignManager = (
+    employeeIds: string[],
+    managerId: string,
+    assignmentDate: string,
+    notes?: string
+  ): void => {
+    console.log(
+      `Bulk assigning manager ${managerId} to employees:`,
+      employeeIds
+    );
+    const manager = managers.value.find((m) => m.id === managerId);
+    if (!manager) {
+      throw new Error("Manager not found");
+    }
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Updating employee ${employee.fullName} with manager ${manager.name}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          managerId: manager.id,
+          managerName: manager.name,
+          hrAssignment: {
+            ...employee.hrAssignment,
+            managerEmail: manager.email,
+            managerAssignDate: assignmentDate,
+            reviewComments: notes || employee.hrAssignment.reviewComments,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} updated with managerId: ${updatedEmployee.managerId}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
+  const bulkConvertEmploymentType = (
+    employeeIds: string[],
+    newEmploymentType: EmploymentType,
+    effectiveDate: string,
+    notes?: string
+  ): void => {
+    console.log(
+      `Bulk converting employment type to ${newEmploymentType} for employees:`,
+      employeeIds
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Converting employee ${employee.fullName} from ${employee.employmentType} to ${newEmploymentType}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          employmentType: newEmploymentType,
+          hrAssignment: {
+            ...employee.hrAssignment,
+            reviewComments: notes
+              ? `Employment type converted to ${newEmploymentType} on ${effectiveDate}. ${notes}`
+              : `Employment type converted to ${newEmploymentType} on ${effectiveDate}`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} employment type updated to: ${updatedEmployee.employmentType}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
+  const bulkRehireEmployees = (
+    employeeIds: string[],
+    rehireData: {
+      rehireDate: string;
+      department: string;
+      position: string;
+      jobLevel: JobLevel;
+      salary: number;
+      employmentType: EmploymentType;
+      managerId: string;
+      managerName: string;
+      notes: string;
+    }
+  ): void => {
+    console.log(
+      `Bulk rehiring employees:`,
+      employeeIds,
+      "with data:",
+      rehireData
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Rehiring employee ${employee.fullName} to ${rehireData.department} as ${rehireData.position}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          status: "Active",
+          department: rehireData.department,
+          position: rehireData.position,
+          jobLevel: rehireData.jobLevel,
+          salary: rehireData.salary,
+          employmentType: rehireData.employmentType,
+          managerId: rehireData.managerId || undefined,
+          managerName: rehireData.managerName || undefined,
+          hireDate: rehireData.rehireDate, // Update hire date to rehire date
+          terminationDate: undefined, // Clear termination date
+          hrAssignment: {
+            ...employee.hrAssignment,
+            managerEmail: rehireData.managerId
+              ? managers.value.find((m) => m.id === rehireData.managerId)
+                  ?.email || ""
+              : "",
+            managerAssignDate: rehireData.managerId
+              ? rehireData.rehireDate
+              : undefined,
+            reviewComments: rehireData.notes
+              ? `Employee rehired on ${rehireData.rehireDate}. ${rehireData.notes}`
+              : `Employee rehired on ${rehireData.rehireDate}`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} rehired successfully with status: ${updatedEmployee.status}`
+        );
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
   };
 
   // Performance Review Methods
@@ -2256,11 +2608,11 @@ export const useAppStore = defineStore("app", () => {
       });
   };
 
-  const getEmployees = async (): Promise<Employee[]> => {
-    return employees.value;
-  };
-
   return {
+    refreshKey,
+    selectedEmployees,
+    setSelectedEmployees,
+    removeSelectedEmployee,
     employees,
     departments,
     managers,
@@ -2275,6 +2627,9 @@ export const useAppStore = defineStore("app", () => {
     getUpdatedProfiles,
     addEmployee,
     updateEmployee,
+    bulkAssignManager,
+    bulkConvertEmploymentType,
+    bulkRehireEmployees,
     // Performance Review Methods
     getPerformanceReviews,
     getOverdueReviews,

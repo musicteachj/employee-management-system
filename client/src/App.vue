@@ -1,9 +1,33 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
+import BaseDialog from "./components/baseDialog/BaseDialog.vue";
+import { dialogRegistry, dialogMeta } from "./components/baseDialog/registry";
+import { useDialogStore } from "./stores/dialog";
 
 const rail = ref(false);
 const drawer = ref(true);
 const open = ref<string[]>([]);
+const dialogStore = useDialogStore();
+
+const currentDialog = computed(() => {
+  const t = dialogStore.dialogState.type as keyof typeof dialogRegistry | null;
+  return t ? dialogRegistry[t] : null;
+});
+
+watch(
+  () => dialogStore.dialogState.type,
+  (t) => {
+    if (t && dialogMeta[t as keyof typeof dialogMeta]) {
+      const meta = dialogMeta[t as keyof typeof dialogMeta];
+      dialogStore.setDialog({
+        ...dialogStore.dialogState,
+        ...meta,
+        show: true,
+        type: t,
+      });
+    }
+  }
+);
 </script>
 
 <template>
@@ -64,6 +88,9 @@ const open = ref<string[]>([]);
       </v-navigation-drawer>
       <v-main>
         <router-view class="pa-4" />
+        <BaseDialog>
+          <component :is="currentDialog" v-if="currentDialog" />
+        </BaseDialog>
       </v-main>
     </v-layout>
   </v-app>

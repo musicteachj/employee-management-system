@@ -264,9 +264,11 @@ import type {
 import PerformanceDistributionChart from "../components/charts/PerformanceDistributionChart.vue";
 import PerformanceTrendChart from "../components/charts/PerformanceTrendChart.vue";
 import DepartmentComparisonChart from "../components/charts/DepartmentComparisonChart.vue";
+import { useDialogStore } from "../stores/dialog";
 
 const router = useRouter();
 const appStore = useAppStore();
+const dialogStore = useDialogStore();
 
 // Reactive data
 const loading = ref(true);
@@ -415,9 +417,13 @@ const viewEmployee = (item: ReviewStatus) => {
 };
 
 const scheduleReview = (item: ReviewStatus) => {
-  // TODO: Implement review scheduling functionality
-  console.log("Schedule review for:", item.employeeName);
-  // This could open a dialog or navigate to a review scheduling page
+  console.log(item);
+  dialogStore.setDialog({
+    show: true,
+    header: "Schedule Review",
+    size: "medium",
+    type: "review-scheduling",
+  });
 };
 
 // Lifecycle
@@ -427,192 +433,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.performance-reviews {
-  padding: 8px;
-}
-
-/* Header card styling */
-.header-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.header-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Summary cards styling */
-.summary-card {
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.summary-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-}
-
-/* Filters card styling */
-.filters-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.filters-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Table card styling */
-.table-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.table-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
-}
-
-/* Search and filter field enhancements */
-.search-field,
-.filter-field {
-  transition: all 0.3s ease;
-}
-
-.search-field :deep(.v-field__outline),
-.filter-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-.search-field :deep(.v-field--focused .v-field__outline),
-.filter-field :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-.search-field :deep(.v-field__input),
-.filter-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
-  border-radius: 8px;
-}
-
-/* Table styling */
-.performance-data-table {
-  background: transparent;
-}
-
-/* Table headers with enhanced styling */
-:deep(.v-data-table-header__content) {
-  font-weight: 700;
-  color: #1976d2;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-}
-
-:deep(.v-data-table__th) {
-  background: #f5f7fa !important;
-  border-bottom: 2px solid #1976d2;
-}
-
-/* Row hover effects */
-:deep(.v-data-table__tr:hover) {
-  background: linear-gradient(
-    135deg,
-    rgba(25, 118, 210, 0.04) 0%,
-    rgba(25, 118, 210, 0.08) 100%
-  );
-  transform: scale(1.005);
-  transition: all 0.2s ease;
-}
-
-:deep(.v-data-table__td) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 12px 16px;
-}
-
-/* Alternating row colors for better readability */
-:deep(.v-data-table__tr:nth-child(even)) {
-  background: rgba(248, 250, 252, 0.5);
-}
-
-/* Action button styling */
-.action-btn {
-  transition: all 0.3s ease;
-  border-radius: 50%;
-}
-
-.action-btn:hover {
-  background: rgba(25, 118, 210, 0.1);
-  transform: scale(1.1);
-}
-
-.action-btn :deep(.v-icon) {
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover :deep(.v-icon) {
-  transform: scale(1.2);
-}
-
-/* Footer styling */
-:deep(.v-data-table-footer) {
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(25, 118, 210, 0.2);
-  border-radius: 0 0 12px 12px;
-}
-
-/* Pagination button styling */
-:deep(.v-pagination__item) {
-  transition: all 0.3s ease;
-}
-
-:deep(.v-pagination__item:hover) {
-  background: rgba(25, 118, 210, 0.1);
-  transform: scale(1.05);
-}
-
-:deep(.v-pagination__item--is-active) {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
-}
-
-/* Custom spacing for cards */
-.v-card {
-  margin-bottom: 16px;
-}
-
-/* Chart container styling */
-:deep(.chart-container) {
-  height: 100%;
-}
-
-/* Loading state styling */
-:deep(.v-progress-circular) {
-  filter: drop-shadow(0 4px 8px rgba(25, 118, 210, 0.3));
-}
-
-/* Chip enhancements */
-:deep(.v-chip) {
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
+/* Component-specific styles only - common styles are in global CSS */
 </style>
