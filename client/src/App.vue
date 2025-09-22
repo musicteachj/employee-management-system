@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-// Components
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
-// import AssignManager from "./components/baseDialog/dialogContent/AssignManager.vue";
-// import ConvertEmployeeType from "./components/baseDialog/dialogContent/ConvertEmployeeType.vue";
-// import RehireEmployee from "./components/baseDialog/dialogContent/RehireEmployee.vue";
 import { dialogRegistry, dialogMeta } from "./components/baseDialog/registry";
 import { useDialogStore } from "./stores/dialog";
 
@@ -93,15 +89,6 @@ watch(
       <v-main>
         <router-view class="pa-4" />
         <BaseDialog>
-          <!-- <AssignManager
-            v-if="dialogStore.dialogState.type === 'assign-to-manager'"
-          />
-          <ConvertEmployeeType
-            v-if="dialogStore.dialogState.type === 'convert-employee-type'"
-          />
-          <RehireEmployee
-            v-if="dialogStore.dialogState.type === 'rehire-employee'"
-          /> -->
           <component :is="currentDialog" v-if="currentDialog" />
         </BaseDialog>
       </v-main>
