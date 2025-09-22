@@ -1,7 +1,7 @@
 <template>
   <div class="assign-manager-form">
     <!-- Selected Employees Summary -->
-    <v-card variant="outlined" class="mb-4 summary-card">
+    <v-card variant="outlined" class="mb-4 summary-card dialog-summary">
       <v-card-title class="text-subtitle-1 section-header py-2">
         <v-icon class="mr-2" size="small">mdi-account-multiple</v-icon>
         Selected Employees ({{ selectedEmployees.length }})
@@ -283,122 +283,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Section cards styling */
-.section-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border: 1px solid rgba(25, 118, 210, 0.1);
-  transition: all 0.3s ease;
-}
-
-.section-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.1);
-  border-color: rgba(25, 118, 210, 0.2);
-}
-
-.summary-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border: 1px solid rgba(25, 118, 210, 0.2);
-}
-
-/* Section headers styling */
-.section-header {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%);
-  color: #1976d2;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.875rem;
-  border-bottom: 1px solid rgba(25, 118, 210, 0.2);
-}
-
-/* Form fields styling */
-.form-field {
-  transition: all 0.3s ease;
-}
-
-.form-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-.form-field :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-.form-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
-  border-radius: 8px;
-}
-
-/* Employee list styling */
-.employee-list {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-/* Empty state styling */
-.empty-state {
-  text-align: center;
-  padding: 32px 16px;
-  background: rgba(245, 247, 250, 0.5);
-  border-radius: 8px;
-  border: 2px dashed rgba(158, 158, 158, 0.3);
-}
-
-.empty-state .v-icon {
-  opacity: 0.6;
-}
-
-/* Enhanced spacing */
-.gap-3 {
-  gap: 12px;
-}
-
-/* Section header icon styling */
-.section-header :deep(.v-icon) {
-  color: #1976d2;
-}
-
-/* Form validation styling */
-:deep(.v-messages__message) {
-  color: #d32f2f;
-  font-weight: 500;
-}
-
-/* Enhanced chip styling */
-:deep(.v-chip) {
-  transition: all 0.3s ease;
-}
-
-:deep(.v-chip:hover) {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
-}
-
-/* Closable chip styling */
-:deep(.v-chip--closable) {
-  padding-right: 4px;
-}
-
-:deep(.v-chip__close) {
-  margin-left: 8px;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-}
-
-:deep(.v-chip__close:hover) {
-  opacity: 1;
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-}
-
-/* Clear all button styling */
-:deep(.v-btn--variant-text) {
-  transition: all 0.3s ease;
-}
-
-:deep(.v-btn--variant-text:hover) {
-  background: rgba(244, 67, 54, 0.1);
-}
+/* Component-specific styles only - common styles are in global CSS */
 </style>
