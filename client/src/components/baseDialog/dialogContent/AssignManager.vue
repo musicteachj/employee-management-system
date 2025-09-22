@@ -1,58 +1,6 @@
 <template>
   <div class="assign-manager-form">
-    <!-- Selected Employees Summary -->
-    <v-card variant="outlined" class="mb-4 summary-card dialog-summary">
-      <v-card-title class="text-subtitle-1 section-header py-2">
-        <v-icon class="mr-2" size="small">mdi-account-multiple</v-icon>
-        Selected Employees ({{ selectedEmployees.length }})
-      </v-card-title>
-      <v-card-text class="pa-3">
-        <!-- Empty state -->
-        <div v-if="selectedEmployees.length === 0" class="empty-state">
-          <v-icon size="48" color="grey-lighten-1" class="mb-3">
-            mdi-account-off
-          </v-icon>
-          <p class="text-body-2 text-grey-darken-1 mb-0">
-            No employees selected for manager assignment.
-          </p>
-          <p class="text-caption text-grey">
-            Please select employees from the table to assign a manager.
-          </p>
-        </div>
-
-        <!-- Employee list with remove functionality -->
-        <div v-else class="employee-list">
-          <v-chip
-            v-for="employee in selectedEmployees"
-            :key="employee._id"
-            class="ma-1"
-            color="primary"
-            variant="outlined"
-            size="small"
-            closable
-            @click:close="removeEmployee(employee._id)"
-          >
-            <v-icon start icon="mdi-account" />
-            {{ employee.fullName }}
-            <span class="ml-2 text-caption">({{ employee.department }})</span>
-          </v-chip>
-
-          <!-- Clear all button -->
-          <div class="mt-3" v-if="selectedEmployees.length > 1">
-            <v-btn
-              size="small"
-              variant="text"
-              color="error"
-              @click="clearAllEmployees"
-              class="text-caption"
-            >
-              <v-icon start size="small">mdi-close-circle</v-icon>
-              Clear All
-            </v-btn>
-          </div>
-        </div>
-      </v-card-text>
-    </v-card>
+    <SelectedEmployeesSummary />
 
     <!-- Manager Assignment Form -->
     <v-form>
@@ -133,26 +81,14 @@
       </v-card>
 
       <!-- Action Buttons -->
-      <div class="d-flex justify-end mt-4 gap-3">
-        <v-btn
-          color="grey"
-          variant="outlined"
-          @click="dialogStore.closeAndResetDialog()"
-          :disabled="isAssigning"
-        >
-          <v-icon class="mr-2" size="small">mdi-close</v-icon>
-          Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          :loading="isAssigning"
-          :disabled="!selectedManagerId || selectedEmployees.length === 0"
-          @click="assignManager"
-        >
-          <v-icon class="mr-2" size="small">mdi-account-plus</v-icon>
-          Assign Manager
-        </v-btn>
-      </div>
+      <DialogActions
+        :loading="isAssigning"
+        :disabled="!selectedManagerId || selectedEmployees.length === 0"
+        submit-text="Assign Manager"
+        submit-icon="mdi-account-plus"
+        :on-cancel="() => dialogStore.closeAndResetDialog()"
+        :on-submit="assignManager"
+      />
     </v-form>
   </div>
 </template>
@@ -165,9 +101,13 @@ import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager } from "../../../types";
+import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
+import DialogActions from "./DialogActions.vue";
+import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
+const { selectedEmployees, today } = useBulkDialogForm();
 
 // Form validation schema
 const assignManagerSchema = z.object({
@@ -184,7 +124,7 @@ const { errors, defineField, validate, resetForm } = useForm({
   initialValues: {
     managerId: "",
     assignmentNotes: "",
-    effectiveDate: new Date().toISOString().split("T")[0], // Today's date
+    effectiveDate: today(),
   } as AssignManagerFormData,
 });
 
@@ -195,9 +135,6 @@ const [effectiveDate] = defineField("effectiveDate");
 
 // State
 const isAssigning = ref(false);
-
-// Computed properties
-const selectedEmployees = computed(() => appStore.selectedEmployees);
 
 const managerOptions = computed(() =>
   appStore.managers.map((manager: Manager) => ({
@@ -216,15 +153,7 @@ const getSelectedManagerInfo = () => {
   return manager ? `${manager.name} (${manager.department})` : "";
 };
 
-const removeEmployee = (employeeId: string | undefined) => {
-  if (employeeId) {
-    appStore.removeSelectedEmployee(employeeId);
-  }
-};
-
-const clearAllEmployees = () => {
-  appStore.setSelectedEmployees([]);
-};
+// Selection helpers handled by SelectedEmployeesSummary component
 
 const assignManager = async () => {
   isAssigning.value = true;
@@ -277,8 +206,7 @@ const assignManager = async () => {
 
 // Initialize form when component mounts
 onMounted(() => {
-  // Set default effective date to today
-  effectiveDate.value = new Date().toISOString().split("T")[0];
+  effectiveDate.value = today();
 });
 </script>
 

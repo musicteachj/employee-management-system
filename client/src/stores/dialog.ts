@@ -36,6 +36,14 @@ export const useDialogStore = defineStore("dialog", () => {
         });
       },
       type: "assign-to-manager",
+      isEnabled: (selected) =>
+        selected.length > 0 && selected.every((e) => !e.managerId),
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select at least one employee"
+          : selected.some((e) => e.managerId)
+          ? "All selected must be unassigned"
+          : undefined,
     },
     {
       text: "Convert Employee Type",
@@ -49,10 +57,13 @@ export const useDialogStore = defineStore("dialog", () => {
         });
       },
       type: "convert-employee-type",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0 ? "Select employees to convert" : undefined,
     },
     {
       text: "Rehire Employee",
-      icon: "mdi-account-plus",
+      icon: "mdi-briefcase-arrow-up-down",
       action: () => {
         setDialog({
           show: true,
@@ -62,6 +73,14 @@ export const useDialogStore = defineStore("dialog", () => {
         });
       },
       type: "rehire-employee",
+      isEnabled: (selected) =>
+        selected.length > 0 && selected.every((e) => e.status === "Terminated"),
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select terminated employees"
+          : selected.some((e) => e.status !== "Terminated")
+          ? "Only terminated employees can be rehired"
+          : undefined,
     },
   ]);
 

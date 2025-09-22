@@ -2,7 +2,7 @@
   <v-dialog
     v-model="dialogStore.dialogState.show"
     scrollable
-    persistent
+    :persistent="dialogStore.dialogState.persistent ?? true"
     :width="dialogWidth"
   >
     <v-card>
@@ -30,6 +30,7 @@ import { useDialogStore } from "../../stores/dialog";
 const dialogStore = useDialogStore();
 
 const dialogWidth = computed(() => {
+  if (dialogStore.dialogState.maxWidth) return dialogStore.dialogState.maxWidth;
   switch (dialogStore.dialogState.size) {
     case "x-small":
       return "24%";

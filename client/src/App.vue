@@ -1,16 +1,37 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 // Components
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
-import AssignManager from "./components/baseDialog/dialogContent/AssignManager.vue";
-import ConvertEmployeeType from "./components/baseDialog/dialogContent/ConvertEmployeeType.vue";
-import RehireEmployee from "./components/baseDialog/dialogContent/RehireEmployee.vue";
+// import AssignManager from "./components/baseDialog/dialogContent/AssignManager.vue";
+// import ConvertEmployeeType from "./components/baseDialog/dialogContent/ConvertEmployeeType.vue";
+// import RehireEmployee from "./components/baseDialog/dialogContent/RehireEmployee.vue";
+import { dialogRegistry, dialogMeta } from "./components/baseDialog/registry";
 import { useDialogStore } from "./stores/dialog";
 
 const rail = ref(false);
 const drawer = ref(true);
 const open = ref<string[]>([]);
 const dialogStore = useDialogStore();
+
+const currentDialog = computed(() => {
+  const t = dialogStore.dialogState.type as keyof typeof dialogRegistry | null;
+  return t ? dialogRegistry[t] : null;
+});
+
+watch(
+  () => dialogStore.dialogState.type,
+  (t) => {
+    if (t && dialogMeta[t as keyof typeof dialogMeta]) {
+      const meta = dialogMeta[t as keyof typeof dialogMeta];
+      dialogStore.setDialog({
+        ...dialogStore.dialogState,
+        ...meta,
+        show: true,
+        type: t,
+      });
+    }
+  }
+);
 </script>
 
 <template>
@@ -72,7 +93,7 @@ const dialogStore = useDialogStore();
       <v-main>
         <router-view class="pa-4" />
         <BaseDialog>
-          <AssignManager
+          <!-- <AssignManager
             v-if="dialogStore.dialogState.type === 'assign-to-manager'"
           />
           <ConvertEmployeeType
@@ -80,7 +101,8 @@ const dialogStore = useDialogStore();
           />
           <RehireEmployee
             v-if="dialogStore.dialogState.type === 'rehire-employee'"
-          />
+          /> -->
+          <component :is="currentDialog" v-if="currentDialog" />
         </BaseDialog>
       </v-main>
     </v-layout>

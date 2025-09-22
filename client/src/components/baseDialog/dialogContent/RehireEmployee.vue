@@ -1,58 +1,6 @@
 <template>
   <div class="rehire-employee-form">
-    <!-- Selected Employees Summary -->
-    <v-card variant="outlined" class="mb-4 summary-card dialog-summary">
-      <v-card-title class="text-subtitle-1 section-header py-2">
-        <v-icon class="mr-2" size="small">mdi-account-multiple</v-icon>
-        Selected Employees ({{ selectedEmployees.length }})
-      </v-card-title>
-      <v-card-text class="pa-3">
-        <!-- Empty state -->
-        <div v-if="selectedEmployees.length === 0" class="empty-state">
-          <v-icon size="48" color="grey-lighten-1" class="mb-3">
-            mdi-account-off
-          </v-icon>
-          <p class="text-body-2 text-grey-darken-1 mb-0">
-            No employees selected for rehiring.
-          </p>
-          <p class="text-caption text-grey">
-            Please select terminated employees from the table to rehire them.
-          </p>
-        </div>
-
-        <!-- Employee list with remove functionality -->
-        <div v-else class="employee-list">
-          <v-chip
-            v-for="employee in selectedEmployees"
-            :key="employee._id"
-            class="ma-1"
-            color="primary"
-            variant="outlined"
-            size="small"
-            closable
-            @click:close="removeEmployee(employee._id)"
-          >
-            <v-icon start icon="mdi-account" />
-            {{ employee.fullName }}
-            <span class="ml-2 text-caption">({{ employee.department }})</span>
-          </v-chip>
-
-          <!-- Clear all button -->
-          <div class="mt-3" v-if="selectedEmployees.length > 1">
-            <v-btn
-              size="small"
-              variant="text"
-              color="error"
-              @click="clearAllEmployees"
-              class="text-caption"
-            >
-              <v-icon start size="small">mdi-close-circle</v-icon>
-              Clear All
-            </v-btn>
-          </div>
-        </div>
-      </v-card-text>
-    </v-card>
+    <SelectedEmployeesSummary />
 
     <!-- Rehire Information Form -->
     <v-form>
@@ -235,26 +183,14 @@
       </v-card>
 
       <!-- Action Buttons -->
-      <div class="d-flex justify-end mt-4 gap-3">
-        <v-btn
-          color="grey"
-          variant="outlined"
-          @click="dialogStore.closeAndResetDialog()"
-          :disabled="isRehiring"
-        >
-          <v-icon class="mr-2" size="small">mdi-close</v-icon>
-          Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          :loading="isRehiring"
-          :disabled="!isFormValid || selectedEmployees.length === 0"
-          @click="rehireEmployees"
-        >
-          <v-icon class="mr-2" size="small">mdi-account-plus</v-icon>
-          Rehire Employees
-        </v-btn>
-      </div>
+      <DialogActions
+        :loading="isRehiring"
+        :disabled="!isFormValid || selectedEmployees.length === 0"
+        submit-text="Rehire Employees"
+        submit-icon="mdi-account-plus"
+        :on-cancel="() => dialogStore.closeAndResetDialog()"
+        :on-submit="rehireEmployees"
+      />
     </v-form>
   </div>
 </template>
@@ -267,9 +203,13 @@ import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager, JobLevel, EmploymentType } from "../../../types";
+import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
+import DialogActions from "./DialogActions.vue";
+import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
+const { selectedEmployees, today } = useBulkDialogForm();
 
 // Form validation schema
 const rehireEmployeeSchema = z.object({
@@ -312,9 +252,6 @@ const [rehireNotes] = defineField("rehireNotes");
 
 // State
 const isRehiring = ref(false);
-
-// Computed properties
-const selectedEmployees = computed(() => appStore.selectedEmployees);
 
 const departmentOptions = computed(() =>
   appStore.departments.map((dept) => dept.name)
@@ -363,15 +300,7 @@ const getSelectedManagerInfo = () => {
   return manager ? `${manager.name} (${manager.department})` : "";
 };
 
-const removeEmployee = (employeeId: string | undefined) => {
-  if (employeeId) {
-    appStore.removeSelectedEmployee(employeeId);
-  }
-};
-
-const clearAllEmployees = () => {
-  appStore.setSelectedEmployees([]);
-};
+// Selection helpers handled by SelectedEmployeesSummary component
 
 const rehireEmployees = async () => {
   isRehiring.value = true;
@@ -425,8 +354,7 @@ const rehireEmployees = async () => {
 
 // Initialize form when component mounts
 onMounted(() => {
-  // Set default rehire date to today
-  rehireDate.value = new Date().toISOString().split("T")[0];
+  rehireDate.value = today();
 });
 </script>
 
