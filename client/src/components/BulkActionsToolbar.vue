@@ -22,10 +22,15 @@
         variant="text"
         @click="handleActionClick(action)"
         class="mr-2"
-        :disabled="selectedItems.length === 0"
+        :disabled="
+          !(action.isEnabled?.(selectedItems) ?? selectedItems.length > 0)
+        "
       >
         <v-icon :icon="action.icon" class="mr-2" />
         {{ action.text }}
+        <v-tooltip activator="parent" location="top" v-if="action.tooltip">
+          {{ action.tooltip(selectedItems) }}
+        </v-tooltip>
       </v-btn>
       <v-btn
         icon="mdi-close"

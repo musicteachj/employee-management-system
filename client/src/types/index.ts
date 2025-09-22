@@ -285,6 +285,8 @@ export interface DialogState {
   header: string;
   size: "x-small" | "small" | "medium" | "large";
   type: string | null;
+  persistent?: boolean;
+  maxWidth?: number | string;
 }
 
 export interface Action {
@@ -292,6 +294,11 @@ export interface Action {
   icon: string;
   action: () => void;
   type: ActionType;
+  isEnabled?: (selected: Employee[]) => boolean;
+  tooltip?: (selected: Employee[]) => string | undefined;
 }
 
-export type ActionType = "assign-to-manager";
+export type ActionType =
+  | "assign-to-manager"
+  | "convert-employee-type"
+  | "rehire-employee";

@@ -24,7 +24,7 @@
 
     <!-- Bulk Actions Toolbar -->
     <BulkActionsToolbar
-      v-if="enableActions && enableActions"
+      v-if="enableActions"
       :selected-items="selectedItems"
       :actions="actions"
     />
@@ -111,7 +111,10 @@ const computedHeaders = computed(() => {
 });
 
 const search = ref("");
-const selectedItems = ref<Employee[]>([]);
+const selectedItems = computed<Employee[]>({
+  get: () => appStore.selectedEmployees,
+  set: (val) => appStore.setSelectedEmployees(val),
+});
 
 const trimmedSearch = computed(() => search.value.trim());
 
@@ -123,20 +126,10 @@ const actions = computed(() => {
   return dialogStore.getActions(props.tableActions);
 });
 
-// Watch items change to clear selections
+// Clear selections when underlying items set changes
 watch(
   () => items.value,
-  () => {
-    selectedItems.value = [];
-  }
-);
-
-// Watch selected items from app store
-watch(
-  () => appStore.selectedEmployees,
-  () => {
-    selectedItems.value = appStore.selectedEmployees;
-  }
+  () => appStore.setSelectedEmployees([])
 );
 </script>
 

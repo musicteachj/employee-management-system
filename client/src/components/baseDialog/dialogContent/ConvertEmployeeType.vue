@@ -1,34 +1,34 @@
 <template>
-  <div class="assign-manager-form">
+  <div class="convert-employee-type-form">
     <SelectedEmployeesSummary />
 
-    <!-- Manager Assignment Form -->
+    <!-- Employment Type Conversion Form -->
     <v-form>
       <v-card variant="outlined" class="section-card">
         <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-account-tie</v-icon>
-          Manager Assignment
+          <v-icon class="mr-2" size="small">mdi-account-convert</v-icon>
+          Employment Type Conversion
         </v-card-title>
         <v-card-text class="pa-3">
           <v-row dense>
             <v-col cols="12">
               <v-select
-                v-model="selectedManagerId"
-                :items="managerOptions"
-                label="Select Manager *"
+                v-model="selectedEmploymentType"
+                :items="employmentTypeOptions"
+                label="New Employment Type *"
                 required
                 variant="outlined"
                 density="compact"
-                :error-messages="errors.managerId"
+                :error-messages="errors.employmentType"
                 class="form-field"
                 color="primary"
                 item-title="title"
                 item-value="value"
                 clearable
                 :hint="
-                  selectedManagerId
-                    ? `Manager: ${getSelectedManagerInfo()}`
-                    : 'Choose a manager to assign to selected employees'
+                  selectedEmploymentType
+                    ? `Converting to: ${selectedEmploymentType}`
+                    : 'Choose the new employment type for selected employees'
                 "
                 persistent-hint
               >
@@ -36,7 +36,7 @@
                   <v-list-item v-bind="props">
                     <template v-slot:prepend>
                       <v-avatar size="32" color="primary">
-                        <v-icon icon="mdi-account-tie" />
+                        <v-icon icon="mdi-account-convert" />
                       </v-avatar>
                     </template>
                     <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
@@ -49,15 +49,15 @@
             </v-col>
             <v-col cols="12">
               <v-textarea
-                v-model="assignmentNotes"
-                label="Assignment Notes"
+                v-model="conversionNotes"
+                label="Conversion Notes"
                 variant="outlined"
                 rows="3"
                 density="compact"
-                :error-messages="errors.assignmentNotes"
+                :error-messages="errors.conversionNotes"
                 class="form-field"
                 color="primary"
-                hint="Optional notes about this manager assignment"
+                hint="Optional notes about this employment type conversion"
                 persistent-hint
               />
             </v-col>
@@ -72,7 +72,7 @@
                 :error-messages="errors.effectiveDate"
                 class="form-field"
                 color="primary"
-                hint="Date when the manager assignment becomes effective"
+                hint="Date when the employment type change becomes effective"
                 persistent-hint
               />
             </v-col>
@@ -82,12 +82,12 @@
 
       <!-- Action Buttons -->
       <DialogActions
-        :loading="isAssigning"
-        :disabled="!selectedManagerId || selectedEmployees.length === 0"
-        submit-text="Assign Manager"
-        submit-icon="mdi-account-plus"
+        :loading="isConverting"
+        :disabled="!selectedEmploymentType || selectedEmployees.length === 0"
+        submit-text="Convert Employment Type"
+        submit-icon="mdi-account-convert"
         :on-cancel="() => dialogStore.closeAndResetDialog()"
-        :on-submit="assignManager"
+        :on-submit="convertEmploymentType"
       />
     </v-form>
   </div>
@@ -100,7 +100,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
-import type { Manager } from "../../../types";
+import type { EmploymentType } from "../../../types";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -110,97 +110,82 @@ const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
 // Form validation schema
-const assignManagerSchema = z.object({
-  managerId: z.string().min(1, "Please select a manager"),
-  assignmentNotes: z.string().optional(),
+const convertEmploymentTypeSchema = z.object({
+  employmentType: z.string().min(1, "Please select an employment type"),
+  conversionNotes: z.string().optional(),
   effectiveDate: z.string().min(1, "Please select an effective date"),
 });
 
-type AssignManagerFormData = z.infer<typeof assignManagerSchema>;
+type ConvertEmploymentTypeFormData = z.infer<
+  typeof convertEmploymentTypeSchema
+>;
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({
-  validationSchema: toTypedSchema(assignManagerSchema),
+  validationSchema: toTypedSchema(convertEmploymentTypeSchema),
   initialValues: {
-    managerId: "",
-    assignmentNotes: "",
+    employmentType: "",
+    conversionNotes: "",
     effectiveDate: today(),
-  } as AssignManagerFormData,
+  } as ConvertEmploymentTypeFormData,
 });
 
 // Define form fields
-const [selectedManagerId] = defineField("managerId");
-const [assignmentNotes] = defineField("assignmentNotes");
+const [selectedEmploymentType] = defineField("employmentType");
+const [conversionNotes] = defineField("conversionNotes");
 const [effectiveDate] = defineField("effectiveDate");
 
 // State
-const isAssigning = ref(false);
+const isConverting = ref(false);
 
-const managerOptions = computed(() =>
-  appStore.managers.map((manager: Manager) => ({
-    title: manager.name,
-    value: manager.id,
-    subtitle: `${manager.department} - ${manager.email}`,
-    manager: manager,
+const employmentTypeOptions = computed(() =>
+  appStore.formOptions.employmentTypes.map((type: EmploymentType) => ({
+    title: type,
+    value: type,
+    subtitle: `Convert selected employees to ${type}`,
   }))
 );
 
 // Methods
-const getSelectedManagerInfo = () => {
-  const manager = appStore.managers.find(
-    (m: Manager) => m.id === selectedManagerId.value
-  );
-  return manager ? `${manager.name} (${manager.department})` : "";
-};
-
 // Selection helpers handled by SelectedEmployeesSummary component
 
-const assignManager = async () => {
-  isAssigning.value = true;
+const convertEmploymentType = async () => {
+  isConverting.value = true;
 
   try {
     // Check if there are selected employees
     if (selectedEmployees.value.length === 0) {
       console.error("No employees selected");
-      isAssigning.value = false;
+      isConverting.value = false;
       return;
     }
 
     // Validate the form
     const { valid } = await validate();
     if (!valid) {
-      isAssigning.value = false;
+      isConverting.value = false;
       return;
     }
 
-    // Get the selected manager
-    const selectedManager = appStore.managers.find(
-      (m: Manager) => m.id === selectedManagerId.value
-    );
-    if (!selectedManager) {
-      console.error("Selected manager not found");
-      isAssigning.value = false;
-      return;
-    }
-
-    // Use the bulk assign method from the store
+    // Use the bulk convert method from the store
     const employeeIds = selectedEmployees.value
       .map((emp) => emp._id)
       .filter((id) => id) as string[];
-    appStore.bulkAssignManager(
+
+    appStore.bulkConvertEmploymentType(
       employeeIds,
-      selectedManager.id,
+      selectedEmploymentType.value as EmploymentType,
       effectiveDate.value || new Date().toISOString().split("T")[0],
-      assignmentNotes.value || ""
+      conversionNotes.value || ""
     );
 
     // Close the dialog and reset form
     dialogStore.closeAndResetDialog();
     resetForm();
   } catch (error) {
-    console.error("Error assigning manager:", error);
+    console.error("Error converting employment type:", error);
   } finally {
-    isAssigning.value = false;
+    isConverting.value = false;
   }
 };
 

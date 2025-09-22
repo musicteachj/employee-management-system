@@ -80,6 +80,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getContractEmployees();
+        tableActions.value = ["convert-employee-type"];
         break;
       case "Updated Profiles":
         title.value = "Updated Profiles";
@@ -100,6 +101,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getFormerEmployees();
+        tableActions.value = ["rehire-employee"];
         break;
       default:
         resetData();
