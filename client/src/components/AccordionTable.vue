@@ -50,6 +50,7 @@
               :enableSelect="false"
               :showTitles="false"
               :tableActions="[]"
+              :tableColumns="tableColumns"
             />
           </v-card>
         </td>
@@ -76,6 +77,7 @@ const props = defineProps<{
   enableOpenRecord: boolean;
   enableSelect: boolean;
   enableOtherGroupings: boolean;
+  tableColumns: string[];
   groupByInfo: GroupByInfo;
 }>();
 
@@ -91,6 +93,7 @@ const {
   enableOpenRecord,
   enableSelect,
   enableOtherGroupings,
+  tableColumns,
   groupByInfo,
 } = toRefs(props);
 

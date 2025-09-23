@@ -39,10 +39,6 @@
                         <v-icon icon="mdi-account-tie" />
                       </v-avatar>
                     </template>
-                    <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      item.raw.subtitle
-                    }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
               </v-select>

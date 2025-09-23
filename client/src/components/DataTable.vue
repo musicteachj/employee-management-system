@@ -85,6 +85,7 @@ const props = defineProps<{
   enableOpenRecord: boolean;
   enableSelect: boolean;
   tableActions: ActionType[];
+  tableColumns: string[];
   showTitles: boolean;
 }>();
 const {
@@ -94,16 +95,44 @@ const {
   enableSearch,
   enableOpenRecord,
   enableActions,
+  tableColumns,
 } = toRefs(props);
 
 const computedHeaders = computed(() => {
-  // if enableOpenRecord, add a new header with the key "Actions"
-  const headers = [
-    { title: "Name", key: "firstName" },
-    { title: "Email", key: "personalEmail" },
-    { title: "Phone", key: "phoneNumber" },
-    { title: "Hire Date", key: "hireDate" },
-  ];
+  // Column title mapping for better display names
+  const columnTitleMap: Record<string, string> = {
+    firstName: "First Name",
+    lastName: "Last Name",
+    fullName: "Full Name",
+    personalEmail: "Personal Email",
+    workEmail: "Work Email",
+    phoneNumber: "Phone Number",
+    department: "Department",
+    position: "Position",
+    jobLevel: "Job Level",
+    employmentType: "Employment Type",
+    workLocation: "Work Location",
+    managerName: "Manager",
+    hireDate: "Hire Date",
+    terminationDate: "Termination Date",
+    salary: "Salary",
+    performanceRating: "Performance Rating",
+    trainingStatus: "Training Status",
+    backgroundCheckStatus: "Background Check",
+    status: "Status",
+    lastProfileUpdate: "Last Updated",
+    updatedBy: "Updated By",
+    lastReviewDate: "Last Review",
+    nextReviewDate: "Next Review",
+  };
+
+  const headers = tableColumns.value.map((column) => ({
+    title:
+      columnTitleMap[column] ||
+      column.charAt(0).toUpperCase() + column.slice(1),
+    key: column,
+  }));
+
   if (enableOpenRecord.value) {
     headers.push({ title: "", key: "actions", sortable: false } as any);
   }

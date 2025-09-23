@@ -43,7 +43,7 @@ export interface Employee {
   salary: number;
   currency: number;
   paygrade: string;
-  benefitsEligibile: BenefitsEligible;
+  benefitsEligible: BenefitsEligible;
 
   // Performance & Development
   performanceRating: PerformanceRating;
@@ -301,4 +301,5 @@ export interface Action {
 export type ActionType =
   | "assign-to-manager"
   | "convert-employee-type"
-  | "rehire-employee";
+  | "rehire-employee"
+  | "training-status-update";
