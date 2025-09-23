@@ -30,15 +30,14 @@
     />
 
     <v-data-table
-      :search="trimmedSearch"
       :headers="computedHeaders"
-      :items="items"
+      :items="filteredItems"
       density="compact"
       class="elevation-0 rounded-lg data-table-custom"
       :show-select="enableSelect"
       :items-per-page="10"
       :items-per-page-options="[5, 10, 25, 50]"
-      :hide-default-footer="items.length < 11"
+      :hide-default-footer="filteredItems.length < 11"
       hover
       v-model="selectedItems"
       item-value="_id"
@@ -145,7 +144,24 @@ const selectedItems = computed<Employee[]>({
   set: (val) => appStore.setSelectedEmployees(val),
 });
 
-const trimmedSearch = computed(() => search.value.trim());
+const filteredItems = computed(() => {
+  if (!search.value) {
+    return items.value;
+  }
+
+  const searchTerm = search.value.trim().toLowerCase();
+
+  return items.value.filter((item) => {
+    // Only search in the columns specified by tableColumns prop
+    return tableColumns.value.some((column) => {
+      const value = item[column as keyof Employee];
+      if (value == null) return false;
+
+      // Convert value to string and search
+      return String(value).toLowerCase().includes(searchTerm);
+    });
+  });
+});
 
 const viewRecord = (item: Employee) => {
   router.push({ name: "employee-edit", params: { id: item._id } });
@@ -158,6 +174,12 @@ const actions = computed(() => {
 // Clear selections when underlying items set changes
 watch(
   () => items.value,
+  () => appStore.setSelectedEmployees([])
+);
+
+// Clear selections when filtered items change (e.g., when search is applied)
+watch(
+  () => filteredItems.value,
   () => appStore.setSelectedEmployees([])
 );
 </script>

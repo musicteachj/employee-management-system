@@ -119,10 +119,10 @@ const loadData = async () => {
         title.value = "Updated Profiles";
         subtitle.value = "Employees with updated profiles";
         enableSearch.value = true;
-        enableActions.value = true;
+        enableActions.value = false;
         enableExport.value = true;
         enableOpenRecord.value = true;
-        enableSelect.value = true;
+        enableSelect.value = false;
         items.value = await appStore.getUpdatedProfiles();
         tableColumns.value = [
           "firstName",

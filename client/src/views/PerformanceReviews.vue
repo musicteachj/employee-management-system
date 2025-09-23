@@ -192,13 +192,13 @@
 
         <v-data-table
           :headers="tableHeaders"
-          :items="filteredReviewStatus"
+          :items="filteredEmployees"
           :search="searchQuery"
           density="compact"
           class="elevation-0 rounded-lg performance-data-table"
           :items-per-page="15"
           :items-per-page-options="[10, 15, 25, 50]"
-          :hide-default-footer="filteredReviewStatus.length < 11"
+          :hide-default-footer="filteredEmployees.length < 11"
           hover
         >
           <template v-slot:item.reviewStatus="{ item }">
@@ -211,13 +211,13 @@
             </v-chip>
           </template>
 
-          <template v-slot:item.currentRating="{ item }">
+          <template v-slot:item.performanceRating="{ item }">
             <v-chip
-              :color="getRatingColor(item.currentRating)"
+              :color="getRatingColor(item.performanceRating)"
               size="small"
               variant="tonal"
             >
-              {{ item.currentRating }}
+              {{ item.performanceRating }}
             </v-chip>
           </template>
 
@@ -242,8 +242,16 @@
               size="small"
               variant="text"
               color="secondary"
-              class="action-btn"
+              class="action-btn mr-1"
               @click="scheduleReview(item)"
+            ></v-btn>
+            <v-btn
+              icon="mdi-clipboard-check"
+              size="small"
+              variant="text"
+              color="success"
+              class="action-btn"
+              @click="giveReview(item)"
             ></v-btn>
           </template>
         </v-data-table>
@@ -258,7 +266,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import type {
   PerformanceAnalytics,
-  ReviewStatus,
+  Employee,
   PerformanceRating,
 } from "../types";
 import PerformanceDistributionChart from "../components/charts/PerformanceDistributionChart.vue";
@@ -286,7 +294,7 @@ const analytics = ref<PerformanceAnalytics>({
   departmentPerformance: {},
   performanceTrends: [],
 });
-const reviewStatus = ref<ReviewStatus[]>([]);
+const employees = ref<Employee[]>([]);
 
 // Filters
 const searchQuery = ref("");
@@ -296,7 +304,7 @@ const selectedStatus = ref<string | null>(null);
 // Filter options
 const departmentOptions = computed(() => {
   const departments = [
-    ...new Set(reviewStatus.value.map((item) => item.department)),
+    ...new Set(employees.value.map((item) => item.department)),
   ];
   return departments.sort();
 });
@@ -310,9 +318,9 @@ const statusOptions = [
 
 // Table configuration
 const tableHeaders = [
-  { title: "Employee", key: "employeeName", sortable: true },
+  { title: "Employee", key: "fullName", sortable: true },
   { title: "Department", key: "department", sortable: true },
-  { title: "Current Rating", key: "currentRating", sortable: true },
+  { title: "Current Rating", key: "performanceRating", sortable: true },
   { title: "Last Review", key: "lastReviewDate", sortable: true },
   { title: "Next Review", key: "nextReviewDate", sortable: true },
   { title: "Status", key: "reviewStatus", sortable: true },
@@ -321,8 +329,8 @@ const tableHeaders = [
 ];
 
 // Computed properties
-const filteredReviewStatus = computed(() => {
-  let filtered = reviewStatus.value;
+const filteredEmployees = computed(() => {
+  let filtered = employees.value;
 
   if (selectedDepartment.value) {
     filtered = filtered.filter(
@@ -345,13 +353,13 @@ const loadData = async () => {
     loading.value = true;
 
     // Load analytics and review status in parallel
-    const [analyticsData, reviewStatusData] = await Promise.all([
+    const [analyticsData, employeesData] = await Promise.all([
       appStore.getPerformanceAnalytics(),
       appStore.getReviewStatusList(),
     ]);
 
     analytics.value = analyticsData;
-    reviewStatus.value = reviewStatusData;
+    employees.value = employeesData;
   } catch (error) {
     console.error("Error loading performance data:", error);
   } finally {
@@ -365,7 +373,7 @@ const resetFilters = () => {
   selectedStatus.value = null;
 };
 
-const getStatusColor = (status: ReviewStatus["reviewStatus"]) => {
+const getStatusColor = (status: Employee["reviewStatus"]) => {
   switch (status) {
     case "current":
       return "success";
@@ -380,7 +388,7 @@ const getStatusColor = (status: ReviewStatus["reviewStatus"]) => {
   }
 };
 
-const getStatusText = (status: ReviewStatus["reviewStatus"]) => {
+const getStatusText = (status: Employee["reviewStatus"]) => {
   switch (status) {
     case "current":
       return "Current";
@@ -412,18 +420,26 @@ const getRatingColor = (rating: PerformanceRating) => {
   }
 };
 
-const viewEmployee = (item: ReviewStatus) => {
-  router.push({ name: "employee-edit", params: { id: item.employeeId } });
+const viewEmployee = (item: Employee) => {
+  router.push({ name: "employee-edit", params: { id: item._id } });
 };
 
-const scheduleReview = (item: ReviewStatus) => {
-  console.log(item);
-  dialogStore.setDialog({
-    show: true,
-    header: "Schedule Review",
-    size: "medium",
-    type: "review-scheduling",
-  });
+const scheduleReview = (item: Employee) => {
+  appStore.setSelectedEmployees([item]);
+  const schedulePerformanceReviewAction = dialogStore.getActions([
+    "schedule-performance-review",
+  ]);
+  if (schedulePerformanceReviewAction) {
+    schedulePerformanceReviewAction[0].action();
+  }
+};
+
+const giveReview = (item: Employee) => {
+  appStore.setSelectedEmployees([item]);
+  const giveReviewAction = dialogStore.getActions(["conduct-review"]);
+  if (giveReviewAction) {
+    giveReviewAction[0].action();
+  }
 };
 
 // Lifecycle

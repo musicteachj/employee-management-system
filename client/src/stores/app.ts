@@ -15,7 +15,6 @@ import type {
   Department,
   Manager,
   PerformanceAnalytics,
-  ReviewStatus,
 } from "../types";
 
 export const useAppStore = defineStore("app", () => {
@@ -2499,29 +2498,31 @@ export const useAppStore = defineStore("app", () => {
     );
   };
 
-  const getOverdueReviews = async (): Promise<ReviewStatus[]> => {
+  const getOverdueReviews = async (): Promise<Employee[]> => {
     const today = dayjs();
     return employees.value
       .filter((employee) => employee.nextReviewDate)
       .map((employee) => {
         const nextReview = dayjs(employee.nextReviewDate);
         const daysOverdue = today.diff(nextReview, "day");
-        return {
-          employeeId: employee._id || "",
-          employeeName: employee.fullName,
-          department: employee.department,
-          lastReviewDate: employee.lastReviewDate,
-          nextReviewDate: employee.nextReviewDate,
-          daysOverdue: daysOverdue > 0 ? daysOverdue : undefined,
-          currentRating: employee.performanceRating,
-          reviewStatus: (daysOverdue > 0
+        const reviewStatus:
+          | "current"
+          | "due_soon"
+          | "overdue"
+          | "never_reviewed" =
+          daysOverdue > 0
             ? "overdue"
             : daysOverdue > -30
             ? "due_soon"
-            : "current") as ReviewStatus["reviewStatus"],
+            : "current";
+
+        return {
+          ...employee,
+          daysOverdue: daysOverdue > 0 ? daysOverdue : undefined,
+          reviewStatus,
         };
       })
-      .filter((review) => review.reviewStatus === "overdue");
+      .filter((employee) => employee.reviewStatus === "overdue");
   };
 
   const getPerformanceAnalytics = async (): Promise<PerformanceAnalytics> => {
@@ -2627,12 +2628,16 @@ export const useAppStore = defineStore("app", () => {
     };
   };
 
-  const getReviewStatusList = async (): Promise<ReviewStatus[]> => {
+  const getReviewStatusList = async (): Promise<Employee[]> => {
     const today = dayjs();
     return employees.value
       .filter((employee) => employee.status === "Active")
       .map((employee) => {
-        let reviewStatus: ReviewStatus["reviewStatus"] = "never_reviewed";
+        let reviewStatus:
+          | "current"
+          | "due_soon"
+          | "overdue"
+          | "never_reviewed" = "never_reviewed";
         let daysOverdue: number | undefined;
 
         if (employee.nextReviewDate) {
@@ -2652,13 +2657,8 @@ export const useAppStore = defineStore("app", () => {
         }
 
         return {
-          employeeId: employee._id || "",
-          employeeName: employee.fullName,
-          department: employee.department,
-          lastReviewDate: employee.lastReviewDate,
-          nextReviewDate: employee.nextReviewDate,
+          ...employee,
           daysOverdue,
-          currentRating: employee.performanceRating,
           reviewStatus,
         };
       });
