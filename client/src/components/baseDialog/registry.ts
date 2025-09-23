@@ -16,6 +16,9 @@ export const dialogRegistry = {
   "schedule-performance-review": defineAsyncComponent(
     () => import("./dialogContent/SchedulePerformanceReview.vue")
   ),
+  "conduct-review": defineAsyncComponent(
+    () => import("./dialogContent/ConductReview.vue")
+  ),
 } as const;
 
 export const dialogMeta = {
@@ -28,6 +31,10 @@ export const dialogMeta = {
   },
   "schedule-performance-review": {
     header: "Schedule Performance Review",
+    size: "medium",
+  },
+  "conduct-review": {
+    header: "Conduct Performance Review",
     size: "medium",
   },
 } as const;

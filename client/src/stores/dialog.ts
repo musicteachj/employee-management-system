@@ -118,6 +118,24 @@ export const useDialogStore = defineStore("dialog", () => {
           ? "Select employees to schedule performance review"
           : undefined,
     },
+    {
+      text: "Conduct Review",
+      icon: "mdi-calendar-clock",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Conduct Review",
+          size: "medium",
+          type: "conduct-review",
+        });
+      },
+      type: "conduct-review",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to conduct review"
+          : undefined,
+    },
   ]);
 
   const getActions = (actionList: ActionType[]) => {
