@@ -36,6 +36,75 @@ export const useAppStore = defineStore("app", () => {
     return employees.value;
   };
 
+  // Simplified search interface for essential employee fields
+  interface SearchCriteria {
+    fullName?: string;
+    department?: string;
+    position?: string;
+    status?: ActiveStatus;
+    managerId?: string;
+    employmentType?: EmploymentType;
+  }
+
+  const searchEmployees = async (
+    criteria: SearchCriteria
+  ): Promise<Employee[]> => {
+    console.log("Searching employees with criteria:", criteria);
+
+    return employees.value.filter((employee) => {
+      // Enhanced name search - searches across firstName, lastName, and fullName
+      if (criteria.fullName) {
+        const searchTerm = criteria.fullName.toLowerCase();
+        const nameMatch =
+          employee.firstName.toLowerCase().includes(searchTerm) ||
+          employee.lastName.toLowerCase().includes(searchTerm) ||
+          employee.fullName.toLowerCase().includes(searchTerm);
+
+        if (!nameMatch) {
+          return false;
+        }
+      }
+
+      // Department filter (partial match)
+      if (
+        criteria.department &&
+        !employee.department
+          .toLowerCase()
+          .includes(criteria.department.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Position filter (partial match)
+      if (
+        criteria.position &&
+        !employee.position
+          .toLowerCase()
+          .includes(criteria.position.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Exact match filters
+      if (criteria.status && employee.status !== criteria.status) {
+        return false;
+      }
+
+      if (criteria.managerId && employee.managerId !== criteria.managerId) {
+        return false;
+      }
+
+      if (
+        criteria.employmentType &&
+        employee.employmentType !== criteria.employmentType
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
   const employees = ref<Employee[]>([
     {
       _id: "emp_001",
@@ -2693,5 +2762,6 @@ export const useAppStore = defineStore("app", () => {
     getPerformanceAnalytics,
     getReviewStatusList,
     getEmployees,
+    searchEmployees,
   };
 });
