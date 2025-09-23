@@ -188,10 +188,13 @@
 import { ref, computed, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager } from "../../../types";
+import {
+  scheduleReviewSchema,
+  type ScheduleReviewFormData,
+} from "../../../schemas/performanceReview";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -200,52 +203,7 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees } = useBulkDialogForm();
 
-// Form validation schema
-const scheduleReviewSchema = z
-  .object({
-    reviewDate: z.string().min(1, "Please select a review date"),
-    reviewPeriodStart: z
-      .string()
-      .min(1, "Please select a review period start date"),
-    reviewPeriodEnd: z
-      .string()
-      .min(1, "Please select a review period end date"),
-    reviewerId: z.string().min(1, "Please select a reviewer"),
-    reviewType: z.string().min(1, "Please select a review type"),
-    nextReviewDate: z.string().optional(),
-    reviewNotes: z.string().optional(),
-    priority: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // Validate that review period end is after start
-      if (data.reviewPeriodStart && data.reviewPeriodEnd) {
-        return (
-          new Date(data.reviewPeriodEnd) >= new Date(data.reviewPeriodStart)
-        );
-      }
-      return true;
-    },
-    {
-      message: "Review period end date must be after start date",
-      path: ["reviewPeriodEnd"],
-    }
-  )
-  .refine(
-    (data) => {
-      // Validate that next review date is after review date
-      if (data.reviewDate && data.nextReviewDate) {
-        return new Date(data.nextReviewDate) > new Date(data.reviewDate);
-      }
-      return true;
-    },
-    {
-      message: "Next review date must be after the current review date",
-      path: ["nextReviewDate"],
-    }
-  );
-
-type ScheduleReviewFormData = z.infer<typeof scheduleReviewSchema>;
+// Form validation schema imported from schemas/performanceReview.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({

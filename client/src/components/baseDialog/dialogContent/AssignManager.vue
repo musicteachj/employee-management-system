@@ -32,7 +32,7 @@
                 "
                 persistent-hint
               >
-                <template v-slot:item="{ props, item }">
+                <template v-slot:item="{ props }">
                   <v-list-item v-bind="props">
                     <template v-slot:prepend>
                       <v-avatar size="32" color="primary">
@@ -93,10 +93,13 @@
 import { ref, computed, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager } from "../../../types";
+import {
+  assignManagerSchema,
+  type AssignManagerFormData,
+} from "../../../schemas/manager";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -105,14 +108,7 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
-// Form validation schema
-const assignManagerSchema = z.object({
-  managerId: z.string().min(1, "Please select a manager"),
-  assignmentNotes: z.string().optional(),
-  effectiveDate: z.string().min(1, "Please select an effective date"),
-});
-
-type AssignManagerFormData = z.infer<typeof assignManagerSchema>;
+// Form validation schema imported from schemas/manager.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({

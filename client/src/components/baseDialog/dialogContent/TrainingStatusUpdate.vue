@@ -132,10 +132,13 @@
 import { ref, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { TrainingStatus } from "../../../types";
+import {
+  updateTrainingStatusSchema,
+  type UpdateTrainingStatusFormData,
+} from "../../../schemas/training";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -144,17 +147,7 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
-// Form validation schema
-const updateTrainingStatusSchema = z.object({
-  trainingStatus: z.string().min(1, "Please select a training status"),
-  trainingProgram: z.string().optional(),
-  startDate: z.string().optional(),
-  completionDate: z.string().optional(),
-  trainingNotes: z.string().optional(),
-  effectiveDate: z.string().min(1, "Please select an effective date"),
-});
-
-type UpdateTrainingStatusFormData = z.infer<typeof updateTrainingStatusSchema>;
+// Form validation schema imported from schemas/training.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({
