@@ -115,3 +115,26 @@ The application will be available at `http://localhost:5173` (or the next availa
 - **Date Handling**: Day.js
 - **Icons**: Material Design Icons (@mdi/font)
 - **Routing**: Vue Router 4
+
+## 📋 TODO
+
+### Quick Wins (High Impact, Low Effort):
+
+- [ ] Add comprehensive README with screenshots, setup instructions, and feature list
+- [ ] Environment variables for configuration
+- [ ] Error boundaries and proper error handling
+- [ ] Loading states and skeleton screens
+- [ ] Data validation with proper error messages
+- [ ] Responsive design improvements
+- [ ] Dark mode toggle
+- [ ] Export functionality (CSV, PDF)
+
+### Recommended Priority Order:
+
+1. **Backend + JWT Auth** (Most important for demonstrating full-stack skills)
+2. **Database integration** with proper data persistence
+3. **Comprehensive testing suite**
+4. **Docker + CI/CD pipeline**
+5. **Advanced analytics and reporting**
+6. **Real-time features**
+7. **Mobile optimization**
