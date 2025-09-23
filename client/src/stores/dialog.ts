@@ -82,6 +82,60 @@ export const useDialogStore = defineStore("dialog", () => {
           ? "Only terminated employees can be rehired"
           : undefined,
     },
+    {
+      text: "Update Training Status",
+      icon: "mdi-book-open-page-variant",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Update Training Status",
+          size: "medium",
+          type: "training-status-update",
+        });
+      },
+      type: "training-status-update",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to update training status"
+          : undefined,
+    },
+    {
+      text: "Schedule Performance Review",
+      icon: "mdi-calendar-clock",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Schedule Performance Review",
+          size: "medium",
+          type: "schedule-performance-review",
+        });
+      },
+      type: "schedule-performance-review",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to schedule performance review"
+          : undefined,
+    },
+    {
+      text: "Conduct Review",
+      icon: "mdi-calendar-clock",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Conduct Review",
+          size: "medium",
+          type: "conduct-review",
+        });
+      },
+      type: "conduct-review",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to conduct review"
+          : undefined,
+    },
   ]);
 
   const getActions = (actionList: ActionType[]) => {

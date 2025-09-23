@@ -14,7 +14,7 @@
             <v-col cols="12">
               <v-select
                 v-model="selectedEmploymentType"
-                :items="employmentTypeOptions"
+                :items="appStore.formOptions.employmentTypes as string[]"
                 label="New Employment Type *"
                 required
                 variant="outlined"
@@ -22,8 +22,6 @@
                 :error-messages="errors.employmentType"
                 class="form-field"
                 color="primary"
-                item-title="title"
-                item-value="value"
                 clearable
                 :hint="
                   selectedEmploymentType
@@ -39,10 +37,6 @@
                         <v-icon icon="mdi-account-convert" />
                       </v-avatar>
                     </template>
-                    <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      item.raw.subtitle
-                    }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
               </v-select>
@@ -94,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
@@ -137,14 +131,6 @@ const [effectiveDate] = defineField("effectiveDate");
 
 // State
 const isConverting = ref(false);
-
-const employmentTypeOptions = computed(() =>
-  appStore.formOptions.employmentTypes.map((type: EmploymentType) => ({
-    title: type,
-    value: type,
-    subtitle: `Convert selected employees to ${type}`,
-  }))
-);
 
 // Methods
 // Selection helpers handled by SelectedEmployeesSummary component

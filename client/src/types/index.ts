@@ -43,7 +43,7 @@ export interface Employee {
   salary: number;
   currency: number;
   paygrade: string;
-  benefitsEligibile: BenefitsEligible;
+  benefitsEligible: BenefitsEligible;
 
   // Performance & Development
   performanceRating: PerformanceRating;
@@ -52,6 +52,10 @@ export interface Employee {
   nextReviewDate?: string;
   performanceHistory?: PerformanceReview[];
   performanceMetrics?: PerformanceMetrics;
+
+  // Performance Review Status (computed fields)
+  daysOverdue?: number;
+  reviewStatus?: "current" | "due_soon" | "overdue" | "never_reviewed";
 
   // Compliance & Verification
   backgroundCheckStatus: BackgroundCheckStatus;
@@ -269,22 +273,11 @@ export interface PerformanceAnalytics {
   }[];
 }
 
-export interface ReviewStatus {
-  employeeId: string;
-  employeeName: string;
-  department: string;
-  lastReviewDate?: string;
-  nextReviewDate?: string;
-  daysOverdue?: number;
-  currentRating: PerformanceRating;
-  reviewStatus: "current" | "due_soon" | "overdue" | "never_reviewed";
-}
-
 export interface DialogState {
   show: boolean;
   header: string;
   size: "x-small" | "small" | "medium" | "large";
-  type: string | null;
+  type: ActionType | null;
   persistent?: boolean;
   maxWidth?: number | string;
 }
@@ -301,4 +294,7 @@ export interface Action {
 export type ActionType =
   | "assign-to-manager"
   | "convert-employee-type"
-  | "rehire-employee";
+  | "rehire-employee"
+  | "training-status-update"
+  | "schedule-performance-review"
+  | "conduct-review";

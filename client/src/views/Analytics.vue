@@ -92,7 +92,7 @@
               <v-icon icon="mdi-currency-usd" size="40" class="mr-3"></v-icon>
               <div>
                 <h3 class="text-h3">
-                  ${{ analytics.averageSalary.toLocaleString() }}
+                  {{ Math.round(analytics.averageSalary).toLocaleString() }}
                 </h3>
                 <p class="text-body-2">Average Salary</p>
               </div>

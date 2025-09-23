@@ -12,6 +12,7 @@
       :enableOpenRecord="enableOpenRecord"
       :enableSelect="enableSelect"
       :enableOtherGroupings="enableOtherGroupings"
+      :tableColumns="tableColumns"
       :groupByInfo="groupByInfo"
     />
   </div>
@@ -41,6 +42,7 @@ const enableSelect = ref(false);
 const enableOtherGroupings = ref(false);
 const tableActions = ref([]);
 const items = ref<Employee[]>([]);
+const tableColumns = ref<string[]>([]);
 const groupByInfo = ref<GroupByInfo>({
   groupBy: null,
   groupByOptions: [],
@@ -67,6 +69,15 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getByManager();
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "workEmail",
+          "hireDate",
+          "status",
+        ];
         groupByInfo.value = {
           groupBy: "managerName",
           groupByOptions: ["managerName"],
@@ -81,6 +92,15 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getByDepartment();
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "position",
+          "managerName",
+          "workEmail",
+          "hireDate",
+          "status",
+        ];
         groupByInfo.value = {
           groupBy: "department",
           groupByOptions: ["department"],
@@ -95,6 +115,16 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getActiveTerminated();
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "managerName",
+          "workEmail",
+          "hireDate",
+          "terminationDate",
+        ];
         groupByInfo.value = {
           groupBy: "status",
           groupByOptions: ["status"],
@@ -120,6 +150,7 @@ const resetData = () => {
   enableSelect.value = false;
   tableActions.value = [];
   items.value = [];
+  tableColumns.value = [];
 };
 
 // Watchers

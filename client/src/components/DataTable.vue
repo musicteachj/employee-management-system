@@ -30,15 +30,14 @@
     />
 
     <v-data-table
-      :search="trimmedSearch"
       :headers="computedHeaders"
-      :items="items"
+      :items="filteredItems"
       density="compact"
       class="elevation-0 rounded-lg data-table-custom"
       :show-select="enableSelect"
       :items-per-page="10"
       :items-per-page-options="[5, 10, 25, 50]"
-      :hide-default-footer="items.length < 11"
+      :hide-default-footer="filteredItems.length < 11"
       hover
       v-model="selectedItems"
       item-value="_id"
@@ -85,6 +84,7 @@ const props = defineProps<{
   enableOpenRecord: boolean;
   enableSelect: boolean;
   tableActions: ActionType[];
+  tableColumns: string[];
   showTitles: boolean;
 }>();
 const {
@@ -94,16 +94,44 @@ const {
   enableSearch,
   enableOpenRecord,
   enableActions,
+  tableColumns,
 } = toRefs(props);
 
 const computedHeaders = computed(() => {
-  // if enableOpenRecord, add a new header with the key "Actions"
-  const headers = [
-    { title: "Name", key: "firstName" },
-    { title: "Email", key: "personalEmail" },
-    { title: "Phone", key: "phoneNumber" },
-    { title: "Hire Date", key: "hireDate" },
-  ];
+  // Column title mapping for better display names
+  const columnTitleMap: Record<string, string> = {
+    firstName: "First Name",
+    lastName: "Last Name",
+    fullName: "Full Name",
+    personalEmail: "Personal Email",
+    workEmail: "Work Email",
+    phoneNumber: "Phone Number",
+    department: "Department",
+    position: "Position",
+    jobLevel: "Job Level",
+    employmentType: "Employment Type",
+    workLocation: "Work Location",
+    managerName: "Manager",
+    hireDate: "Hire Date",
+    terminationDate: "Termination Date",
+    salary: "Salary",
+    performanceRating: "Performance Rating",
+    trainingStatus: "Training Status",
+    backgroundCheckStatus: "Background Check",
+    status: "Status",
+    lastProfileUpdate: "Last Updated",
+    updatedBy: "Updated By",
+    lastReviewDate: "Last Review",
+    nextReviewDate: "Next Review",
+  };
+
+  const headers = tableColumns.value.map((column) => ({
+    title:
+      columnTitleMap[column] ||
+      column.charAt(0).toUpperCase() + column.slice(1),
+    key: column,
+  }));
+
   if (enableOpenRecord.value) {
     headers.push({ title: "", key: "actions", sortable: false } as any);
   }
@@ -116,7 +144,24 @@ const selectedItems = computed<Employee[]>({
   set: (val) => appStore.setSelectedEmployees(val),
 });
 
-const trimmedSearch = computed(() => search.value.trim());
+const filteredItems = computed(() => {
+  if (!search.value) {
+    return items.value;
+  }
+
+  const searchTerm = search.value.trim().toLowerCase();
+
+  return items.value.filter((item) => {
+    // Only search in the columns specified by tableColumns prop
+    return tableColumns.value.some((column) => {
+      const value = item[column as keyof Employee];
+      if (value == null) return false;
+
+      // Convert value to string and search
+      return String(value).toLowerCase().includes(searchTerm);
+    });
+  });
+});
 
 const viewRecord = (item: Employee) => {
   router.push({ name: "employee-edit", params: { id: item._id } });
@@ -129,6 +174,12 @@ const actions = computed(() => {
 // Clear selections when underlying items set changes
 watch(
   () => items.value,
+  () => appStore.setSelectedEmployees([])
+);
+
+// Clear selections when filtered items change (e.g., when search is applied)
+watch(
+  () => filteredItems.value,
   () => appStore.setSelectedEmployees([])
 );
 </script>

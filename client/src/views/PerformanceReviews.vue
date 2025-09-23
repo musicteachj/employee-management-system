@@ -192,13 +192,13 @@
 
         <v-data-table
           :headers="tableHeaders"
-          :items="filteredReviewStatus"
+          :items="filteredEmployees"
           :search="searchQuery"
           density="compact"
           class="elevation-0 rounded-lg performance-data-table"
           :items-per-page="15"
           :items-per-page-options="[10, 15, 25, 50]"
-          :hide-default-footer="filteredReviewStatus.length < 11"
+          :hide-default-footer="filteredEmployees.length < 11"
           hover
         >
           <template v-slot:item.reviewStatus="{ item }">
@@ -211,13 +211,13 @@
             </v-chip>
           </template>
 
-          <template v-slot:item.currentRating="{ item }">
+          <template v-slot:item.performanceRating="{ item }">
             <v-chip
-              :color="getRatingColor(item.currentRating)"
+              :color="getRatingColor(item.performanceRating)"
               size="small"
               variant="tonal"
             >
-              {{ item.currentRating }}
+              {{ item.performanceRating }}
             </v-chip>
           </template>
 
@@ -242,8 +242,16 @@
               size="small"
               variant="text"
               color="secondary"
-              class="action-btn"
+              class="action-btn mr-1"
               @click="scheduleReview(item)"
+            ></v-btn>
+            <v-btn
+              icon="mdi-clipboard-check"
+              size="small"
+              variant="text"
+              color="success"
+              class="action-btn"
+              @click="giveReview(item)"
             ></v-btn>
           </template>
         </v-data-table>
@@ -258,7 +266,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import type {
   PerformanceAnalytics,
-  ReviewStatus,
+  Employee,
   PerformanceRating,
 } from "../types";
 import PerformanceDistributionChart from "../components/charts/PerformanceDistributionChart.vue";
@@ -286,7 +294,7 @@ const analytics = ref<PerformanceAnalytics>({
   departmentPerformance: {},
   performanceTrends: [],
 });
-const reviewStatus = ref<ReviewStatus[]>([]);
+const employees = ref<Employee[]>([]);
 
 // Filters
 const searchQuery = ref("");
@@ -296,7 +304,7 @@ const selectedStatus = ref<string | null>(null);
 // Filter options
 const departmentOptions = computed(() => {
   const departments = [
-    ...new Set(reviewStatus.value.map((item) => item.department)),
+    ...new Set(employees.value.map((item) => item.department)),
   ];
   return departments.sort();
 });
@@ -310,9 +318,9 @@ const statusOptions = [
 
 // Table configuration
 const tableHeaders = [
-  { title: "Employee", key: "employeeName", sortable: true },
+  { title: "Employee", key: "fullName", sortable: true },
   { title: "Department", key: "department", sortable: true },
-  { title: "Current Rating", key: "currentRating", sortable: true },
+  { title: "Current Rating", key: "performanceRating", sortable: true },
   { title: "Last Review", key: "lastReviewDate", sortable: true },
   { title: "Next Review", key: "nextReviewDate", sortable: true },
   { title: "Status", key: "reviewStatus", sortable: true },
@@ -321,8 +329,8 @@ const tableHeaders = [
 ];
 
 // Computed properties
-const filteredReviewStatus = computed(() => {
-  let filtered = reviewStatus.value;
+const filteredEmployees = computed(() => {
+  let filtered = employees.value;
 
   if (selectedDepartment.value) {
     filtered = filtered.filter(
@@ -345,13 +353,13 @@ const loadData = async () => {
     loading.value = true;
 
     // Load analytics and review status in parallel
-    const [analyticsData, reviewStatusData] = await Promise.all([
+    const [analyticsData, employeesData] = await Promise.all([
       appStore.getPerformanceAnalytics(),
       appStore.getReviewStatusList(),
     ]);
 
     analytics.value = analyticsData;
-    reviewStatus.value = reviewStatusData;
+    employees.value = employeesData;
   } catch (error) {
     console.error("Error loading performance data:", error);
   } finally {
@@ -365,7 +373,7 @@ const resetFilters = () => {
   selectedStatus.value = null;
 };
 
-const getStatusColor = (status: ReviewStatus["reviewStatus"]) => {
+const getStatusColor = (status: Employee["reviewStatus"]) => {
   switch (status) {
     case "current":
       return "success";
@@ -380,7 +388,7 @@ const getStatusColor = (status: ReviewStatus["reviewStatus"]) => {
   }
 };
 
-const getStatusText = (status: ReviewStatus["reviewStatus"]) => {
+const getStatusText = (status: Employee["reviewStatus"]) => {
   switch (status) {
     case "current":
       return "Current";
@@ -412,18 +420,26 @@ const getRatingColor = (rating: PerformanceRating) => {
   }
 };
 
-const viewEmployee = (item: ReviewStatus) => {
-  router.push({ name: "employee-edit", params: { id: item.employeeId } });
+const viewEmployee = (item: Employee) => {
+  router.push({ name: "employee-edit", params: { id: item._id } });
 };
 
-const scheduleReview = (item: ReviewStatus) => {
-  console.log(item);
-  dialogStore.setDialog({
-    show: true,
-    header: "Schedule Review",
-    size: "medium",
-    type: "review-scheduling",
-  });
+const scheduleReview = (item: Employee) => {
+  appStore.setSelectedEmployees([item]);
+  const schedulePerformanceReviewAction = dialogStore.getActions([
+    "schedule-performance-review",
+  ]);
+  if (schedulePerformanceReviewAction) {
+    schedulePerformanceReviewAction[0].action();
+  }
+};
+
+const giveReview = (item: Employee) => {
+  appStore.setSelectedEmployees([item]);
+  const giveReviewAction = dialogStore.getActions(["conduct-review"]);
+  if (giveReviewAction) {
+    giveReviewAction[0].action();
+  }
 };
 
 // Lifecycle
@@ -434,4 +450,157 @@ onMounted(() => {
 
 <style scoped>
 /* Component-specific styles only - common styles are in global CSS */
+
+/* Enhanced divider with gradient */
+.divider-gradient {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #1976d2 50%,
+    transparent 100%
+  );
+  height: 2px;
+  border: none;
+}
+
+/* Search field enhancements */
+.search-field {
+  transition: all 0.3s ease;
+}
+
+.search-field :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+.search-field :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+.search-field :deep(.v-field__input) {
+  background: rgba(25, 118, 210, 0.02);
+  border-radius: 8px;
+}
+
+/* Filter field enhancements */
+.filter-field {
+  transition: all 0.3s ease;
+}
+
+.filter-field :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+.filter-field :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  border-width: 2px;
+}
+
+/* Table styling */
+.performance-data-table {
+  background: transparent;
+}
+
+/* Table headers with enhanced styling */
+.performance-data-table :deep(.v-data-table-header__content) {
+  font-weight: 700;
+  color: #1976d2;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.performance-data-table :deep(.v-data-table__th) {
+  background: #f5f7fa !important;
+  border-bottom: 2px solid #1976d2;
+}
+
+/* Row hover effects */
+.performance-data-table :deep(.v-data-table__tr:hover) {
+  background: linear-gradient(
+    135deg,
+    rgba(25, 118, 210, 0.04) 0%,
+    rgba(25, 118, 210, 0.08) 100%
+  );
+  transform: scale(1.005);
+  transition: all 0.2s ease;
+}
+
+.performance-data-table :deep(.v-data-table__td) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Alternating row colors for better readability */
+.performance-data-table :deep(.v-data-table__tr:nth-child(even)) {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+/* Action button styling */
+.action-btn {
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.action-btn:hover {
+  background: rgba(25, 118, 210, 0.1);
+  transform: scale(1.1);
+}
+
+.action-btn :deep(.v-icon) {
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover :deep(.v-icon) {
+  transform: scale(1.2);
+  color: #1565c0;
+}
+
+/* Footer styling */
+.performance-data-table :deep(.v-data-table-footer) {
+  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
+  border-top: 1px solid rgba(25, 118, 210, 0.2);
+  border-radius: 0 0 12px 12px;
+}
+
+/* Pagination button styling */
+.performance-data-table :deep(.v-pagination__item) {
+  transition: all 0.3s ease;
+}
+
+.performance-data-table :deep(.v-pagination__item:hover) {
+  background: rgba(25, 118, 210, 0.1);
+  transform: scale(1.05);
+}
+
+.performance-data-table :deep(.v-pagination__item--is-active) {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+/* Card styling with subtle gradient */
+.header-card,
+.filters-card,
+.table-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.header-card:hover,
+.filters-card:hover,
+.table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Summary card enhancements */
+.summary-card {
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
 </style>

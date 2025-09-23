@@ -12,6 +12,7 @@
       :enableOpenRecord="enableOpenRecord"
       :enableSelect="enableSelect"
       :tableActions="tableActions"
+      :tableColumns="tableColumns"
       :showTitles="true"
     />
   </div>
@@ -41,6 +42,7 @@ const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
 const tableActions = ref<ActionType[]>([]);
 const items = ref<Employee[]>([]);
+const tableColumns = ref<string[]>([]);
 
 // Methods
 const loadData = async () => {
@@ -60,6 +62,15 @@ const loadData = async () => {
         enableSelect.value = true;
         items.value = await appStore.getUnassignedHires();
         tableActions.value = ["assign-to-manager"];
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "hireDate",
+          "workEmail",
+          "status",
+        ];
         break;
       case "Recent Hires":
         title.value = "Recent Hires";
@@ -70,6 +81,17 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getRecentHires();
+        tableActions.value = ["training-status-update"];
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "hireDate",
+          "managerName",
+          "trainingStatus",
+          "status",
+        ];
         break;
       case "Contract Employees":
         title.value = "Contract Employees";
@@ -81,16 +103,37 @@ const loadData = async () => {
         enableSelect.value = true;
         items.value = await appStore.getContractEmployees();
         tableActions.value = ["convert-employee-type"];
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "employmentType",
+          "hireDate",
+          "managerName",
+          "workLocation",
+          "status",
+        ];
         break;
       case "Updated Profiles":
         title.value = "Updated Profiles";
         subtitle.value = "Employees with updated profiles";
         enableSearch.value = true;
-        enableActions.value = true;
+        enableActions.value = false;
         enableExport.value = true;
         enableOpenRecord.value = true;
-        enableSelect.value = true;
+        enableSelect.value = false;
         items.value = await appStore.getUpdatedProfiles();
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "workEmail",
+          "lastProfileUpdate",
+          "updatedBy",
+          "status",
+        ];
         break;
       case "Former Employees":
         title.value = "Former Employees";
@@ -102,6 +145,16 @@ const loadData = async () => {
         enableSelect.value = true;
         items.value = await appStore.getFormerEmployees();
         tableActions.value = ["rehire-employee"];
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "hireDate",
+          "terminationDate",
+          "managerName",
+          "status",
+        ];
         break;
       default:
         resetData();
@@ -123,6 +176,7 @@ const resetData = () => {
   enableSelect.value = false;
   tableActions.value = [];
   items.value = [];
+  tableColumns.value = [];
 };
 
 // Lifecycle hooks
