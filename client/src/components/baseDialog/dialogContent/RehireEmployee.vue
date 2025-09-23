@@ -191,10 +191,13 @@
 import { ref, computed, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager, JobLevel, EmploymentType } from "../../../types";
+import {
+  rehireEmployeeSchema,
+  type RehireEmployeeFormData,
+} from "../../../schemas/rehire";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -203,19 +206,7 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
-// Form validation schema
-const rehireEmployeeSchema = z.object({
-  rehireDate: z.string().min(1, "Please select a rehire date"),
-  department: z.string().min(1, "Please select a department"),
-  position: z.string().min(1, "Please enter a position"),
-  jobLevel: z.string().min(1, "Please select a job level"),
-  salary: z.number().min(1, "Please enter a valid salary"),
-  employmentType: z.string().min(1, "Please select an employment type"),
-  managerId: z.string().optional(),
-  rehireNotes: z.string().optional(),
-});
-
-type RehireEmployeeFormData = z.infer<typeof rehireEmployeeSchema>;
+// Form validation schema imported from schemas/rehire.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({

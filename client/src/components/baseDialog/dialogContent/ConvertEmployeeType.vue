@@ -91,10 +91,13 @@
 import { ref, onMounted } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { EmploymentType } from "../../../types";
+import {
+  convertEmploymentTypeSchema,
+  type ConvertEmploymentTypeFormData,
+} from "../../../schemas/employmentType";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -103,16 +106,7 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
-// Form validation schema
-const convertEmploymentTypeSchema = z.object({
-  employmentType: z.string().min(1, "Please select an employment type"),
-  conversionNotes: z.string().optional(),
-  effectiveDate: z.string().min(1, "Please select an effective date"),
-});
-
-type ConvertEmploymentTypeFormData = z.infer<
-  typeof convertEmploymentTypeSchema
->;
+// Form validation schema imported from schemas/employmentType.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({
