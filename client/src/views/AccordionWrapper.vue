@@ -14,6 +14,7 @@
       :enableOtherGroupings="enableOtherGroupings"
       :tableColumns="tableColumns"
       :groupByInfo="groupByInfo"
+      :tableActions="tableActions"
     />
   </div>
 </template>
@@ -21,7 +22,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import type { Employee, GroupByInfo } from "../types";
+import type { Employee, GroupByInfo, ActionType } from "../types";
 import { useAppStore } from "../stores/app";
 import AccordionTable from "../components/AccordionTable.vue";
 
@@ -40,7 +41,7 @@ const enableExport = ref(false);
 const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
 const enableOtherGroupings = ref(false);
-const tableActions = ref([]);
+const tableActions = ref<ActionType[]>([]);
 const items = ref<Employee[]>([]);
 const tableColumns = ref<string[]>([]);
 const groupByInfo = ref<GroupByInfo>({
@@ -82,6 +83,7 @@ const loadData = async () => {
           groupBy: "managerName",
           groupByOptions: ["managerName"],
         };
+        tableActions.value = ["assign-to-manager"];
         break;
       case "By Department":
         title.value = "By Department";
@@ -105,6 +107,7 @@ const loadData = async () => {
           groupBy: "department",
           groupByOptions: ["department"],
         };
+        tableActions.value = ["training-status-update"];
         break;
       case "By Status":
         title.value = "By Status";
@@ -129,6 +132,7 @@ const loadData = async () => {
           groupBy: "status",
           groupByOptions: ["status"],
         };
+        tableActions.value = ["status-change"];
         break;
       default:
         resetData();
@@ -161,6 +165,14 @@ watch(
       routeName.value = newRouteName as string;
       loadData();
     }
+  }
+);
+
+// Watch for refresh key changes to reload data
+watch(
+  () => appStore.refreshKey,
+  () => {
+    loadData();
   }
 );
 </script>

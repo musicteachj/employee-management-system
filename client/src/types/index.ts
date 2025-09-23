@@ -297,4 +297,5 @@ export type ActionType =
   | "rehire-employee"
   | "training-status-update"
   | "schedule-performance-review"
-  | "conduct-review";
+  | "conduct-review"
+  | "status-change";

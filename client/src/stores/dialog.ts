@@ -36,8 +36,7 @@ export const useDialogStore = defineStore("dialog", () => {
         });
       },
       type: "assign-to-manager",
-      isEnabled: (selected) =>
-        selected.length > 0 && selected.every((e) => !e.managerId),
+      isEnabled: (selected) => selected.length > 0,
       tooltip: (selected) =>
         selected.length === 0
           ? "Select at least one employee"
@@ -135,6 +134,22 @@ export const useDialogStore = defineStore("dialog", () => {
         selected.length === 0
           ? "Select employees to conduct review"
           : undefined,
+    },
+    {
+      text: "Change Status",
+      icon: "mdi-account-switch",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Change Status",
+          size: "medium",
+          type: "status-change",
+        });
+      },
+      type: "status-change",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0 ? "Select employees to change status" : undefined,
     },
   ]);
 
