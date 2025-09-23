@@ -19,6 +19,9 @@ export const dialogRegistry = {
   "conduct-review": defineAsyncComponent(
     () => import("./dialogContent/ConductReview.vue")
   ),
+  "status-change": defineAsyncComponent(
+    () => import("./dialogContent/StatusChange.vue")
+  ),
 } as const;
 
 export const dialogMeta = {
@@ -35,6 +38,10 @@ export const dialogMeta = {
   },
   "conduct-review": {
     header: "Conduct Performance Review",
+    size: "medium",
+  },
+  "status-change": {
+    header: "Change Status",
     size: "medium",
   },
 } as const;

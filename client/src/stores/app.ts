@@ -2434,6 +2434,74 @@ export const useAppStore = defineStore("app", () => {
     refreshKey.value += 1;
   };
 
+  const bulkChangeStatus = (
+    employeeIds: string[],
+    newStatus: ActiveStatus,
+    effectiveDate: string,
+    reason?: string,
+    notifications?: {
+      notifyEmployee: boolean;
+      notifyManager: boolean;
+    }
+  ): void => {
+    console.log(
+      `Bulk changing status to ${newStatus} for employees:`,
+      employeeIds
+    );
+
+    employeeIds.forEach((empId) => {
+      const employee = employees.value.find((emp) => emp._id === empId);
+      if (employee) {
+        console.log(
+          `Changing employee ${employee.fullName} status from ${employee.status} to ${newStatus}`
+        );
+        const updatedEmployee: Employee = {
+          ...employee,
+          status: newStatus,
+          hrAssignment: {
+            ...employee.hrAssignment,
+            reviewComments: reason
+              ? `Status changed to ${newStatus} on ${effectiveDate}. Reason: ${reason}`
+              : `Status changed to ${newStatus} on ${effectiveDate}`,
+          },
+          updatedBy: "hr_admin",
+          updatedOn: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString(),
+          lastProfileUpdate: new Date().toISOString().split("T")[0],
+        };
+
+        // Handle status-specific updates
+        if (newStatus === "Terminated") {
+          updatedEmployee.terminationDate = effectiveDate;
+        } else if (employee.status === "Terminated") {
+          // Clear termination date if changing from terminated to another status
+          updatedEmployee.terminationDate = undefined;
+        }
+
+        updateEmployee(updatedEmployee);
+        console.log(
+          `Employee ${employee.fullName} status updated to: ${updatedEmployee.status}`
+        );
+
+        // Log notification preferences (in a real app, this would trigger actual notifications)
+        if (notifications?.notifyEmployee) {
+          console.log(
+            `Notification scheduled for employee: ${employee.workEmail}`
+          );
+        }
+        if (notifications?.notifyManager && employee.managerName) {
+          console.log(
+            `Notification scheduled for manager: ${employee.managerName}`
+          );
+        }
+      } else {
+        console.error(`Employee with ID ${empId} not found`);
+      }
+    });
+    selectedEmployees.value = [];
+    refreshKey.value += 1;
+  };
+
   const bulkRehireEmployees = (
     employeeIds: string[],
     rehireData: {
@@ -2754,6 +2822,7 @@ export const useAppStore = defineStore("app", () => {
     updateEmployee,
     bulkAssignManager,
     bulkConvertEmploymentType,
+    bulkChangeStatus,
     bulkRehireEmployees,
     bulkUpdateTrainingStatus,
     // Performance Review Methods
