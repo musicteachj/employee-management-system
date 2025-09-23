@@ -6,6 +6,7 @@ import EmployeeForm from "../views/EmployeeForm.vue";
 import PerformanceReviews from "../views/PerformanceReviews.vue";
 import Analytics from "../views/Analytics.vue";
 import OrgChart from "../views/OrgChart.vue";
+import SearchEmployees from "../views/SearchEmployees.vue";
 
 const routes = [
   {
@@ -21,6 +22,15 @@ const routes = [
       description: "Add a new employee",
     },
     component: EmployeeForm,
+  },
+  {
+    path: "/search-employees",
+    name: "search-employees",
+    meta: {
+      title: "Search Employees",
+      description: "Search for employees",
+    },
+    component: SearchEmployees,
   },
   {
     path: "/employee/:id",

@@ -49,7 +49,10 @@ watch(
       >
         <v-list density="compact" v-model:opened="open" color="primary">
           <v-list-item prepend-icon="mdi-plus" to="/employee/new">
-            <v-list-item-title>Add new employee</v-list-item-title>
+            <v-list-item-title>Add New Employee</v-list-item-title>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-magnify" to="/search-employees">
+            <v-list-item-title>Search Employees</v-list-item-title>
           </v-list-item>
           <v-list-item prepend-icon="mdi-account-plus" to="/unassigned-hires">
             <v-list-item-title>Unassigned Hires</v-list-item-title>
