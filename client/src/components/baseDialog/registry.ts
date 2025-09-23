@@ -13,6 +13,9 @@ export const dialogRegistry = {
   "training-status-update": defineAsyncComponent(
     () => import("./dialogContent/TrainingStatusUpdate.vue")
   ),
+  "schedule-performance-review": defineAsyncComponent(
+    () => import("./dialogContent/SchedulePerformanceReview.vue")
+  ),
 } as const;
 
 export const dialogMeta = {
@@ -21,6 +24,10 @@ export const dialogMeta = {
   "rehire-employee": { header: "Rehire Employee", size: "medium" },
   "training-status-update": {
     header: "Update Training Status",
+    size: "medium",
+  },
+  "schedule-performance-review": {
+    header: "Schedule Performance Review",
     size: "medium",
   },
 } as const;

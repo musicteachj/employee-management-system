@@ -100,6 +100,24 @@ export const useDialogStore = defineStore("dialog", () => {
           ? "Select employees to update training status"
           : undefined,
     },
+    {
+      text: "Schedule Performance Review",
+      icon: "mdi-calendar-clock",
+      action: () => {
+        setDialog({
+          show: true,
+          header: "Schedule Performance Review",
+          size: "medium",
+          type: "schedule-performance-review",
+        });
+      },
+      type: "schedule-performance-review",
+      isEnabled: (selected) => selected.length > 0,
+      tooltip: (selected) =>
+        selected.length === 0
+          ? "Select employees to schedule performance review"
+          : undefined,
+    },
   ]);
 
   const getActions = (actionList: ActionType[]) => {

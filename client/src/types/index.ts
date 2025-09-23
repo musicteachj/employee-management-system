@@ -284,7 +284,7 @@ export interface DialogState {
   show: boolean;
   header: string;
   size: "x-small" | "small" | "medium" | "large";
-  type: string | null;
+  type: ActionType | null;
   persistent?: boolean;
   maxWidth?: number | string;
 }
@@ -302,4 +302,5 @@ export type ActionType =
   | "assign-to-manager"
   | "convert-employee-type"
   | "rehire-employee"
-  | "training-status-update";
+  | "training-status-update"
+  | "schedule-performance-review";

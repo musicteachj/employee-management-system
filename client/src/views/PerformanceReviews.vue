@@ -418,12 +418,14 @@ const viewEmployee = (item: ReviewStatus) => {
 
 const scheduleReview = (item: ReviewStatus) => {
   console.log(item);
-  dialogStore.setDialog({
-    show: true,
-    header: "Schedule Review",
-    size: "medium",
-    type: "review-scheduling",
-  });
+  // Get schedule-performance-review action from dialogStore
+  appStore.setSelectedEmployees([item]);
+  const schedulePerformanceReviewAction = dialogStore.getActions([
+    "schedule-performance-review",
+  ]);
+  if (schedulePerformanceReviewAction) {
+    schedulePerformanceReviewAction[0].action();
+  }
 };
 
 // Lifecycle
