@@ -2,15 +2,19 @@ import type { Employee } from "../types";
 
 export const applyGroupTableFilter = (
   search: string,
-  data: { groupedBy: string; items: Employee[]; count: number }[]
+  data: { groupedBy: string; items: Employee[]; count: number }[],
+  tableColumns: string[]
 ) => {
   const searchLower = search.toLowerCase().trim();
 
-  const matchesSearch = (item: Record<string, any>) => {
-    return Object.values(item).some((value) => {
-      return (
-        typeof value === "string" && value.toLowerCase().includes(searchLower)
-      );
+  const matchesSearch = (item: Employee) => {
+    // Only search in the columns specified by tableColumns prop
+    return tableColumns.some((column) => {
+      const value = item[column as keyof Employee];
+      if (value == null) return false;
+
+      // Convert value to string and search
+      return String(value).toLowerCase().includes(searchLower);
     });
   };
 

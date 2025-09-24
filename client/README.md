@@ -136,5 +136,3 @@ The application will be available at `http://localhost:5173` (or the next availa
 3. **Comprehensive testing suite**
 4. **Docker + CI/CD pipeline**
 5. **Advanced analytics and reporting**
-6. **Real-time features**
-7. **Mobile optimization**
