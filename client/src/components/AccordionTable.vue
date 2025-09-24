@@ -22,6 +22,14 @@
       class="search-field mb-4"
       color="primary"
     ></v-text-field>
+
+    <!-- Bulk Actions Toolbar -->
+    <BulkActionsToolbar
+      v-if="enableActions"
+      :selected-items="appStore.selectedEmployees"
+      :actions="actions"
+    />
+
     <v-data-table
       :loading="loading"
       :loading-text="loadingText"
@@ -30,11 +38,13 @@
       density="compact"
       show-expand
       item-value="groupedBy"
+      v-model:expanded="expandedRows"
       :hide-default-footer="groupedData.length < 11"
       class="elevation-0 rounded-lg accordion-data-table"
       hover
+      @update:expanded="handleExpansionUpdate"
     >
-      <template v-slot:expanded-row="{ columns, item, index: rowIndex }">
+      <template v-slot:expanded-row="{ columns, item }">
         <td :colspan="columns.length" style="background-color: #ebf5f0">
           <v-card class="pa-4" flat color="transparent">
             <DataTable
@@ -45,9 +55,9 @@
               :loading-text="''"
               :enableSearch="false"
               :enableActions="false"
-              :enableExport="false"
-              :enableOpenRecord="true"
-              :enableSelect="false"
+              :enableExport="enableExport"
+              :enableOpenRecord="enableOpenRecord"
+              :enableSelect="enableSelect"
               :showTitles="false"
               :tableActions="[]"
               :tableColumns="tableColumns"
@@ -61,9 +71,20 @@
 
 <script setup lang="ts">
 import { toRefs, ref, computed } from "vue";
-import type { Employee, GroupByInfo, GroupByOption } from "../types";
+import type {
+  Employee,
+  GroupByInfo,
+  GroupByOption,
+  ActionType,
+} from "../types";
 import DataTable from "./DataTable.vue";
 import { applyGroupTableFilter } from "../modules/genericHelper";
+import BulkActionsToolbar from "./BulkActionsToolbar.vue";
+import { useDialogStore } from "../stores/dialog";
+import { useAppStore } from "../stores/app";
+
+const dialogStore = useDialogStore();
+const appStore = useAppStore();
 
 const props = defineProps<{
   items: Employee[];
@@ -79,6 +100,7 @@ const props = defineProps<{
   enableOtherGroupings: boolean;
   tableColumns: string[];
   groupByInfo: GroupByInfo;
+  tableActions: ActionType[];
 }>();
 
 const {
@@ -95,7 +117,11 @@ const {
   enableOtherGroupings,
   tableColumns,
   groupByInfo,
+  tableActions,
 } = toRefs(props);
+
+const search = ref("");
+const expandedRows = ref<string[]>([]);
 
 const computedHeaders = computed(() => {
   // Map technical field names to user-friendly labels
@@ -136,12 +162,31 @@ const groupedData = computed(() => {
     count: items.length,
   }));
   if (search.value) {
-    assignedData = applyGroupTableFilter(search.value, assignedData);
+    assignedData = applyGroupTableFilter(
+      search.value,
+      assignedData,
+      tableColumns.value
+    );
   }
   return assignedData;
 });
 
-const search = ref("");
+const actions = computed(() => {
+  return dialogStore.getActions(tableActions.value);
+});
+
+// Handle single row expansion
+const handleExpansionUpdate = (expanded: string[]) => {
+  // Clear any selected items in DataTable when expansion changes
+  appStore.setSelectedEmployees([]);
+
+  // If trying to expand more than one row, only keep the last one
+  if (expanded.length > 1) {
+    expandedRows.value = [expanded[expanded.length - 1]];
+  } else {
+    expandedRows.value = expanded;
+  }
+};
 </script>
 
 <style scoped>
