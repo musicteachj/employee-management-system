@@ -162,7 +162,11 @@ const groupedData = computed(() => {
     count: items.length,
   }));
   if (search.value) {
-    assignedData = applyGroupTableFilter(search.value, assignedData);
+    assignedData = applyGroupTableFilter(
+      search.value,
+      assignedData,
+      tableColumns.value
+    );
   }
   return assignedData;
 });
