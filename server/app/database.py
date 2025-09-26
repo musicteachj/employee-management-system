@@ -1,47 +1,42 @@
-"""Database connection placeholders.
+"""MongoDB connection management using Motor (Phase 3)."""
 
-This module provides no-op async functions so the app can run without a
-MongoDB instance during Phase 1. Real connections will be added later.
-"""
+from typing import Optional
+import logging
 
-from typing import Any
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
+from app.config import settings
 
 
 class Database:
-    client: Any = None
+    client: Optional[AsyncIOMotorClient] = None
 
 
 db = Database()
 
 
-async def get_database() -> Any:
-    """Return a placeholder database-like object.
-
-    In Phase 1, we return a minimal stub so importers can depend on the
-    function without requiring a live MongoDB.
-    """
-
-    class _StubDB:
-        def __getattr__(self, name: str) -> Any:
-            raise RuntimeError(
-                "Database is not configured. Add MongoDB in later phases."
-            )
-
-    return _StubDB()
+async def get_database() -> AsyncIOMotorDatabase:
+    if not db.client:
+        raise RuntimeError("MongoDB client is not initialized. Call connect_to_mongo() first.")
+    return db.client[settings.database_name]
 
 
 async def connect_to_mongo() -> None:
-    """No-op connect placeholder for Phase 1."""
-    return None
+    """Create and test database connection."""
+    try:
+        db.client = AsyncIOMotorClient(settings.mongodb_url)
+        # Test connection
+        await db.client.admin.command("ping")
+        logging.info("Connected to MongoDB")
+    except Exception as exc:
+        logging.error(f"Could not connect to MongoDB: {exc}")
+        raise
 
 
 async def close_mongo_connection() -> None:
-    """No-op close placeholder for Phase 1."""
-    return None
-
-
-async def create_indexes() -> None:
-    """No-op index creation placeholder for Phase 1."""
-    return None
+    """Close database connection."""
+    if db.client:
+        db.client.close()
+        logging.info("Disconnected from MongoDB")
 
 
