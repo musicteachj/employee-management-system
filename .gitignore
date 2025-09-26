@@ -48,3 +48,6 @@ venv.bak/
 
 # Logs
 *.log
+
+# Data files
+server/data/
