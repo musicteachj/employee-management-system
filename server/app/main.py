@@ -9,7 +9,6 @@ from app.config import settings
 from app.database import (
     connect_to_mongo,
     close_mongo_connection,
-    create_indexes,
 )
 from app.routes import health
 
@@ -17,7 +16,6 @@ from app.routes import health
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await connect_to_mongo()
-    await create_indexes()
     yield
     await close_mongo_connection()
 

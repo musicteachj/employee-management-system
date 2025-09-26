@@ -8,9 +8,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/employee_management}
+      - MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/employee-management-system}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_NAME=${DATABASE_NAME:-employee_management}
+      - DATABASE_NAME=${DATABASE_NAME:-employee-management-system}
     volumes:
       - ./server:/app
       - /app/__pycache__
