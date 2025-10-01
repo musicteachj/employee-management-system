@@ -1,15 +1,12 @@
-"""Employee service with minimal read operations (Phase 4).
+"""Employee service with full CRUD operations (Phase 5)."""
 
-Write operations intentionally raise NotImplementedError to be completed in
-Phase 5 (Business Logic).
-"""
-
+from datetime import datetime
 from typing import List, Optional
 
 from bson import ObjectId
 
 from app.database import get_database
-from app.models.employee import Employee, SearchCriteria
+from app.models.employee import Employee, EmployeeCreate, EmployeeUpdate, SearchCriteria
 
 
 class EmployeeService:
@@ -107,13 +104,76 @@ class EmployeeService:
         docs = [self._normalize_employee_doc(d) for d in docs]
         return [Employee(**d) for d in docs]
 
-    async def create_employee(self, *_args, **_kwargs):
-        raise NotImplementedError
+    async def create_employee(self, employee_data: EmployeeCreate) -> Employee:
+        """Create new employee."""
+        db = await get_database()
 
-    async def update_employee(self, *_args, **_kwargs):
-        raise NotImplementedError
+        # Convert to dict and add metadata
+        employee_dict = employee_data.model_dump(by_alias=True, exclude_unset=True)
+        employee_dict["createdAt"] = datetime.utcnow()
+        employee_dict["updatedAt"] = datetime.utcnow()
 
-    async def delete_employee(self, *_args, **_kwargs):
-        raise NotImplementedError
+        # Ensure required system fields
+        if "docType" not in employee_dict:
+            employee_dict["docType"] = "employee"
+        if "source" not in employee_dict:
+            employee_dict["source"] = "HR"
+
+        result = await db.employees.insert_one(employee_dict)
+        employee_dict["_id"] = str(result.inserted_id)
+
+        return Employee(**self._normalize_employee_doc(employee_dict))
+
+    async def update_employee(self, employee_id: str, updates: EmployeeUpdate) -> Employee:
+        """Update employee."""
+        db = await get_database()
+
+        try:
+            _id = ObjectId(employee_id)
+        except Exception:
+            raise ValueError("Invalid employee ID")
+
+        # Convert updates to dict, excluding unset fields
+        update_dict = updates.model_dump(by_alias=True, exclude_unset=True)
+        if not update_dict:
+            # No fields to update, just return current
+            return await self.get_employee(employee_id)
+
+        update_dict["updatedAt"] = datetime.utcnow()
+
+        result = await db.employees.update_one(
+            {"_id": _id},
+            {"$set": update_dict}
+        )
+
+        if result.matched_count == 0:
+            raise ValueError("Employee not found")
+
+        return await self.get_employee(employee_id)
+
+    async def delete_employee(self, employee_id: str) -> dict:
+        """Soft delete employee by setting status to Terminated."""
+        db = await get_database()
+
+        try:
+            _id = ObjectId(employee_id)
+        except Exception:
+            raise ValueError("Invalid employee ID")
+
+        result = await db.employees.update_one(
+            {"_id": _id},
+            {
+                "$set": {
+                    "status": "Terminated",
+                    "terminationDate": datetime.utcnow().isoformat(),
+                    "updatedAt": datetime.utcnow()
+                }
+            }
+        )
+
+        if result.matched_count == 0:
+            raise ValueError("Employee not found")
+
+        return {"status": "deleted", "employee_id": employee_id}
 
 
