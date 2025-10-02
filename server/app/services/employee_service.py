@@ -14,8 +14,8 @@ class EmployeeService:
         """Coerce stored MongoDB document into a shape acceptable by Employee.
 
         - Cast _id to str
-        - Map condensed jobLevel values to full enum labels
-        - Ensure currency is a string (default to "USD" if invalid)
+        - Ensure jobLevel matches enum values (Entry, Mid, Senior, etc.)
+        - Ensure currency is a number (default to 840 for USD if invalid)
         - Ensure docType is present
         """
         if not doc:
@@ -27,18 +27,22 @@ class EmployeeService:
             except Exception:
                 pass
 
+        # Map old job level values to new enum values if needed
         job_level_map = {
-            "Entry": "Entry Level",
-            "Mid": "Mid Level",
-            "Senior": "Senior Level",
+            "Entry Level": "Entry",
+            "Mid Level": "Mid",
+            "Senior Level": "Senior",
+            "Vice President": "VP",
         }
         jl = doc.get("jobLevel")
         if isinstance(jl, str) and jl in job_level_map:
             doc["jobLevel"] = job_level_map[jl]
 
+        # Ensure currency is a number (ISO 4217 code or just store the number)
         curr = doc.get("currency")
-        if not isinstance(curr, str) or not curr:
-            doc["currency"] = "USD"
+        if not isinstance(curr, (int, float)):
+            # Default to 840 (USD ISO code) or just use 0
+            doc["currency"] = 840
 
         if not doc.get("docType"):
             doc["docType"] = "employee"

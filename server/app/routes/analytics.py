@@ -1,8 +1,9 @@
-"""Analytics API routes (Phase 4)."""
+"""Analytics API routes (Phase 6)."""
 
 from fastapi import APIRouter, Depends
 
 from app.models.analytics import (
+    DashboardAnalytics,
     DepartmentDistribution,
     PerformanceTrends,
     SalaryAnalytics,
@@ -14,6 +15,13 @@ from app.services.analytics_service import AnalyticsService
 router = APIRouter()
 
 
+@router.get("/analytics/dashboard", response_model=DashboardAnalytics)
+async def get_dashboard_analytics(service: AnalyticsService = Depends()):
+    """Get complete dashboard analytics in a single call."""
+    return await service.get_dashboard_analytics()
+
+
+# Legacy endpoints (kept for backward compatibility)
 @router.get("/analytics/department-distribution", response_model=DepartmentDistribution)
 async def get_department_distribution(service: AnalyticsService = Depends()):
     return await service.get_department_distribution()

@@ -10,7 +10,7 @@ from app.database import (
     connect_to_mongo,
     close_mongo_connection,
 )
-from app.routes import health, employees, analytics, bulk_operations
+from app.routes import health, employees, analytics, bulk_operations, performance
 
 
 @asynccontextmanager
@@ -41,6 +41,7 @@ app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(employees.router, prefix="/api", tags=["employees"])
 app.include_router(analytics.router, prefix="/api", tags=["analytics"])
 app.include_router(bulk_operations.router, prefix="/api", tags=["bulk"])
+app.include_router(performance.router, prefix="/api", tags=["performance"])
 
 
 if settings.environment == "production":

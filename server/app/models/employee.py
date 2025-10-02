@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict, field_serializer
 
@@ -12,18 +12,91 @@ from pydantic import BaseModel, Field, ConfigDict, field_serializer
 class ActiveStatus(str, Enum):
     ACTIVE = "Active"
     INACTIVE = "Inactive"
+    ON_LEAVE = "On Leave"
     TERMINATED = "Terminated"
 
 
 class JobLevel(str, Enum):
-    ENTRY = "Entry Level"
-    MID = "Mid Level"
-    SENIOR = "Senior Level"
+    ENTRY = "Entry"
+    MID = "Mid"
+    SENIOR = "Senior"
     LEAD = "Lead"
     MANAGER = "Manager"
     DIRECTOR = "Director"
-    VP = "Vice President"
+    VP = "VP"
     C_LEVEL = "C-Level"
+    CEO = "CEO"
+
+
+class PerformanceReview(BaseModel):
+    """Performance review record."""
+    review_id: str = Field(..., alias="reviewId")
+    review_date: str = Field(..., alias="reviewDate")
+    review_period_start: str = Field(..., alias="reviewPeriodStart")
+    review_period_end: str = Field(..., alias="reviewPeriodEnd")
+    reviewer_name: str = Field(..., alias="reviewerName")
+    reviewer_email: str = Field(..., alias="reviewerEmail")
+    rating: str
+    goals: Optional[List[Dict[str, Any]]] = None
+    achievements: Optional[List[Dict[str, Any]]] = None
+    areas_for_improvement: Optional[List[str]] = Field(None, alias="areasForImprovement")
+    comments: Optional[str] = None
+    next_review_date: Optional[str] = Field(None, alias="nextReviewDate")
+    skill_assessments: Optional[List[Dict[str, Any]]] = Field(None, alias="skillAssessments")
+    manager_feedback: Optional[str] = Field(None, alias="managerFeedback")
+    self_assessment: Optional[str] = Field(None, alias="selfAssessment")
+    development_plan: Optional[List[Dict[str, Any]]] = Field(None, alias="developmentPlan")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class PerformanceMetrics(BaseModel):
+    """Performance metrics summary."""
+    average_rating: float = Field(..., alias="averageRating")
+    rating_trend: str = Field(..., alias="ratingTrend")
+    reviews_completed: int = Field(..., alias="reviewsCompleted")
+    overdue_days: Optional[int] = Field(None, alias="overdueDays")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class HRAssignment(BaseModel):
+    """HR assignment details."""
+    assigned_to: str = Field(..., alias="assignedTo")
+    assigned_date: Optional[str] = Field(None, alias="assignedDate")
+    manager_email: str = Field(..., alias="managerEmail")
+    manager_assign_date: Optional[str] = Field(None, alias="managerAssignDate")
+    review_comments: Optional[str] = Field(None, alias="reviewComments")
+    revalidation_status: Optional[str] = Field(None, alias="revalidationStatus")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class Onboarding(BaseModel):
+    """Onboarding/event tracking details."""
+    author: str
+    author_type: str = Field(..., alias="authorType")
+    event_date: Optional[str] = Field(None, alias="eventDate")
+    event_name: Optional[str] = Field(None, alias="eventName")
+    event_reference_id: Optional[str] = Field(None, alias="eventReferenceId")
+    onboarding_key: Optional[str] = Field(None, alias="onboardingKey")
+    owner: Optional[str] = None
+    record_updated: Optional[str] = Field(None, alias="recordUpdated")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class ProfileUpdate(BaseModel):
+    """Profile update record."""
+    update_id: str = Field(..., alias="updateId")
+    update_date: str = Field(..., alias="updateDate")
+    updated_by: str = Field(..., alias="updatedBy")
+    updated_fields: List[str] = Field(..., alias="updatedFields")
+    update_reason: Optional[str] = Field(None, alias="updateReason")
+    previous_values: Optional[Dict[str, Any]] = Field(None, alias="previousValues")
+    new_values: Optional[Dict[str, Any]] = Field(None, alias="newValues")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Employee(BaseModel):
@@ -44,6 +117,7 @@ class Employee(BaseModel):
     state: str
     country: str
     date_of_birth: Optional[str] = Field(None, alias="dateOfBirth")
+    social_security_number: Optional[str] = Field(None, alias="socialSecurityNumber")
 
     # Employment Information
     employee_id: str = Field(..., alias="employeeId")
@@ -55,32 +129,55 @@ class Employee(BaseModel):
     manager_id: Optional[str] = Field(None, alias="managerId")
     manager_name: Optional[str] = Field(None, alias="managerName")
     direct_reports: Optional[List[str]] = Field(None, alias="directReports")
+    organization_level: Optional[int] = Field(None, alias="organizationLevel")
+    cost_center: Optional[str] = Field(None, alias="costCenter")
+    business_unit: Optional[str] = Field(None, alias="businessUnit")
 
     # Dates
     hire_date: str = Field(..., alias="hireDate")
     probation_end_date: Optional[str] = Field(None, alias="probationEndDate")
+    last_review_date: Optional[str] = Field(None, alias="lastReviewDate")
     termination_date: Optional[str] = Field(None, alias="terminationDate")
 
-    # Compensation
+    # Compensation & Benefits
     salary: float
-    currency: str = "USD"
+    currency: float
     paygrade: str
     benefits_eligible: str = Field(..., alias="benefitsEligible")
 
-    # Performance
+    # Performance & Development
     performance_rating: str = Field(..., alias="performanceRating")
     training_status: str = Field(..., alias="trainingStatus")
     development_notes: str = Field(..., alias="developmentNotes")
     next_review_date: Optional[str] = Field(None, alias="nextReviewDate")
+    performance_history: Optional[List[PerformanceReview]] = Field(None, alias="performanceHistory")
+    performance_metrics: Optional[PerformanceMetrics] = Field(None, alias="performanceMetrics")
+
+    # Performance Review Status (computed fields)
+    days_overdue: Optional[int] = Field(None, alias="daysOverdue")
+    review_status: Optional[str] = Field(None, alias="reviewStatus")
+
+    # Compliance & Verification
+    background_check_status: str = Field(..., alias="backgroundCheckStatus")
 
     # System fields
+    _attachments: Optional[List[str]] = None
     doc_type: str = Field(default="employee", alias="docType")
     source: str = "HR"
+    source_id: Optional[str] = Field(None, alias="sourceId")
     created_by: Optional[str] = Field(None, alias="createdBy")
     created_on: Optional[str] = Field(None, alias="createdOn")
     updated_by: Optional[str] = Field(None, alias="updatedBy")
     updated_on: Optional[str] = Field(None, alias="updatedOn")
     updated_at: Optional[datetime] = Field(None, alias="updatedAt")
+    last_profile_update: Optional[str] = Field(None, alias="lastProfileUpdate")
+    profile_update_history: Optional[List[ProfileUpdate]] = Field(None, alias="profileUpdateHistory")
+
+    # Manager/HR Assignment
+    hr_assignment: HRAssignment = Field(..., alias="hrAssignment")
+
+    # Onboarding/Event tracking
+    onboarding: Optional[Onboarding] = None
 
     model_config = ConfigDict(populate_by_name=True)
 
