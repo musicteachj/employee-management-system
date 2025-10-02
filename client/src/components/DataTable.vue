@@ -38,6 +38,8 @@
       :items-per-page="10"
       :items-per-page-options="[5, 10, 25, 50]"
       :hide-default-footer="filteredItems.length < 11"
+      :loading="loading"
+      :loading-text="loadingText"
       hover
       v-model="selectedItems"
       item-value="_id"
@@ -91,6 +93,8 @@ const {
   items,
   title,
   subtitle,
+  loading,
+  loadingText,
   enableSearch,
   enableOpenRecord,
   enableActions,

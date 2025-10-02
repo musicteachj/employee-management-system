@@ -16,6 +16,7 @@ import type {
   Manager,
   PerformanceAnalytics,
 } from "../types";
+import { useNotificationStore } from "./notification";
 
 export const useAppStore = defineStore("app", () => {
   const refreshKey = ref(0);
@@ -32,10 +33,6 @@ export const useAppStore = defineStore("app", () => {
     );
   };
 
-  const getEmployees = async (): Promise<Employee[]> => {
-    return employees.value;
-  };
-
   // Simplified search interface for essential employee fields
   interface SearchCriteria {
     fullName?: string;
@@ -46,65 +43,101 @@ export const useAppStore = defineStore("app", () => {
     employmentType?: EmploymentType;
   }
 
+  // API helper functions
+  const apiGet = async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      const notificationStore = useNotificationStore();
+      const errorMessage = `Failed to fetch data: ${response.status} ${response.statusText}`;
+      notificationStore.showError(errorMessage);
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  };
+
+  const apiPost = async (url: string, data: any) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const notificationStore = useNotificationStore();
+      const errorMessage = `Failed to post data: ${response.status} ${response.statusText}`;
+      notificationStore.showError(errorMessage);
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  };
+
+  const getEmployees = async (): Promise<Employee[]> => {
+    try {
+      const data = await apiGet("/api/employees");
+      employees.value = data;
+      return data;
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      // Return cached employees if API fails
+      return employees.value;
+    }
+  };
+
   const searchEmployees = async (
     criteria: SearchCriteria
   ): Promise<Employee[]> => {
     console.log("Searching employees with criteria:", criteria);
 
-    return employees.value.filter((employee) => {
-      // Enhanced name search - searches across firstName, lastName, and fullName
-      if (criteria.fullName) {
-        const searchTerm = criteria.fullName.toLowerCase();
-        const nameMatch =
-          employee.firstName.toLowerCase().includes(searchTerm) ||
-          employee.lastName.toLowerCase().includes(searchTerm) ||
-          employee.fullName.toLowerCase().includes(searchTerm);
-
-        if (!nameMatch) {
-          return false;
+    try {
+      const results = await apiPost("/api/employees/search", criteria);
+      return results;
+    } catch (error) {
+      console.error("Error searching employees:", error);
+      // Fallback to local filtering if API fails
+      return employees.value.filter((employee) => {
+        if (criteria.fullName) {
+          const searchTerm = criteria.fullName.toLowerCase();
+          const nameMatch =
+            employee.firstName.toLowerCase().includes(searchTerm) ||
+            employee.lastName.toLowerCase().includes(searchTerm) ||
+            employee.fullName.toLowerCase().includes(searchTerm);
+          if (!nameMatch) return false;
         }
-      }
-
-      // Department filter (partial match)
-      if (
-        criteria.department &&
-        !employee.department
-          .toLowerCase()
-          .includes(criteria.department.toLowerCase())
-      ) {
-        return false;
-      }
-
-      // Position filter (partial match)
-      if (
-        criteria.position &&
-        !employee.position
-          .toLowerCase()
-          .includes(criteria.position.toLowerCase())
-      ) {
-        return false;
-      }
-
-      // Exact match filters
-      if (criteria.status && employee.status !== criteria.status) {
-        return false;
-      }
-
-      if (criteria.managerId && employee.managerId !== criteria.managerId) {
-        return false;
-      }
-
-      if (
-        criteria.employmentType &&
-        employee.employmentType !== criteria.employmentType
-      ) {
-        return false;
-      }
-
-      return true;
-    });
+        if (
+          criteria.department &&
+          !employee.department
+            .toLowerCase()
+            .includes(criteria.department.toLowerCase())
+        )
+          return false;
+        if (
+          criteria.position &&
+          !employee.position
+            .toLowerCase()
+            .includes(criteria.position.toLowerCase())
+        )
+          return false;
+        if (criteria.status && employee.status !== criteria.status)
+          return false;
+        if (criteria.managerId && employee.managerId !== criteria.managerId)
+          return false;
+        if (
+          criteria.employmentType &&
+          employee.employmentType !== criteria.employmentType
+        )
+          return false;
+        return true;
+      });
+    }
   };
 
+  // Initialize as empty - will be populated from API
+  const employees = ref<Employee[]>([]);
+
+  // STATIC DATA COMMENTED OUT - Now fetched from API
+  // Keeping this here for reference during migration
+  /*
   const employees = ref<Employee[]>([
     {
       _id: "emp_001",
@@ -2097,6 +2130,7 @@ export const useAppStore = defineStore("app", () => {
       },
     },
   ]);
+  */
 
   // Departments - Centralized department data
   const departments = ref<Department[]>([
@@ -2343,98 +2377,61 @@ export const useAppStore = defineStore("app", () => {
     }
   };
 
-  const bulkAssignManager = (
+  const bulkAssignManager = async (
     employeeIds: string[],
     managerId: string,
     assignmentDate: string,
     notes?: string
-  ): void => {
-    console.log(
-      `Bulk assigning manager ${managerId} to employees:`,
-      employeeIds
-    );
-    const manager = managers.value.find((m) => m.id === managerId);
-    if (!manager) {
-      throw new Error("Manager not found");
-    }
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/assign-manager", {
+        employeeIds,
+        managerId,
+        assignmentDate,
+        notes,
+      });
 
-    employeeIds.forEach((empId) => {
-      const employee = employees.value.find((emp) => emp._id === empId);
-      if (employee) {
-        console.log(
-          `Updating employee ${employee.fullName} with manager ${manager.name}`
-        );
-        const updatedEmployee: Employee = {
-          ...employee,
-          managerId: manager.id,
-          managerName: manager.name,
-          hrAssignment: {
-            ...employee.hrAssignment,
-            managerEmail: manager.email,
-            managerAssignDate: assignmentDate,
-            reviewComments: notes || employee.hrAssignment.reviewComments,
-          },
-          updatedBy: "hr_admin",
-          updatedOn: new Date().toISOString().split("T")[0],
-          updatedAt: new Date().toISOString(),
-          lastProfileUpdate: new Date().toISOString().split("T")[0],
-        };
-        updateEmployee(updatedEmployee);
-        console.log(
-          `Employee ${employee.fullName} updated with managerId: ${updatedEmployee.managerId}`
-        );
-      } else {
-        console.error(`Employee with ID ${empId} not found`);
-      }
-    });
-    selectedEmployees.value = [];
-    refreshKey.value += 1;
+      console.log("Bulk assign manager response:", response);
+
+      // Refresh employees from server to get updated data
+      await getEmployees();
+
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk assign manager:", error);
+      throw error;
+    }
   };
 
-  const bulkConvertEmploymentType = (
+  const bulkConvertEmploymentType = async (
     employeeIds: string[],
     newEmploymentType: EmploymentType,
     effectiveDate: string,
     notes?: string
-  ): void => {
-    console.log(
-      `Bulk converting employment type to ${newEmploymentType} for employees:`,
-      employeeIds
-    );
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/convert-employment-type", {
+        employeeIds,
+        newEmploymentType,
+        effectiveDate,
+        notes,
+      });
 
-    employeeIds.forEach((empId) => {
-      const employee = employees.value.find((emp) => emp._id === empId);
-      if (employee) {
-        console.log(
-          `Converting employee ${employee.fullName} from ${employee.employmentType} to ${newEmploymentType}`
-        );
-        const updatedEmployee: Employee = {
-          ...employee,
-          employmentType: newEmploymentType,
-          hrAssignment: {
-            ...employee.hrAssignment,
-            reviewComments: notes
-              ? `Employment type converted to ${newEmploymentType} on ${effectiveDate}. ${notes}`
-              : `Employment type converted to ${newEmploymentType} on ${effectiveDate}`,
-          },
-          updatedBy: "hr_admin",
-          updatedOn: new Date().toISOString().split("T")[0],
-          updatedAt: new Date().toISOString(),
-          lastProfileUpdate: new Date().toISOString().split("T")[0],
-        };
-        updateEmployee(updatedEmployee);
-        console.log(
-          `Employee ${employee.fullName} employment type updated to: ${updatedEmployee.employmentType}`
-        );
-      } else {
-        console.error(`Employee with ID ${empId} not found`);
-      }
-    });
-    selectedEmployees.value = [];
-    refreshKey.value += 1;
+      console.log("Bulk convert employment type response:", response);
+
+      // Refresh employees from server to get updated data
+      await getEmployees();
+
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk convert employment type:", error);
+      throw error;
+    }
   };
 
-  const bulkChangeStatus = (
+  const bulkChangeStatus = async (
     employeeIds: string[],
     newStatus: ActiveStatus,
     effectiveDate: string,
@@ -2443,66 +2440,30 @@ export const useAppStore = defineStore("app", () => {
       notifyEmployee: boolean;
       notifyManager: boolean;
     }
-  ): void => {
-    console.log(
-      `Bulk changing status to ${newStatus} for employees:`,
-      employeeIds
-    );
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/change-status", {
+        employeeIds,
+        newStatus,
+        effectiveDate,
+        reason,
+        notifications,
+      });
 
-    employeeIds.forEach((empId) => {
-      const employee = employees.value.find((emp) => emp._id === empId);
-      if (employee) {
-        console.log(
-          `Changing employee ${employee.fullName} status from ${employee.status} to ${newStatus}`
-        );
-        const updatedEmployee: Employee = {
-          ...employee,
-          status: newStatus,
-          hrAssignment: {
-            ...employee.hrAssignment,
-            reviewComments: reason
-              ? `Status changed to ${newStatus} on ${effectiveDate}. Reason: ${reason}`
-              : `Status changed to ${newStatus} on ${effectiveDate}`,
-          },
-          updatedBy: "hr_admin",
-          updatedOn: new Date().toISOString().split("T")[0],
-          updatedAt: new Date().toISOString(),
-          lastProfileUpdate: new Date().toISOString().split("T")[0],
-        };
+      console.log("Bulk change status response:", response);
 
-        // Handle status-specific updates
-        if (newStatus === "Terminated") {
-          updatedEmployee.terminationDate = effectiveDate;
-        } else if (employee.status === "Terminated") {
-          // Clear termination date if changing from terminated to another status
-          updatedEmployee.terminationDate = undefined;
-        }
+      // Refresh employees from server to get updated data
+      await getEmployees();
 
-        updateEmployee(updatedEmployee);
-        console.log(
-          `Employee ${employee.fullName} status updated to: ${updatedEmployee.status}`
-        );
-
-        // Log notification preferences (in a real app, this would trigger actual notifications)
-        if (notifications?.notifyEmployee) {
-          console.log(
-            `Notification scheduled for employee: ${employee.workEmail}`
-          );
-        }
-        if (notifications?.notifyManager && employee.managerName) {
-          console.log(
-            `Notification scheduled for manager: ${employee.managerName}`
-          );
-        }
-      } else {
-        console.error(`Employee with ID ${empId} not found`);
-      }
-    });
-    selectedEmployees.value = [];
-    refreshKey.value += 1;
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk change status:", error);
+      throw error;
+    }
   };
 
-  const bulkRehireEmployees = (
+  const bulkRehireEmployees = async (
     employeeIds: string[],
     rehireData: {
       rehireDate: string;
@@ -2515,63 +2476,27 @@ export const useAppStore = defineStore("app", () => {
       managerName: string;
       notes: string;
     }
-  ): void => {
-    console.log(
-      `Bulk rehiring employees:`,
-      employeeIds,
-      "with data:",
-      rehireData
-    );
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/rehire-employees", {
+        employeeIds,
+        rehireData,
+      });
 
-    employeeIds.forEach((empId) => {
-      const employee = employees.value.find((emp) => emp._id === empId);
-      if (employee) {
-        console.log(
-          `Rehiring employee ${employee.fullName} to ${rehireData.department} as ${rehireData.position}`
-        );
-        const updatedEmployee: Employee = {
-          ...employee,
-          status: "Active",
-          department: rehireData.department,
-          position: rehireData.position,
-          jobLevel: rehireData.jobLevel,
-          salary: rehireData.salary,
-          employmentType: rehireData.employmentType,
-          managerId: rehireData.managerId || undefined,
-          managerName: rehireData.managerName || undefined,
-          hireDate: rehireData.rehireDate, // Update hire date to rehire date
-          terminationDate: undefined, // Clear termination date
-          hrAssignment: {
-            ...employee.hrAssignment,
-            managerEmail: rehireData.managerId
-              ? managers.value.find((m) => m.id === rehireData.managerId)
-                  ?.email || ""
-              : "",
-            managerAssignDate: rehireData.managerId
-              ? rehireData.rehireDate
-              : undefined,
-            reviewComments: rehireData.notes
-              ? `Employee rehired on ${rehireData.rehireDate}. ${rehireData.notes}`
-              : `Employee rehired on ${rehireData.rehireDate}`,
-          },
-          updatedBy: "hr_admin",
-          updatedOn: new Date().toISOString().split("T")[0],
-          updatedAt: new Date().toISOString(),
-          lastProfileUpdate: new Date().toISOString().split("T")[0],
-        };
-        updateEmployee(updatedEmployee);
-        console.log(
-          `Employee ${employee.fullName} rehired successfully with status: ${updatedEmployee.status}`
-        );
-      } else {
-        console.error(`Employee with ID ${empId} not found`);
-      }
-    });
-    selectedEmployees.value = [];
-    refreshKey.value += 1;
+      console.log("Bulk rehire employees response:", response);
+
+      // Refresh employees from server to get updated data
+      await getEmployees();
+
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk rehire employees:", error);
+      throw error;
+    }
   };
 
-  const bulkUpdateTrainingStatus = (
+  const bulkUpdateTrainingStatus = async (
     employeeIds: string[],
     newTrainingStatus: TrainingStatus,
     trainingData: {
@@ -2581,140 +2506,148 @@ export const useAppStore = defineStore("app", () => {
       effectiveDate: string;
       notes: string;
     }
-  ): void => {
-    console.log(
-      `Bulk updating training status to ${newTrainingStatus} for employees:`,
-      employeeIds,
-      "with data:",
-      trainingData
-    );
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/update-training-status", {
+        employeeIds,
+        newTrainingStatus,
+        trainingData,
+      });
 
-    employeeIds.forEach((empId) => {
-      const employee = employees.value.find((emp) => emp._id === empId);
-      if (employee) {
-        console.log(
-          `Updating training status for employee ${employee.fullName} from ${employee.trainingStatus} to ${newTrainingStatus}`
-        );
-        const updatedEmployee: Employee = {
-          ...employee,
-          trainingStatus: newTrainingStatus,
-          hrAssignment: {
-            ...employee.hrAssignment,
-            reviewComments: trainingData.notes
-              ? `Training status updated to ${newTrainingStatus} on ${trainingData.effectiveDate}. Program: ${trainingData.trainingProgram}. ${trainingData.notes}`
-              : `Training status updated to ${newTrainingStatus} on ${
-                  trainingData.effectiveDate
-                }${
-                  trainingData.trainingProgram
-                    ? `. Program: ${trainingData.trainingProgram}`
-                    : ""
-                }`,
-          },
-          updatedBy: "hr_admin",
-          updatedOn: new Date().toISOString().split("T")[0],
-          updatedAt: new Date().toISOString(),
-          lastProfileUpdate: new Date().toISOString().split("T")[0],
-        };
-        updateEmployee(updatedEmployee);
-        console.log(
-          `Employee ${employee.fullName} training status updated to: ${updatedEmployee.trainingStatus}`
-        );
-      } else {
-        console.error(`Employee with ID ${empId} not found`);
-      }
-    });
-    selectedEmployees.value = [];
-    refreshKey.value += 1;
+      console.log("Bulk update training status response:", response);
+
+      // Refresh employees from server to get updated data
+      await getEmployees();
+
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk update training status:", error);
+      throw error;
+    }
   };
 
   // Performance Review Methods
   const getPerformanceReviews = async (): Promise<Employee[]> => {
-    return employees.value.filter(
-      (employee) =>
-        employee.performanceHistory && employee.performanceHistory.length > 0
-    );
+    try {
+      const data = await apiGet("/api/performance/reviews");
+      return data;
+    } catch (error) {
+      console.error("Error fetching performance reviews:", error);
+      // Fallback to local filtering
+      return employees.value.filter(
+        (employee) =>
+          employee.performanceHistory && employee.performanceHistory.length > 0
+      );
+    }
   };
 
   const getOverdueReviews = async (): Promise<Employee[]> => {
-    const today = dayjs();
-    return employees.value
-      .filter((employee) => employee.nextReviewDate)
-      .map((employee) => {
-        const nextReview = dayjs(employee.nextReviewDate);
-        const daysOverdue = today.diff(nextReview, "day");
-        const reviewStatus:
-          | "current"
-          | "due_soon"
-          | "overdue"
-          | "never_reviewed" =
-          daysOverdue > 0
-            ? "overdue"
-            : daysOverdue > -30
-            ? "due_soon"
-            : "current";
+    try {
+      const data = await apiGet("/api/performance/overdue");
+      return data;
+    } catch (error) {
+      console.error("Error fetching overdue reviews:", error);
+      // Fallback to local filtering
+      const today = dayjs();
+      return employees.value
+        .filter((employee) => employee.nextReviewDate)
+        .map((employee) => {
+          const nextReview = dayjs(employee.nextReviewDate);
+          const daysOverdue = today.diff(nextReview, "day");
+          const reviewStatus:
+            | "current"
+            | "due_soon"
+            | "overdue"
+            | "never_reviewed" =
+            daysOverdue > 0
+              ? "overdue"
+              : daysOverdue > -30
+              ? "due_soon"
+              : "current";
 
-        return {
-          ...employee,
-          daysOverdue: daysOverdue > 0 ? daysOverdue : undefined,
-          reviewStatus,
-        };
-      })
-      .filter((employee) => employee.reviewStatus === "overdue");
+          return {
+            ...employee,
+            daysOverdue: daysOverdue > 0 ? daysOverdue : undefined,
+            reviewStatus,
+          };
+        })
+        .filter((employee) => employee.reviewStatus === "overdue");
+    }
   };
 
   const getPerformanceAnalytics = async (): Promise<PerformanceAnalytics> => {
-    const activeEmployees = employees.value.filter(
-      (emp) => emp.status === "Active"
-    );
-    const reviewedEmployees = activeEmployees.filter(
-      (emp) => emp.performanceHistory && emp.performanceHistory.length > 0
-    );
-
-    // Calculate rating distribution
-    const ratingDistribution: Record<PerformanceRating, number> = {
-      "Exceeds Expectations": 0,
-      "Meets Expectations": 0,
-      "Needs Improvement": 0,
-      Unsatisfactory: 0,
-      Unrated: 0,
-    };
-
-    activeEmployees.forEach((emp) => {
-      ratingDistribution[emp.performanceRating]++;
-    });
-
-    // Calculate department performance
-    const departmentPerformance: Record<
-      string,
-      {
-        averageRating: number;
-        totalReviews: number;
-        employeeCount: number;
-      }
-    > = {};
-
-    activeEmployees.forEach((emp) => {
-      if (!departmentPerformance[emp.department]) {
-        departmentPerformance[emp.department] = {
-          averageRating: 0,
-          totalReviews: 0,
-          employeeCount: 0,
-        };
-      }
-
-      departmentPerformance[emp.department].employeeCount++;
-      if (emp.performanceHistory?.length) {
-        departmentPerformance[emp.department].totalReviews +=
-          emp.performanceHistory.length;
-      }
-    });
-
-    // Calculate average ratings for departments
-    Object.keys(departmentPerformance).forEach((dept) => {
-      const deptEmployees = activeEmployees.filter(
-        (emp) => emp.department === dept
+    try {
+      const data = await apiGet("/api/performance/analytics");
+      return data;
+    } catch (error) {
+      console.error("Error fetching performance analytics:", error);
+      // Fallback to local calculation
+      const activeEmployees = employees.value.filter(
+        (emp) => emp.status === "Active"
       );
-      const ratingSum = deptEmployees.reduce((sum, emp) => {
+      const reviewedEmployees = activeEmployees.filter(
+        (emp) => emp.performanceHistory && emp.performanceHistory.length > 0
+      );
+
+      const ratingDistribution: Record<PerformanceRating, number> = {
+        "Exceeds Expectations": 0,
+        "Meets Expectations": 0,
+        "Needs Improvement": 0,
+        Unsatisfactory: 0,
+        Unrated: 0,
+      };
+
+      activeEmployees.forEach((emp) => {
+        ratingDistribution[emp.performanceRating]++;
+      });
+
+      const departmentPerformance: Record<
+        string,
+        {
+          averageRating: number;
+          totalReviews: number;
+          employeeCount: number;
+        }
+      > = {};
+
+      activeEmployees.forEach((emp) => {
+        if (!departmentPerformance[emp.department]) {
+          departmentPerformance[emp.department] = {
+            averageRating: 0,
+            totalReviews: 0,
+            employeeCount: 0,
+          };
+        }
+        departmentPerformance[emp.department].employeeCount++;
+        if (emp.performanceHistory?.length) {
+          departmentPerformance[emp.department].totalReviews +=
+            emp.performanceHistory.length;
+        }
+      });
+
+      Object.keys(departmentPerformance).forEach((dept) => {
+        const deptEmployees = activeEmployees.filter(
+          (emp) => emp.department === dept
+        );
+        const ratingSum = deptEmployees.reduce((sum, emp) => {
+          const ratingValue =
+            emp.performanceRating === "Exceeds Expectations"
+              ? 5
+              : emp.performanceRating === "Meets Expectations"
+              ? 3
+              : emp.performanceRating === "Needs Improvement"
+              ? 2
+              : emp.performanceRating === "Unsatisfactory"
+              ? 1
+              : 0;
+          return sum + ratingValue;
+        }, 0);
+        departmentPerformance[dept].averageRating =
+          ratingSum / deptEmployees.length;
+      });
+
+      const totalRatingSum = activeEmployees.reduce((sum, emp) => {
         const ratingValue =
           emp.performanceRating === "Exceeds Expectations"
             ? 5
@@ -2727,42 +2660,25 @@ export const useAppStore = defineStore("app", () => {
             : 0;
         return sum + ratingValue;
       }, 0);
-      departmentPerformance[dept].averageRating =
-        ratingSum / deptEmployees.length;
-    });
 
-    // Calculate overall average rating
-    const totalRatingSum = activeEmployees.reduce((sum, emp) => {
-      const ratingValue =
-        emp.performanceRating === "Exceeds Expectations"
-          ? 5
-          : emp.performanceRating === "Meets Expectations"
-          ? 3
-          : emp.performanceRating === "Needs Improvement"
-          ? 2
-          : emp.performanceRating === "Unsatisfactory"
-          ? 1
-          : 0;
-      return sum + ratingValue;
-    }, 0);
+      const overdueReviews = await getOverdueReviews();
 
-    const overdueReviews = await getOverdueReviews();
-
-    return {
-      totalReviews: reviewedEmployees.reduce(
-        (sum, emp) => sum + (emp.performanceHistory?.length || 0),
-        0
-      ),
-      overdueReviews: overdueReviews.length,
-      averageRating: totalRatingSum / activeEmployees.length,
-      ratingDistribution,
-      departmentPerformance,
-      performanceTrends: [
-        { period: "2024-Q1", averageRating: 3.2, reviewCount: 15 },
-        { period: "2024-Q2", averageRating: 3.4, reviewCount: 18 },
-        { period: "2024-Q3", averageRating: 3.6, reviewCount: 12 },
-      ],
-    };
+      return {
+        totalReviews: reviewedEmployees.reduce(
+          (sum, emp) => sum + (emp.performanceHistory?.length || 0),
+          0
+        ),
+        overdueReviews: overdueReviews.length,
+        averageRating: totalRatingSum / activeEmployees.length,
+        ratingDistribution,
+        departmentPerformance,
+        performanceTrends: [
+          { period: "2024-Q1", averageRating: 3.2, reviewCount: 15 },
+          { period: "2024-Q2", averageRating: 3.4, reviewCount: 18 },
+          { period: "2024-Q3", averageRating: 3.6, reviewCount: 12 },
+        ],
+      };
+    }
   };
 
   const getReviewStatusList = async (): Promise<Employee[]> => {
