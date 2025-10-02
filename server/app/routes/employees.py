@@ -86,3 +86,11 @@ async def get_direct_reports(
     return await service.get_direct_reports(employee_id)
 
 
+@router.get("/managers", response_model=List[Employee])
+async def get_managers(
+    service: EmployeeService = Depends(),
+):
+    """Get all employees who are managers (have direct reports or manager-level positions)."""
+    return await service.get_managers()
+
+
