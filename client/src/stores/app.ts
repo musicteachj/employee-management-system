@@ -15,6 +15,7 @@ import type {
   Department,
   Manager,
   PerformanceAnalytics,
+  BusinessUnit,
 } from "../types";
 import { useNotificationStore } from "./notification";
 
@@ -76,11 +77,32 @@ export const useAppStore = defineStore("app", () => {
     try {
       const data = await apiGet("/api/employees");
       employees.value = data;
+      // Also refresh managers when employees are loaded
+      await getManagers();
       return data;
     } catch (error) {
       console.error("Error fetching employees:", error);
       // Return cached employees if API fails
       return employees.value;
+    }
+  };
+
+  const getManagers = async (): Promise<Manager[]> => {
+    try {
+      const data = await apiGet("/api/managers");
+      // Transform Employee objects to Manager interface
+      managers.value = data.map((emp: Employee) => ({
+        id: emp._id!,
+        name: emp.fullName,
+        email: emp.workEmail,
+        department: emp.department,
+        jobLevel: emp.jobLevel,
+      }));
+      return managers.value;
+    } catch (error) {
+      console.error("Error fetching managers:", error);
+      // Return cached managers if API fails
+      return managers.value;
     }
   };
 
@@ -134,6 +156,7 @@ export const useAppStore = defineStore("app", () => {
 
   // Initialize as empty - will be populated from API
   const employees = ref<Employee[]>([]);
+  const managers = ref<Manager[]>([]);
 
   // STATIC DATA COMMENTED OUT - Now fetched from API
   // Keeping this here for reference during migration
@@ -168,7 +191,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: [],
-      organizationLevel: 3,
       costCenter: "ENG-001",
       businessUnit: "Technology",
 
@@ -307,7 +329,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_013"],
-      organizationLevel: 2,
       costCenter: "MKT-000",
       businessUnit: "Revenue",
 
@@ -408,7 +429,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020", // Will be the CEO
       managerName: "James Wilson",
       directReports: ["emp_001", "emp_008", "emp_009", "emp_014"],
-      organizationLevel: 2,
       costCenter: "ENG-000",
       businessUnit: "Technology",
 
@@ -508,7 +528,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_006", "emp_007"],
-      organizationLevel: 2,
       costCenter: "HR-000",
       businessUnit: "Operations",
 
@@ -589,7 +608,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_012"],
-      organizationLevel: 2,
       costCenter: "SAL-000",
       businessUnit: "Revenue",
 
@@ -670,7 +688,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_004",
       managerName: "Jennifer Liu",
       directReports: ["emp_019"],
-      organizationLevel: 3,
       costCenter: "OPS-000",
       businessUnit: "Operations",
 
@@ -751,7 +768,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_021",
       managerName: "Victoria Chang",
       directReports: ["emp_017"],
-      organizationLevel: 4,
       costCenter: "FIN-001",
       businessUnit: "Operations",
 
@@ -832,7 +848,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: ["emp_018"],
-      organizationLevel: 3,
       costCenter: "DES-001",
       businessUnit: "Technology",
 
@@ -913,7 +928,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: ["emp_015"],
-      organizationLevel: 3,
       costCenter: "PRD-000",
       businessUnit: "Technology",
 
@@ -1096,7 +1110,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_001",
       managerName: "Sarah Johnson",
       directReports: [],
-      organizationLevel: 5,
       costCenter: "ENG-001",
       businessUnit: "Technology",
 
@@ -1177,7 +1190,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_005",
       managerName: "Michael Thompson",
       directReports: [],
-      organizationLevel: 3,
       costCenter: "SAL-001",
       businessUnit: "Revenue",
 
@@ -1259,7 +1271,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_002",
       managerName: "Marcus Rodriguez",
       directReports: [],
-      organizationLevel: 3,
       costCenter: "MKT-001",
       businessUnit: "Revenue",
 
@@ -1341,7 +1352,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_003",
       managerName: "David Chen",
       directReports: [],
-      organizationLevel: 3,
       costCenter: "ENG-001",
       businessUnit: "Technology",
 
@@ -1422,7 +1432,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_009",
       managerName: "Robert Brown",
       directReports: ["emp_016"],
-      organizationLevel: 4,
       costCenter: "PRD-001",
       businessUnit: "Technology",
 
@@ -1504,7 +1513,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_015",
       managerName: "Priya Patel",
       directReports: [],
-      organizationLevel: 5,
       costCenter: "PRD-001",
       businessUnit: "Technology",
 
@@ -1585,7 +1593,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_007",
       managerName: "Alex Kim",
       directReports: [],
-      organizationLevel: 4,
       costCenter: "FIN-001",
       businessUnit: "Operations",
 
@@ -1667,7 +1674,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_008",
       managerName: "Lisa Wang",
       directReports: [],
-      organizationLevel: 4,
       costCenter: "DES-001",
       businessUnit: "Technology",
 
@@ -1748,7 +1754,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_006",
       managerName: "Emily Davis",
       directReports: [],
-      organizationLevel: 4,
       costCenter: "OPS-001",
       businessUnit: "Operations",
 
@@ -1830,7 +1835,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "",
       managerName: "",
       directReports: ["emp_002", "emp_003", "emp_004", "emp_005", "emp_021"],
-      organizationLevel: 0,
       costCenter: "EXE-000",
       businessUnit: "Executive",
 
@@ -1912,7 +1916,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "emp_020",
       managerName: "James Wilson",
       directReports: ["emp_007", "emp_017"],
-      organizationLevel: 1,
       costCenter: "FIN-000",
       businessUnit: "Operations",
 
@@ -1996,7 +1999,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "", // No manager assigned
       managerName: "",
       directReports: [],
-      organizationLevel: 4,
       costCenter: "ENG-002",
       businessUnit: "Technology",
 
@@ -2077,7 +2079,6 @@ export const useAppStore = defineStore("app", () => {
       managerId: "", // No manager assigned
       managerName: "",
       directReports: [],
-      organizationLevel: 4,
       costCenter: "MKT-002",
       businessUnit: "Revenue",
 
@@ -2181,72 +2182,8 @@ export const useAppStore = defineStore("app", () => {
     },
   ]);
 
-  // Managers - Centralized manager data (using employee IDs for consistency)
-  const managers = ref<Manager[]>([
-    {
-      id: "emp_003",
-      name: "David Chen",
-      email: "david.chen@company.com",
-      department: "Engineering",
-      jobLevel: "Director",
-    },
-    {
-      id: "emp_002",
-      name: "Marcus Rodriguez",
-      email: "marcus.rodriguez@company.com",
-      department: "Marketing",
-      jobLevel: "Manager",
-    },
-    {
-      id: "emp_005",
-      name: "Michael Thompson",
-      email: "michael.thompson@company.com",
-      department: "Sales",
-      jobLevel: "Manager",
-    },
-    {
-      id: "emp_004",
-      name: "Jennifer Liu",
-      email: "jennifer.liu@company.com",
-      department: "Human Resources",
-      jobLevel: "Director",
-    },
-    {
-      id: "emp_021",
-      name: "Victoria Chang",
-      email: "victoria.chang@company.com",
-      department: "Finance",
-      jobLevel: "C-Level",
-    },
-    {
-      id: "emp_006",
-      name: "Emily Davis",
-      email: "emily.davis@company.com",
-      department: "Operations",
-      jobLevel: "Manager",
-    },
-    {
-      id: "emp_009",
-      name: "Robert Brown",
-      email: "robert.brown@company.com",
-      department: "Product",
-      jobLevel: "Manager",
-    },
-    {
-      id: "emp_008",
-      name: "Lisa Wang",
-      email: "lisa.wang@company.com",
-      department: "Design",
-      jobLevel: "Senior",
-    },
-    {
-      id: "emp_020",
-      name: "James Wilson",
-      email: "james.wilson@company.com",
-      department: "Executive",
-      jobLevel: "CEO",
-    },
-  ]);
+  // Managers - Fetched dynamically from API
+  // STATIC DATA REMOVED - Now using getManagers() to fetch from backend
 
   // Form Options - Centralized for consistency across the app
   const formOptions = {
@@ -2309,13 +2246,98 @@ export const useAppStore = defineStore("app", () => {
     ] as EmployeeSource[],
 
     benefitsEligibleOptions: ["Yes", "No"] as BenefitsEligible[],
+
+    businessUnits: [
+      "Technology",
+      "Operations",
+      "Revenue",
+      "Executive",
+    ] as BusinessUnit[],
+
+    costCenters: [
+      "ENG-000",
+      "ENG-001",
+      "ENG-002",
+      "MKT-000",
+      "MKT-001",
+      "MKT-002",
+      "OPS-000",
+      "OPS-001",
+      "FIN-000",
+      "FIN-001",
+      "SAL-000",
+      "SAL-001",
+      "DES-001",
+      "PRD-000",
+      "PRD-001",
+      "EXE-000",
+      "HR-000",
+    ],
+
+    usStates: [
+      { value: "AL", title: "Alabama" },
+      { value: "AK", title: "Alaska" },
+      { value: "AZ", title: "Arizona" },
+      { value: "AR", title: "Arkansas" },
+      { value: "CA", title: "California" },
+      { value: "CO", title: "Colorado" },
+      { value: "CT", title: "Connecticut" },
+      { value: "DE", title: "Delaware" },
+      { value: "FL", title: "Florida" },
+      { value: "GA", title: "Georgia" },
+      { value: "HI", title: "Hawaii" },
+      { value: "ID", title: "Idaho" },
+      { value: "IL", title: "Illinois" },
+      { value: "IN", title: "Indiana" },
+      { value: "IA", title: "Iowa" },
+      { value: "KS", title: "Kansas" },
+      { value: "KY", title: "Kentucky" },
+      { value: "LA", title: "Louisiana" },
+      { value: "ME", title: "Maine" },
+      { value: "MD", title: "Maryland" },
+      { value: "MA", title: "Massachusetts" },
+      { value: "MI", title: "Michigan" },
+      { value: "MN", title: "Minnesota" },
+      { value: "MS", title: "Mississippi" },
+      { value: "MO", title: "Missouri" },
+      { value: "MT", title: "Montana" },
+      { value: "NE", title: "Nebraska" },
+      { value: "NV", title: "Nevada" },
+      { value: "NH", title: "New Hampshire" },
+      { value: "NJ", title: "New Jersey" },
+      { value: "NM", title: "New Mexico" },
+      { value: "NY", title: "New York" },
+      { value: "NC", title: "North Carolina" },
+      { value: "ND", title: "North Dakota" },
+      { value: "OH", title: "Ohio" },
+      { value: "OK", title: "Oklahoma" },
+      { value: "OR", title: "Oregon" },
+      { value: "PA", title: "Pennsylvania" },
+      { value: "RI", title: "Rhode Island" },
+      { value: "SC", title: "South Carolina" },
+      { value: "SD", title: "South Dakota" },
+      { value: "TN", title: "Tennessee" },
+      { value: "TX", title: "Texas" },
+      { value: "UT", title: "Utah" },
+      { value: "VT", title: "Vermont" },
+      { value: "VA", title: "Virginia" },
+      { value: "WA", title: "Washington" },
+      { value: "WV", title: "West Virginia" },
+      { value: "WI", title: "Wisconsin" },
+      { value: "WY", title: "Wyoming" },
+      { value: "DC", title: "District of Columbia" },
+    ],
+
+    countries: [{ value: "United States", title: "United States" }],
   };
 
   const getUnassignedHires = async (): Promise<Employee[]> => {
     console.log("Getting unassigned hires");
     return employees.value.filter((employee) => {
-      // Filter employees who don't have a manager assigned
-      return !employee.managerId || employee.managerId.trim() === "";
+      // Filter employees who don't have a manager assigned (CEO is exempt)
+      const noManager = !employee.managerId || employee.managerId.trim() === "";
+      const isCEO = employee.jobLevel === "CEO";
+      return noManager && !isCEO;
     });
   };
 
@@ -2357,23 +2379,67 @@ export const useAppStore = defineStore("app", () => {
     );
   };
 
-  const addEmployee = (employee: Employee): void => {
-    employees.value.push(employee);
+  const addEmployee = async (
+    employee: Omit<Employee, "_id">
+  ): Promise<Employee> => {
+    try {
+      const notificationStore = useNotificationStore();
+      const response = await apiPost("/api/employees", employee);
+
+      // Refresh employees list from backend
+      await getEmployees();
+
+      notificationStore.showSuccess(
+        `Employee ${response.fullName} added successfully!`
+      );
+      return response;
+    } catch (error) {
+      const notificationStore = useNotificationStore();
+      console.error("Error adding employee:", error);
+      notificationStore.showError("Failed to add employee. Please try again.");
+      throw error;
+    }
   };
 
-  const updateEmployee = (updatedEmployee: Employee): void => {
-    const index = employees.value.findIndex(
-      (emp) => emp._id === updatedEmployee._id
-    );
-    if (index !== -1) {
-      // Update the updatedOn and updatedAt fields
-      updatedEmployee.updatedOn = new Date().toISOString().split("T")[0];
-      updatedEmployee.updatedAt = new Date().toISOString();
-      updatedEmployee.lastProfileUpdate = new Date()
-        .toISOString()
-        .split("T")[0];
+  const updateEmployee = async (
+    updatedEmployee: Employee
+  ): Promise<Employee> => {
+    try {
+      const notificationStore = useNotificationStore();
 
-      employees.value[index] = updatedEmployee;
+      if (!updatedEmployee._id) {
+        throw new Error("Employee ID is required for update");
+      }
+
+      const response = await fetch(`/api/employees/${updatedEmployee._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedEmployee),
+      });
+
+      if (!response.ok) {
+        const errorMessage = `Failed to update employee: ${response.status} ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+
+      // Refresh employees list from backend
+      await getEmployees();
+
+      notificationStore.showSuccess(
+        `Employee ${result.fullName} updated successfully!`
+      );
+      return result;
+    } catch (error) {
+      const notificationStore = useNotificationStore();
+      console.error("Error updating employee:", error);
+      notificationStore.showError(
+        "Failed to update employee. Please try again."
+      );
+      throw error;
     }
   };
 
@@ -2747,6 +2813,7 @@ export const useAppStore = defineStore("app", () => {
     getPerformanceAnalytics,
     getReviewStatusList,
     getEmployees,
+    getManagers,
     searchEmployees,
   };
 });

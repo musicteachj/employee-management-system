@@ -252,12 +252,9 @@ const orgChart = computed<EmployeeNode[]>(() => {
   };
 
   const compareNodes = (a: EmployeeNode, b: EmployeeNode) => {
-    const aRank = (a.organizationLevel ??
-      jobLevelRank[a.jobLevel] ??
-      999) as number;
-    const bRank = (b.organizationLevel ??
-      jobLevelRank[b.jobLevel] ??
-      999) as number;
+    // Sort by job level rank
+    const aRank = jobLevelRank[a.jobLevel] ?? 999;
+    const bRank = jobLevelRank[b.jobLevel] ?? 999;
     if (aRank !== bRank) return aRank - bRank;
     if (a.department !== b.department)
       return a.department.localeCompare(b.department);

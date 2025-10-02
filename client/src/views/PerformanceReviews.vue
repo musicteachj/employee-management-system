@@ -193,7 +193,6 @@
         <v-data-table
           :headers="tableHeaders"
           :items="filteredEmployees"
-          :search="searchQuery"
           density="compact"
           class="elevation-0 rounded-lg performance-data-table"
           :items-per-page="15"
@@ -342,6 +341,18 @@ const filteredEmployees = computed(() => {
     filtered = filtered.filter(
       (item) => item.reviewStatus === selectedStatus.value
     );
+  }
+
+  if (searchQuery.value) {
+    filtered = filtered.filter((item) => {
+      return tableHeaders.some((header) => {
+        const value = item[header.key as keyof Employee];
+        if (value == null) return false;
+        return String(value)
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase());
+      });
+    });
   }
 
   return filtered;

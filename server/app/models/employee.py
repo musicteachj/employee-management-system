@@ -28,6 +28,13 @@ class JobLevel(str, Enum):
     CEO = "CEO"
 
 
+class BusinessUnit(str, Enum):
+    TECHNOLOGY = "Technology"
+    OPERATIONS = "Operations"
+    REVENUE = "Revenue"
+    EXECUTIVE = "Executive"
+
+
 class PerformanceReview(BaseModel):
     """Performance review record."""
     review_id: str = Field(..., alias="reviewId")
@@ -64,7 +71,7 @@ class HRAssignment(BaseModel):
     """HR assignment details."""
     assigned_to: str = Field(..., alias="assignedTo")
     assigned_date: Optional[str] = Field(None, alias="assignedDate")
-    manager_email: str = Field(..., alias="managerEmail")
+    manager_email: Optional[str] = Field(None, alias="managerEmail")
     manager_assign_date: Optional[str] = Field(None, alias="managerAssignDate")
     review_comments: Optional[str] = Field(None, alias="reviewComments")
     revalidation_status: Optional[str] = Field(None, alias="revalidationStatus")
@@ -129,9 +136,8 @@ class Employee(BaseModel):
     manager_id: Optional[str] = Field(None, alias="managerId")
     manager_name: Optional[str] = Field(None, alias="managerName")
     direct_reports: Optional[List[str]] = Field(None, alias="directReports")
-    organization_level: Optional[int] = Field(None, alias="organizationLevel")
     cost_center: Optional[str] = Field(None, alias="costCenter")
-    business_unit: Optional[str] = Field(None, alias="businessUnit")
+    business_unit: Optional[BusinessUnit] = Field(None, alias="businessUnit")
 
     # Dates
     hire_date: str = Field(..., alias="hireDate")
@@ -187,13 +193,125 @@ class Employee(BaseModel):
 
 
 class EmployeeCreate(BaseModel):
-    # Subset of Employee fields for creation (to be defined later)
-    pass
+    """Model for creating a new employee - only required fields for creation."""
+    status: ActiveStatus
+    
+    # Personal Information
+    first_name: str = Field(..., alias="firstName")
+    last_name: str = Field(..., alias="lastName")
+    full_name: str = Field(..., alias="fullName")
+    personal_email: str = Field(..., alias="personalEmail")
+    work_email: str = Field(..., alias="workEmail")
+    phone_number: str = Field(..., alias="phoneNumber")
+    emergency_contact_name: str = Field(..., alias="emergencyContactName")
+    emergency_contact_phone: str = Field(..., alias="emergencyContactPhone")
+    address: str
+    city: str
+    state: str
+    country: str
+    date_of_birth: Optional[str] = Field(None, alias="dateOfBirth")
+    social_security_number: Optional[str] = Field(None, alias="socialSecurityNumber")
+    
+    # Employment Information
+    employee_id: Optional[str] = Field(None, alias="employeeId")  # Auto-generated if not provided
+    department: str
+    position: str
+    job_level: JobLevel = Field(..., alias="jobLevel")
+    employment_type: str = Field(..., alias="employmentType")
+    work_location: str = Field(..., alias="workLocation")
+    manager_id: Optional[str] = Field(None, alias="managerId")
+    manager_name: Optional[str] = Field(None, alias="managerName")
+    direct_reports: Optional[List[str]] = Field(None, alias="directReports")
+    cost_center: Optional[str] = Field(None, alias="costCenter")
+    business_unit: Optional[BusinessUnit] = Field(None, alias="businessUnit")
+    
+    # Dates
+    hire_date: str = Field(..., alias="hireDate")
+    probation_end_date: Optional[str] = Field(None, alias="probationEndDate")
+    
+    # Compensation & Benefits
+    salary: float
+    currency: float = 840  # Default to USD
+    paygrade: str
+    benefits_eligible: str = Field(..., alias="benefitsEligible")
+    
+    # Performance & Development
+    performance_rating: str = Field(..., alias="performanceRating")
+    training_status: str = Field(..., alias="trainingStatus")
+    development_notes: str = Field(..., alias="developmentNotes")
+    next_review_date: Optional[str] = Field(None, alias="nextReviewDate")
+    
+    # Compliance & Verification
+    background_check_status: str = Field(..., alias="backgroundCheckStatus")
+    
+    # System fields
+    doc_type: str = Field(default="employee", alias="docType")
+    source: str = "HR"
+    source_id: Optional[str] = Field(None, alias="sourceId")
+    created_by: Optional[str] = Field(None, alias="createdBy")
+    
+    # Manager/HR Assignment
+    hr_assignment: HRAssignment = Field(..., alias="hrAssignment")
+    
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class EmployeeUpdate(BaseModel):
-    # Subset of Employee fields for updates (to be defined later)
-    pass
+    """Model for updating an employee - all fields optional."""
+    status: Optional[ActiveStatus] = None
+    
+    # Personal Information
+    first_name: Optional[str] = Field(None, alias="firstName")
+    last_name: Optional[str] = Field(None, alias="lastName")
+    full_name: Optional[str] = Field(None, alias="fullName")
+    personal_email: Optional[str] = Field(None, alias="personalEmail")
+    work_email: Optional[str] = Field(None, alias="workEmail")
+    phone_number: Optional[str] = Field(None, alias="phoneNumber")
+    emergency_contact_name: Optional[str] = Field(None, alias="emergencyContactName")
+    emergency_contact_phone: Optional[str] = Field(None, alias="emergencyContactPhone")
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    date_of_birth: Optional[str] = Field(None, alias="dateOfBirth")
+    social_security_number: Optional[str] = Field(None, alias="socialSecurityNumber")
+    
+    # Employment Information
+    department: Optional[str] = None
+    position: Optional[str] = None
+    job_level: Optional[JobLevel] = Field(None, alias="jobLevel")
+    employment_type: Optional[str] = Field(None, alias="employmentType")
+    work_location: Optional[str] = Field(None, alias="workLocation")
+    manager_id: Optional[str] = Field(None, alias="managerId")
+    manager_name: Optional[str] = Field(None, alias="managerName")
+    direct_reports: Optional[List[str]] = Field(None, alias="directReports")
+    cost_center: Optional[str] = Field(None, alias="costCenter")
+    business_unit: Optional[BusinessUnit] = Field(None, alias="businessUnit")
+    
+    # Dates
+    hire_date: Optional[str] = Field(None, alias="hireDate")
+    probation_end_date: Optional[str] = Field(None, alias="probationEndDate")
+    termination_date: Optional[str] = Field(None, alias="terminationDate")
+    
+    # Compensation & Benefits
+    salary: Optional[float] = None
+    currency: Optional[float] = None
+    paygrade: Optional[str] = None
+    benefits_eligible: Optional[str] = Field(None, alias="benefitsEligible")
+    
+    # Performance & Development
+    performance_rating: Optional[str] = Field(None, alias="performanceRating")
+    training_status: Optional[str] = Field(None, alias="trainingStatus")
+    development_notes: Optional[str] = Field(None, alias="developmentNotes")
+    next_review_date: Optional[str] = Field(None, alias="nextReviewDate")
+    
+    # Compliance & Verification
+    background_check_status: Optional[str] = Field(None, alias="backgroundCheckStatus")
+    
+    # Manager/HR Assignment
+    hr_assignment: Optional[HRAssignment] = Field(None, alias="hrAssignment")
+    
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class SearchCriteria(BaseModel):

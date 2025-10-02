@@ -48,6 +48,54 @@ class EmployeeService:
             doc["docType"] = "employee"
 
         return doc
+
+    def _job_level_rank(self, level: Optional[str]) -> int:
+        order = [
+            "Entry",
+            "Mid",
+            "Senior",
+            "Lead",
+            "Manager",
+            "Director",
+            "VP",
+            "C-Level",
+            "CEO",
+        ]
+        try:
+            return order.index(level) if level in order else -1
+        except Exception:
+            return -1
+
+    async def _validate_manager_constraints(self, db, employee_payload: dict, exclude_id: Optional[ObjectId] = None) -> None:
+        manager_id = employee_payload.get("managerId")
+        if not manager_id:
+            return
+        # managerId is stored as a string of the employee _id
+        manager_doc = await db.employees.find_one({"_id": ObjectId(manager_id)}) if ObjectId.is_valid(manager_id) else await db.employees.find_one({"_id": manager_id})
+        if not manager_doc:
+            raise ValueError("Selected manager does not exist.")
+        manager_status = manager_doc.get("status")
+        if manager_status not in ["Active", "On Leave"]:
+            raise ValueError("Manager must be Active or On Leave.")
+        manager_level = manager_doc.get("jobLevel")
+        employee_level = employee_payload.get("jobLevel")
+        if employee_level and self._job_level_rank(manager_level) < self._job_level_rank(employee_level):
+            raise ValueError("Manager's job level must not be below the employee's level.")
+        # Prevent selecting self as manager
+        if exclude_id is not None:
+            manager_doc_id = manager_doc.get("_id")
+            if isinstance(manager_doc_id, ObjectId):
+                manager_doc_id = str(manager_doc_id)
+            if manager_id == str(exclude_id) or manager_doc_id == str(exclude_id):
+                raise ValueError("An employee cannot be their own manager.")
+
+    async def _clear_reports_for_terminated(self, db, employee_id: ObjectId) -> None:
+        manager_id_str = str(employee_id)
+        await db.employees.update_many(
+            {"managerId": manager_id_str},
+            {"$set": {"managerId": None, "managerName": None}}
+        )
+
     async def get_employees(
         self,
         skip: int = 0,
@@ -112,6 +160,47 @@ class EmployeeService:
         docs = [self._normalize_employee_doc(d) for d in docs]
         return [Employee(**d) for d in docs]
 
+    async def get_managers(self) -> List[Employee]:
+        """Get all employees who are managers.
+        
+        Managers are identified by either:
+        1. Having direct reports
+        2. Having a manager-level job level (Manager, Director, VP, C-Level, CEO)
+        """
+        db = await get_database()
+        
+        # Query for employees who are managers based on job level or have direct reports
+        query = {
+            "$or": [
+                {"directReports": {"$exists": True, "$ne": [], "$ne": None}},
+                {"jobLevel": {"$in": ["Manager", "Director", "VP", "C-Level", "CEO"]}}
+            ],
+            "status": {"$in": ["Active", "On Leave"]}  # Only active managers
+        }
+        
+        cursor = db.employees.find(query).sort("fullName", 1)
+        docs = await cursor.to_list(length=None)
+        docs = [self._normalize_employee_doc(d) for d in docs]
+        return [Employee(**d) for d in docs]
+
+    async def _assert_single_ceo(self, db, exclude_id: Optional[ObjectId] = None):
+        query = {"jobLevel": "CEO", "status": {"$in": ["Active", "On Leave"]}}
+        if exclude_id:
+            query["_id"] = {"$ne": exclude_id}
+        exists = await db.employees.find_one(query)
+        if exists:
+            raise ValueError("A CEO already exists. Only one CEO is allowed.")
+
+    def _apply_ceo_constraints(self, payload: dict) -> dict:
+        if payload.get("jobLevel") == "CEO":
+            # CEO does not require a manager
+            payload["managerId"] = None
+            payload["managerName"] = None
+            hr = payload.get("hrAssignment") or {}
+            hr["managerEmail"] = None
+            payload["hrAssignment"] = hr
+        return payload
+
     async def create_employee(self, employee_data: EmployeeCreate) -> Employee:
         """Create new employee."""
         db = await get_database()
@@ -127,10 +216,44 @@ class EmployeeService:
         if "source" not in employee_dict:
             employee_dict["source"] = "HR"
 
+        # Auto-generate employeeId if not provided
+        if "employeeId" not in employee_dict or not employee_dict["employeeId"]:
+            employee_dict["employeeId"] = await self._generate_employee_id(db)
+
+        # CEO constraints
+        if employee_dict.get("jobLevel") == "CEO":
+            await self._assert_single_ceo(db)
+            employee_dict = self._apply_ceo_constraints(employee_dict)
+
+        # Manager constraints
+        await self._validate_manager_constraints(db, employee_dict)
+
         result = await db.employees.insert_one(employee_dict)
         employee_dict["_id"] = str(result.inserted_id)
 
         return Employee(**self._normalize_employee_doc(employee_dict))
+
+    async def _generate_employee_id(self, db) -> str:
+        """Generate a unique employee ID in format EMP001, EMP002, etc."""
+        # Find the highest existing employee ID
+        cursor = db.employees.find(
+            {"employeeId": {"$regex": "^EMP[0-9]+$"}},
+            {"employeeId": 1}
+        ).sort("employeeId", -1).limit(1)
+        
+        docs = await cursor.to_list(length=1)
+        
+        if docs and docs[0].get("employeeId"):
+            # Extract number from last employee ID (e.g., "EMP023" -> 23)
+            last_id = docs[0]["employeeId"]
+            last_num = int(last_id.replace("EMP", ""))
+            next_num = last_num + 1
+        else:
+            # No existing employees, start at 1
+            next_num = 1
+        
+        # Format as EMP001, EMP002, etc.
+        return f"EMP{next_num:03d}"
 
     async def update_employee(self, employee_id: str, updates: EmployeeUpdate) -> Employee:
         """Update employee."""
@@ -146,6 +269,18 @@ class EmployeeService:
         if not update_dict:
             # No fields to update, just return current
             return await self.get_employee(employee_id)
+
+        # CEO constraints
+        if update_dict.get("jobLevel") == "CEO":
+            await self._assert_single_ceo(db, exclude_id=_id)
+            update_dict = self._apply_ceo_constraints(update_dict)
+
+        # Manager constraints
+        await self._validate_manager_constraints(db, update_dict, exclude_id=_id)
+
+        # Handle termination: if status becomes Terminated, clear manager from reports
+        if update_dict.get("status") == "Terminated":
+            await self._clear_reports_for_terminated(db, _id)
 
         update_dict["updatedAt"] = datetime.utcnow()
 
@@ -181,6 +316,9 @@ class EmployeeService:
 
         if result.matched_count == 0:
             raise ValueError("Employee not found")
+
+        # Also clear this manager from any direct reports
+        await self._clear_reports_for_terminated(db, _id)
 
         return {"status": "deleted", "employee_id": employee_id}
 
