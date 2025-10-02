@@ -91,10 +91,14 @@ class EmployeeService:
             ]
         if criteria.department:
             query["department"] = criteria.department
+        if criteria.position:
+            query["position"] = {"$regex": criteria.position, "$options": "i"}
         if criteria.status:
             query["status"] = criteria.status.value
         if criteria.manager_id:
             query["managerId"] = criteria.manager_id
+        if criteria.employment_type:
+            query["employmentType"] = criteria.employment_type
 
         cursor = db.employees.find(query)
         docs = await cursor.to_list(length=None)
