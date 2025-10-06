@@ -53,16 +53,21 @@ const createChart = () => {
     chartInstance.destroy();
   }
 
+  const css = getComputedStyle(document.documentElement);
+  const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+  const primaryRgb =
+    css.getPropertyValue("--color-primary-rgb").trim() || "0, 137, 123";
+
   const data = {
     labels: props.hiringData.map((item) => item.month),
     datasets: [
       {
         label: "New Hires",
         data: props.hiringData.map((item) => item.hires),
-        borderColor: "#1976d2",
-        backgroundColor: "rgba(25, 118, 210, 0.1)",
+        borderColor: primary,
+        backgroundColor: `rgba(${primaryRgb}, 0.1)`,
         borderWidth: 3,
-        pointBackgroundColor: "#1976d2",
+        pointBackgroundColor: primary,
         pointBorderColor: "#ffffff",
         pointBorderWidth: 2,
         pointRadius: 6,
@@ -87,7 +92,7 @@ const createChart = () => {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          borderColor: "#1976d2",
+          borderColor: primary,
           borderWidth: 1,
           cornerRadius: 8,
           displayColors: false,
@@ -136,7 +141,7 @@ const createChart = () => {
       },
       elements: {
         point: {
-          hoverBackgroundColor: "#1976d2",
+          hoverBackgroundColor: primary,
           hoverBorderColor: "#ffffff",
         },
       },

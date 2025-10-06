@@ -66,32 +66,32 @@ const clearSelection = () => {
 
 <style scoped>
 /* Toolbar styling */
-:deep(.v-toolbar) {
+::deep(.v-toolbar) {
   transition: all 0.3s ease;
 }
 
-:deep(.v-toolbar:hover) {
+::deep(.v-toolbar:hover) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb), 0.3);
 }
 
 /* Button styling */
-:deep(.v-btn) {
+::deep(.v-btn) {
   transition: all 0.3s ease;
 }
 
-:deep(.v-btn:hover) {
+::deep(.v-btn:hover) {
   background: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
 
 /* Icon styling */
-:deep(.v-icon) {
+::deep(.v-icon) {
   transition: all 0.3s ease;
 }
 
 /* Toolbar title styling */
-:deep(.v-toolbar-title) {
+::deep(.v-toolbar-title) {
   font-weight: 600;
   letter-spacing: 0.5px;
 }

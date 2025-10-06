@@ -12,7 +12,7 @@
           Comprehensive performance analytics and review management
         </p>
       </v-card-subtitle>
-      <v-divider class="mt-4 divider-gradient" />
+      <v-divider class="mt-4" />
     </v-card>
 
     <!-- Loading State -->
@@ -46,23 +46,7 @@
             </div>
           </v-card>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="warning"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-clock-alert" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ analytics.overdueReviews }}</h3>
-                <p class="text-body-2">Overdue Reviews</p>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
+
         <v-col cols="12" sm="6" md="3">
           <v-card
             class="pa-4 summary-card"
@@ -97,6 +81,23 @@
                   {{ Object.keys(analytics.departmentPerformance).length }}
                 </h3>
                 <p class="text-body-2">Departments</p>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="3">
+          <v-card
+            class="pa-4 summary-card"
+            elevation="3"
+            rounded="lg"
+            color="warning"
+            variant="tonal"
+          >
+            <div class="d-flex align-center">
+              <v-icon icon="mdi-clock-alert" size="40" class="mr-3"></v-icon>
+              <div>
+                <h3 class="text-h3">{{ analytics.overdueReviews }}</h3>
+                <p class="text-body-2">Overdue Reviews</p>
               </div>
             </div>
           </v-card>
@@ -188,7 +189,7 @@
             Employee Review Status
           </h5>
         </v-card-title>
-        <v-divider class="mb-4 divider-gradient" />
+        <v-divider class="mb-4" />
 
         <v-data-table
           :headers="tableHeaders"
@@ -233,23 +234,22 @@
               size="small"
               variant="text"
               color="primary"
-              class="action-btn mr-1"
+              class="mr-1"
               @click="viewEmployee(item)"
             ></v-btn>
             <v-btn
               icon="mdi-calendar-plus"
               size="small"
               variant="text"
-              color="secondary"
-              class="action-btn mr-1"
+              color="primary"
+              class="mr-1"
               @click="scheduleReview(item)"
             ></v-btn>
             <v-btn
               icon="mdi-clipboard-check"
               size="small"
               variant="text"
-              color="success"
-              class="action-btn"
+              color="primary"
               @click="giveReview(item)"
             ></v-btn>
           </template>
@@ -462,18 +462,6 @@ onMounted(() => {
 <style scoped>
 /* Component-specific styles only - common styles are in global CSS */
 
-/* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
-}
-
 /* Search field enhancements */
 .search-field {
   transition: all 0.3s ease;
@@ -489,7 +477,7 @@ onMounted(() => {
 }
 
 .search-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 
@@ -515,7 +503,7 @@ onMounted(() => {
 /* Table headers with enhanced styling */
 .performance-data-table :deep(.v-data-table-header__content) {
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-secondary);
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.5px;
@@ -523,15 +511,14 @@ onMounted(() => {
 
 .performance-data-table :deep(.v-data-table__th) {
   background: #f5f7fa !important;
-  border-bottom: 2px solid #1976d2;
 }
 
 /* Row hover effects */
 .performance-data-table :deep(.v-data-table__tr:hover) {
   background: linear-gradient(
     135deg,
-    rgba(25, 118, 210, 0.04) 0%,
-    rgba(25, 118, 210, 0.08) 100%
+    rgba(var(--color-primary-rgb), 0.04) 0%,
+    rgba(var(--color-primary-rgb), 0.08) 100%
   );
   transform: scale(1.005);
   transition: all 0.2s ease;
@@ -546,30 +533,10 @@ onMounted(() => {
   background: rgba(248, 250, 252, 0.5);
 }
 
-/* Action button styling */
-.action-btn {
-  transition: all 0.3s ease;
-  border-radius: 50%;
-}
-
-.action-btn:hover {
-  background: rgba(25, 118, 210, 0.1);
-  transform: scale(1.1);
-}
-
-.action-btn :deep(.v-icon) {
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover :deep(.v-icon) {
-  transform: scale(1.2);
-  color: #1565c0;
-}
-
 /* Footer styling */
 .performance-data-table :deep(.v-data-table-footer) {
   background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(25, 118, 210, 0.2);
+  border-top: 1px solid rgba(var(--color-primary-rgb), 0.2);
   border-radius: 0 0 12px 12px;
 }
 
@@ -579,14 +546,18 @@ onMounted(() => {
 }
 
 .performance-data-table :deep(.v-pagination__item:hover) {
-  background: rgba(25, 118, 210, 0.1);
+  background: rgba(var(--color-primary-rgb), 0.1);
   transform: scale(1.05);
 }
 
 .performance-data-table :deep(.v-pagination__item--is-active) {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-info) 100%
+  );
   color: white;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
 }
 
 /* Card styling with subtle gradient */

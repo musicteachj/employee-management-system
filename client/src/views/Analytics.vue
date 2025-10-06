@@ -12,7 +12,7 @@
           Comprehensive employee data analytics and insights
         </p>
       </v-card-subtitle>
-      <v-divider class="mt-4 divider-gradient" />
+      <v-divider class="mt-4" />
     </v-card>
 
     <!-- Loading State -->

@@ -72,40 +72,40 @@
 
 /* Common color utilities */
 .text-primary {
-  color: #1976d2 !important;
+  color: var(--color-primary) !important;
 }
 
 .text-success {
-  color: #4caf50 !important;
+  color: var(--color-success) !important;
 }
 
 .text-warning {
-  color: #ff9800 !important;
+  color: var(--color-warning) !important;
 }
 
 .text-error {
-  color: #f44336 !important;
+  color: var(--color-error) !important;
 }
 
 .text-info {
-  color: #2196f3 !important;
+  color: var(--color-info) !important;
 }
 
 /* Background utilities */
 .bg-primary-light {
-  background: rgba(25, 118, 210, 0.1) !important;
+  background: rgba(var(--color-primary-rgb), 0.1) !important;
 }
 
 .bg-success-light {
-  background: rgba(76, 175, 80, 0.1) !important;
+  background: rgba(var(--color-success-rgb), 0.1) !important;
 }
 
 .bg-warning-light {
-  background: rgba(255, 152, 0, 0.1) !important;
+  background: rgba(var(--color-warning-rgb), 0.1) !important;
 }
 
 .bg-error-light {
-  background: rgba(244, 67, 54, 0.1) !important;
+  background: rgba(var(--color-error-rgb), 0.1) !important;
 }
 
 /* Shadow utilities */

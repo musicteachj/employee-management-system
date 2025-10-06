@@ -13,7 +13,7 @@
           relationships
         </p>
       </v-card-subtitle>
-      <v-divider class="mt-4 divider-gradient" />
+      <v-divider class="mt-4" />
     </v-card>
 
     <!-- Loading State -->
@@ -163,7 +163,6 @@
             Organizational Hierarchy
           </h5>
         </v-card-title>
-        <v-divider class="mb-4 divider-gradient" />
 
         <div class="org-chart-container">
           <div v-if="filteredOrgChart.length === 0" class="text-center pa-8">

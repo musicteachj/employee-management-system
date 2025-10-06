@@ -29,17 +29,20 @@ const props = defineProps<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: ChartJS | null = null;
 
+// Teal-aligned categorical palette
 const colors = [
-  "#1976d2", // Primary blue
-  "#388e3c", // Green
-  "#f57c00", // Orange
-  "#7b1fa2", // Purple
-  "#d32f2f", // Red
-  "#0097a7", // Teal
-  "#5d4037", // Brown
-  "#616161", // Grey
-  "#e91e63", // Pink
-  "#ff5722", // Deep orange
+  getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-primary")
+    .trim() || "#00897b",
+  "#26c6da", // accent cyan
+  "#4caf50", // success green
+  "#ffb74d", // soft orange
+  "#5e35b1", // indigo/purple accent
+  "#009688", // teal variant
+  "#90a4ae", // blue-grey
+  "#8d6e63", // brown
+  "#42a5f5", // light blue for contrast
+  "#ef5350", // soft red
 ];
 
 const createChart = () => {
@@ -61,13 +64,16 @@ const createChart = () => {
         backgroundColor: colors.slice(0, props.departmentData.length),
         borderColor: colors
           .slice(0, props.departmentData.length)
-          .map((color) => color + "80"),
+          .map((color) => `${color}80`),
         borderWidth: 2,
         hoverBorderWidth: 3,
         hoverOffset: 4,
       },
     ],
   };
+
+  const css = getComputedStyle(document.documentElement);
+  const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
 
   const config: ChartConfiguration<"doughnut"> = {
     type: "doughnut",
@@ -111,7 +117,7 @@ const createChart = () => {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          borderColor: "#1976d2",
+          borderColor: primary,
           borderWidth: 1,
           cornerRadius: 8,
           displayColors: true,

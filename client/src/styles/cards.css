@@ -33,24 +33,24 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Section cards with primary color accents */
+/* Section cards with secondary color accents */
 .section-card {
   background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border: 1px solid rgba(25, 118, 210, 0.1);
+  border: 1px solid rgba(var(--color-secondary-rgb), 0.1);
   transition: all 0.3s ease;
 }
 
 .section-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.1);
-  border-color: rgba(25, 118, 210, 0.2);
+  box-shadow: 0 4px 15px rgba(var(--color-secondary-rgb), 0.1);
+  border-color: rgba(var(--color-secondary-rgb), 0.2);
 }
 
 /* Special summary card variant for dialogs */
 .summary-card.dialog-summary,
 .summary-card.assign-manager-summary {
   background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border: 1px solid rgba(25, 118, 210, 0.2);
+  border: 1px solid rgba(var(--color-secondary-rgb), 0.2);
 }
 
 /* Chart and info cards with full height */
