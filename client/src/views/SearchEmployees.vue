@@ -196,6 +196,7 @@
 import { ref, computed, reactive, onMounted } from "vue";
 import { useAppStore } from "../stores/app";
 import DataTable from "../components/DataTable.vue";
+import { exportToExcel } from "../modules/genericHelper";
 import type { Employee, EmploymentType, ActiveStatus } from "../types";
 
 const appStore = useAppStore();
@@ -335,8 +336,17 @@ const clearSearch = () => {
 };
 
 const exportResults = () => {
-  // TODO: Implement CSV export functionality
-  console.log("Exporting search results:", searchResults.value);
+  if (searchResults.value.length === 0) {
+    console.warn("No search results to export");
+    return;
+  }
+
+  // Export only the columns displayed in the table
+  exportToExcel(
+    searchResults.value,
+    tableColumns.value,
+    "employee_search_results"
+  );
 };
 
 // Load initial data on mount
