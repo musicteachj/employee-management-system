@@ -4,7 +4,6 @@
       <v-card-title class="text-h6 pb-2 text-primary font-weight-bold">
         Performance by Department
       </v-card-title>
-      <v-divider class="mb-4 divider-gradient" />
       <div class="chart-wrapper" style="position: relative; height: 350px">
         <Bar :data="chartData" :options="chartOptions" />
       </div>
@@ -47,6 +46,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const css = getComputedStyle(document.documentElement);
+const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
+const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+
 const chartData = computed(() => {
   const departments = Object.keys(props.departmentPerformance);
   const averageRatings = departments.map(
@@ -62,8 +66,8 @@ const chartData = computed(() => {
       {
         label: "Average Rating",
         data: averageRatings,
-        backgroundColor: "rgba(33, 150, 243, 0.7)",
-        borderColor: "#2196F3",
+        backgroundColor: `${info}B3`,
+        borderColor: info,
         borderWidth: 2,
         borderRadius: 4,
         borderSkipped: false,
@@ -72,8 +76,8 @@ const chartData = computed(() => {
       {
         label: "Employee Count",
         data: employeeCounts,
-        backgroundColor: "rgba(76, 175, 80, 0.7)",
-        borderColor: "#4CAF50",
+        backgroundColor: `${success}B3`,
+        borderColor: success,
         borderWidth: 2,
         borderRadius: 4,
         borderSkipped: false,
@@ -105,7 +109,7 @@ const chartOptions = computed(() => ({
       backgroundColor: "rgba(0, 0, 0, 0.8)",
       titleColor: "#fff",
       bodyColor: "#fff",
-      borderColor: "#ddd",
+      borderColor: primary,
       borderWidth: 1,
       callbacks: {
         label: (context: any) => {
@@ -150,7 +154,7 @@ const chartOptions = computed(() => ({
       title: {
         display: true,
         text: "Average Rating",
-        color: "#2196F3",
+        color: info,
         font: {
           size: 14,
           weight: "bold" as const,
@@ -173,7 +177,7 @@ const chartOptions = computed(() => ({
       title: {
         display: true,
         text: "Employee Count",
-        color: "#4CAF50",
+        color: success,
         font: {
           size: 14,
           weight: "bold" as const,
@@ -206,18 +210,6 @@ const chartOptions = computed(() => ({
 .chart-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
 }
 
 .chart-wrapper {

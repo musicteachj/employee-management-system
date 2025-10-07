@@ -329,7 +329,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   position: absolute;
   width: 3px;
   height: 24px;
-  background-color: #1976d2;
+  background-color: var(--color-primary);
   top: -24px;
   left: 50%;
   transform: translateX(-50%);
@@ -347,7 +347,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   position: absolute;
   width: 3px;
   height: 34px;
-  background-color: #1976d2;
+  background-color: var(--color-primary);
   bottom: -36px;
   left: 50%;
   transform: translateX(-50%);
@@ -359,13 +359,13 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 .employee-card:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  border-color: rgba(25, 118, 210, 0.3);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
 }
 
 .employee-card.highlighted {
-  border-color: #1976d2;
+  border-color: var(--color-primary);
   background: linear-gradient(135deg, #e3f2fd 0%, #f8fafc 100%);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+  box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .employee-avatar {
@@ -385,7 +385,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 
 /* Connection lines */
 .connection-line {
-  background-color: #1976d2;
+  background-color: var(--color-primary);
   position: absolute;
   z-index: 1;
   opacity: 0.6;
@@ -521,13 +521,13 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 /* Animation for highlighting */
 @keyframes highlight-pulse {
   0% {
-    box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
   }
   50% {
-    box-shadow: 0 12px 35px rgba(25, 118, 210, 0.4);
+    box-shadow: 0 12px 35px rgba(var(--color-primary-rgb), 0.4);
   }
   100% {
-    box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
   }
 }
 
@@ -536,7 +536,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 }
 
 /* Chip styling enhancements */
-:deep(.v-chip) {
+::deep(.v-chip) {
   font-weight: 600;
   letter-spacing: 0.5px;
 }

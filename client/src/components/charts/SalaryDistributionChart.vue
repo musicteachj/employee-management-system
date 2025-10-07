@@ -55,20 +55,25 @@ const createChart = () => {
     (a, b) => b.averageSalary - a.averageSalary
   );
 
+  const css = getComputedStyle(document.documentElement);
+  const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+
   const data = {
     labels: sortedData.map((dept) => dept.department),
     datasets: [
       {
         label: "Average Salary",
         data: sortedData.map((dept) => dept.averageSalary),
-        backgroundColor: "rgba(25, 118, 210, 0.7)",
-        borderColor: "#1976d2",
+        backgroundColor: `${info}B3`,
+        borderColor: info,
         borderWidth: 2,
         borderRadius: 4,
         borderSkipped: false,
       },
     ],
   };
+
+  const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
 
   const config: ChartConfiguration<"bar"> = {
     type: "bar",
@@ -84,7 +89,7 @@ const createChart = () => {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          borderColor: "#1976d2",
+          borderColor: primary,
           borderWidth: 1,
           cornerRadius: 8,
           displayColors: false,

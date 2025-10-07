@@ -81,7 +81,7 @@
               Generate Report
             </v-btn>
             <v-btn
-              color="success"
+              color="secondary"
               class="ma-2"
               prepend-icon="mdi-chart-box"
               variant="outlined"

@@ -71,7 +71,6 @@
           </template>
         </div>
       </v-card-title>
-      <v-divider class="divider-gradient" />
 
       <!-- Error Summary -->
       <v-alert

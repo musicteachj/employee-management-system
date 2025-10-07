@@ -25,33 +25,33 @@
 .form-field :deep(.v-field__input),
 .search-field :deep(.v-field__input),
 .filter-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 
 /* Global form field styling for consistency */
-:deep(.v-text-field .v-field__outline),
-:deep(.v-select .v-field__outline),
-:deep(.v-textarea .v-field__outline) {
+::deep(.v-text-field .v-field__outline),
+::deep(.v-select .v-field__outline),
+::deep(.v-textarea .v-field__outline) {
   --v-field-border-opacity: 0.3;
 }
 
-:deep(.v-text-field .v-field--focused .v-field__outline),
-:deep(.v-select .v-field--focused .v-field__outline),
-:deep(.v-textarea .v-field--focused .v-field__outline) {
+::deep(.v-text-field .v-field--focused .v-field__outline),
+::deep(.v-select .v-field--focused .v-field__outline),
+::deep(.v-textarea .v-field--focused .v-field__outline) {
   --v-field-border-opacity: 1;
   border-width: 2px;
 }
 
-:deep(.v-text-field .v-field__input),
-:deep(.v-select .v-field__input),
-:deep(.v-textarea .v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+::deep(.v-text-field .v-field__input),
+::deep(.v-select .v-field__input),
+::deep(.v-textarea .v-field__input) {
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 
 /* Readonly field styling */
-:deep(.v-field--readonly) {
+::deep(.v-field--readonly) {
   background: #f5f7fa !important;
   opacity: 0.8;
 }
@@ -61,46 +61,46 @@
 }
 
 /* Form validation styling */
-:deep(.v-messages__message) {
-  color: #d32f2f;
+::deep(.v-messages__message) {
+  color: var(--color-error);
   font-weight: 500;
 }
 
 /* Enhanced spacing and typography */
-:deep(.v-label) {
+::deep(.v-label) {
   font-weight: 500;
   color: #424242;
 }
 
-:deep(.v-field--focused .v-label) {
-  color: #4caf50;
+::deep(.v-field--focused .v-label) {
+  color: var(--color-success);
 }
 
 /* Section headers styling */
 .section-header {
   background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%);
-  color: #1976d2;
+  color: var(--color-secondary);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 0.875rem;
-  border-bottom: 1px solid rgba(25, 118, 210, 0.2);
+  border-bottom: 1px solid rgba(var(--color-secondary-rgb), 0.2);
 }
 
 .section-header :deep(.v-icon) {
-  color: #1976d2;
+  color: var(--color-secondary);
 }
 
 /* Header section styling for forms */
 .header-section {
   background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-bottom: 2px solid #1976d2;
+  border-bottom: 2px solid var(--color-secondary);
   margin: -16px -16px 0 -16px;
   padding: 16px 24px;
 }
 
 /* Hover effects for form sections */
 .section-card .v-card-text:hover {
-  background: rgba(25, 118, 210, 0.01);
+  background: rgba(var(--color-secondary-rgb), 0.01);
   transition: background 0.3s ease;
 }
