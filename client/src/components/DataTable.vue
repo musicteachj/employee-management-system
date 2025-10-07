@@ -26,7 +26,9 @@
     <BulkActionsToolbar
       v-if="enableActions"
       :selected-items="selectedItems"
+      :items="items"
       :actions="actions"
+      @exportData="exportData"
     />
 
     <v-data-table
@@ -64,6 +66,7 @@ import type { Employee, ActionType } from "../types";
 import { useDialogStore } from "../stores/dialog";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useAppStore } from "../stores/app";
+import { exportToExcel } from "../modules/genericHelper";
 const appStore = useAppStore();
 const dialogStore = useDialogStore();
 const router = useRouter();
@@ -168,6 +171,10 @@ const viewRecord = (item: Employee) => {
 const actions = computed(() => {
   return dialogStore.getActions(props.tableActions);
 });
+
+const exportData = () => {
+  exportToExcel(items.value, tableColumns.value, `export_${title.value}`);
+};
 
 // Clear selections when underlying items set changes
 watch(

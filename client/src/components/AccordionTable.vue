@@ -27,19 +27,21 @@
     <BulkActionsToolbar
       v-if="enableActions"
       :selected-items="appStore.selectedEmployees"
+      :items="items"
       :actions="actions"
+      @exportData="exportData"
     />
 
     <v-data-table
       :loading="loading"
       :loading-text="loadingText"
       :headers="computedHeaders"
-      :items="groupedData"
+      :items="groupedTableFilteredData"
       density="compact"
       show-expand
       item-value="groupedBy"
       v-model:expanded="expandedRows"
-      :hide-default-footer="groupedData.length < 11"
+      :hide-default-footer="groupedTableFilteredData.length < 11"
       class="elevation-0 rounded-lg accordion-data-table"
       hover
       @update:expanded="handleExpansionUpdate"
@@ -78,7 +80,7 @@ import type {
   ActionType,
 } from "../types";
 import DataTable from "./DataTable.vue";
-import { applyGroupTableFilter } from "../modules/genericHelper";
+import { applyGroupTableFilter, exportToExcel } from "../modules/genericHelper";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useDialogStore } from "../stores/dialog";
 import { useAppStore } from "../stores/app";
@@ -161,14 +163,18 @@ const groupedData = computed(() => {
     items,
     count: items.length,
   }));
+  return assignedData;
+});
+
+const groupedTableFilteredData = computed(() => {
   if (search.value) {
-    assignedData = applyGroupTableFilter(
+    return applyGroupTableFilter(
       search.value,
-      assignedData,
+      groupedData.value,
       tableColumns.value
     );
   }
-  return assignedData;
+  return groupedData.value;
 });
 
 const actions = computed(() => {
@@ -186,6 +192,14 @@ const handleExpansionUpdate = (expanded: string[]) => {
   } else {
     expandedRows.value = expanded;
   }
+};
+
+const exportData = () => {
+  exportToExcel(
+    groupedData.value.map((item) => item.items).flat(),
+    tableColumns.value,
+    `export_${title.value}`
+  );
 };
 </script>
 

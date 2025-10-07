@@ -328,9 +328,9 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   content: "";
   position: absolute;
   width: 3px;
-  height: 24px;
+  height: 28px;
   background-color: var(--color-primary);
-  top: -24px;
+  top: -28px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 2px;
@@ -346,9 +346,9 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   content: "";
   position: absolute;
   width: 3px;
-  height: 34px;
+  height: 40px;
   background-color: var(--color-primary);
-  bottom: -36px;
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 2px;
@@ -404,7 +404,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 /* Children container */
 .children-container {
   position: relative;
-  margin-top: 30px;
+  margin-top: 20px;
   width: 100%;
   overflow-x: visible;
   padding: 0 20px;
@@ -416,7 +416,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   justify-content: center;
   gap: 25px;
   flex-wrap: nowrap;
-  margin-top: 24px;
+  margin-top: 28px;
   align-items: flex-start;
   min-width: fit-content;
   padding: 0 20px;

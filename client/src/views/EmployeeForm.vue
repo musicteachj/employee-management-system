@@ -72,12 +72,35 @@
         </div>
       </v-card-title>
 
-      <!-- Error Summary -->
+      <!-- Backend Error Alert -->
       <v-alert
-        v-if="errorCount > 0 && attemptedSave"
+        v-if="backendError"
         type="error"
         variant="tonal"
         class="ma-4 mb-0"
+        border="start"
+        closable
+        @click:close="backendError = null"
+        icon="mdi-alert-circle"
+        prominent
+      >
+        <div class="d-flex align-center">
+          <div>
+            <strong>Error Saving Employee</strong>
+            <div class="text-body-2 mt-2">
+              {{ backendError }}
+            </div>
+          </div>
+        </div>
+      </v-alert>
+
+      <!-- Validation Error Summary -->
+      <v-alert
+        v-if="errorCount > 0 && attemptedSave && !backendError"
+        type="error"
+        variant="tonal"
+        class="ma-4 mb-0"
+        :class="{ 'mt-0': backendError }"
         border="start"
         closable
         @click:close="attemptedSave = false"
@@ -974,6 +997,7 @@ const isFormEditable = ref(false);
 const isSaving = ref(false);
 const loading = ref(false);
 const attemptedSave = ref(false);
+const backendError = ref<string | null>(null);
 
 // Page title
 const pageTitle = computed(() => {
@@ -1293,6 +1317,7 @@ const backClicked = () => {
 const toggleEditMode = () => {
   isFormEditable.value = true;
   attemptedSave.value = false; // Clear any previous save attempts
+  backendError.value = null; // Clear any backend errors
   // Don't reset form values, just clear validation errors
   // The form values should already be populated from the employee data
 };
@@ -1301,6 +1326,7 @@ const cancelEdit = () => {
   if (employee.value) {
     isFormEditable.value = false;
     attemptedSave.value = false; // Clear any previous save attempts
+    backendError.value = null; // Clear any backend errors
     // Clear validation errors and re-populate with original data
     resetVeeForm();
     // Re-trigger the employee watcher to repopulate form
@@ -1354,11 +1380,14 @@ const cancelEdit = () => {
 
 const resetForm = () => {
   resetVeeForm();
+  backendError.value = null; // Clear any backend errors
+  attemptedSave.value = false; // Clear any previous save attempts
 };
 
 const saveEmployee = async () => {
   isSaving.value = true;
   attemptedSave.value = true;
+  backendError.value = null; // Clear any previous backend errors
 
   try {
     if (isAddMode.value) {
@@ -1514,8 +1543,38 @@ const saveEmployee = async () => {
       attemptedSave.value = false; // Clear the flag on successful save
       isFormEditable.value = false;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving employee:", error);
+
+    // Extract user-friendly error message
+    if (
+      error.message?.includes("duplicate key") ||
+      error.message?.includes("E11000")
+    ) {
+      if (error.message?.includes("workEmail")) {
+        backendError.value =
+          "This work email is already registered in the system. Please use a different email address.";
+      } else if (error.message?.includes("personalEmail")) {
+        backendError.value =
+          "This personal email is already registered in the system. Please use a different email address.";
+      } else if (error.message?.includes("employeeId")) {
+        backendError.value =
+          "This employee ID is already in use. Please contact your administrator.";
+      } else {
+        backendError.value =
+          "This employee record already exists in the system. Please check for duplicate entries.";
+      }
+    } else if (error.message && !error.message.includes("Failed to")) {
+      backendError.value = error.message;
+    } else {
+      backendError.value =
+        "An unexpected error occurred while saving. Please try again or contact support if the problem persists.";
+    }
+
+    // Scroll to top to see the error alert
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Don't clear attemptedSave so the error summary stays visible
   } finally {
     isSaving.value = false;
   }

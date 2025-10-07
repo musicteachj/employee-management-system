@@ -66,9 +66,31 @@ export const useAppStore = defineStore("app", () => {
     });
     if (!response.ok) {
       const notificationStore = useNotificationStore();
-      const errorMessage = `Failed to post data: ${response.status} ${response.statusText}`;
+
+      // Try to parse error details from response
+      let errorMessage = `Failed to post data: ${response.status} ${response.statusText}`;
+      let errorDetails = null;
+
+      try {
+        const errorData = await response.json();
+        if (errorData.detail) {
+          errorMessage = errorData.detail;
+          errorDetails = errorData;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+          errorDetails = errorData;
+        }
+      } catch {
+        // If parsing fails, use the default error message
+      }
+
       notificationStore.showError(errorMessage);
-      throw new Error(errorMessage);
+
+      // Throw an error object with details for the caller to handle
+      const error: any = new Error(errorMessage);
+      error.details = errorDetails;
+      error.status = response.status;
+      throw error;
     }
     return await response.json();
   };
@@ -2393,10 +2415,45 @@ export const useAppStore = defineStore("app", () => {
         `Employee ${response.fullName} added successfully!`
       );
       return response;
-    } catch (error) {
+    } catch (error: any) {
       const notificationStore = useNotificationStore();
       console.error("Error adding employee:", error);
-      notificationStore.showError("Failed to add employee. Please try again.");
+
+      // Extract specific error information
+      let errorMessage = "Failed to add employee. Please try again.";
+
+      // Check for duplicate key errors
+      if (
+        error.message?.includes("duplicate key") ||
+        error.message?.includes("E11000")
+      ) {
+        if (error.message?.includes("workEmail")) {
+          errorMessage =
+            "This work email is already registered in the system. Please use a different email address.";
+        } else if (error.message?.includes("personalEmail")) {
+          errorMessage =
+            "This personal email is already registered in the system. Please use a different email address.";
+        } else if (error.message?.includes("employeeId")) {
+          errorMessage =
+            "This employee ID is already in use. Please contact your administrator.";
+        } else {
+          errorMessage =
+            "This employee record already exists in the system. Please check for duplicate entries.";
+        }
+      } else if (error.status === 422) {
+        errorMessage =
+          "Validation error: " +
+          (error.message || "Please check all required fields.");
+      } else if (error.status === 400) {
+        errorMessage = error.message || "Invalid employee data provided.";
+      } else if (
+        error.message &&
+        !error.message.includes("Failed to post data")
+      ) {
+        errorMessage = error.message;
+      }
+
+      notificationStore.showError(errorMessage, 10000); // Show for 10 seconds
       throw error;
     }
   };
