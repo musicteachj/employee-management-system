@@ -69,6 +69,7 @@
               class="ma-2"
               prepend-icon="mdi-account-plus"
               variant="outlined"
+              @click="$router.push('/employee/new')"
             >
               Add New Employee
             </v-btn>
@@ -77,6 +78,8 @@
               class="ma-2"
               prepend-icon="mdi-file-document"
               variant="outlined"
+              @click="handleGenerateReport"
+              :disabled="totalEmployees === 0"
             >
               Generate Report
             </v-btn>
@@ -99,24 +102,22 @@
             Recent Activity
           </v-card-title>
           <v-card-text>
-            <v-list density="compact">
-              <v-list-item prepend-icon="mdi-account-plus">
-                <v-list-item-title
-                  >John Doe joined Engineering</v-list-item-title
-                >
-                <v-list-item-subtitle>2 hours ago</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-account-edit">
-                <v-list-item-title
-                  >Jane Smith updated profile</v-list-item-title
-                >
-                <v-list-item-subtitle>5 hours ago</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-chart-line">
-                <v-list-item-title>Q4 reviews completed</v-list-item-title>
-                <v-list-item-subtitle>1 day ago</v-list-item-subtitle>
+            <v-list v-if="recentActivities.length > 0" density="compact">
+              <v-list-item
+                v-for="activity in recentActivities"
+                :key="activity.id"
+                :prepend-icon="activity.icon"
+              >
+                <v-list-item-title>{{ activity.title }}</v-list-item-title>
+                <v-list-item-subtitle>{{
+                  activity.relativeTime
+                }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
+            <div v-else class="text-center text-medium-emphasis pa-4">
+              <v-icon size="large" class="mb-2">mdi-information-outline</v-icon>
+              <p>No recent activity to display</p>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -127,7 +128,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useAppStore } from "../stores/app";
+import { exportFullEmployeeReport } from "../modules/genericHelper";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import type { RecentActivity } from "../types";
+
+dayjs.extend(relativeTime);
 
 const appStore = useAppStore();
 
@@ -160,6 +166,92 @@ const activeRate = computed(() => {
   ).length;
   return totalEmps > 0 ? Math.round((activeEmps / totalEmps) * 100) : 0;
 });
+
+// Get recent activity from employee data
+const recentActivities = computed((): RecentActivity[] => {
+  const activities: RecentActivity[] = [];
+
+  // Get recent hires (within 30 days)
+  const thirtyDaysAgo = dayjs().subtract(30, "day");
+  appStore.employees.forEach((emp) => {
+    const hireDate = dayjs(emp.hireDate);
+    if (
+      hireDate.isAfter(thirtyDaysAgo) ||
+      hireDate.isSame(thirtyDaysAgo, "day")
+    ) {
+      activities.push({
+        id: `hire-${emp._id}`,
+        type: "new_hire",
+        icon: "mdi-account-plus",
+        title: `${emp.fullName} joined ${emp.department}`,
+        timestamp: emp.hireDate,
+        relativeTime: hireDate.fromNow(),
+      });
+    }
+  });
+
+  // Get recent profile updates (within 14 days)
+  const fourteenDaysAgo = dayjs().subtract(14, "day");
+  appStore.employees.forEach((emp) => {
+    const updateDate = emp.updatedAt || emp.lastProfileUpdate;
+    if (updateDate) {
+      const updated = dayjs(updateDate);
+      if (
+        updated.isAfter(fourteenDaysAgo) ||
+        updated.isSame(fourteenDaysAgo, "day")
+      ) {
+        // Don't show if it's the same as hire date (to avoid duplicates)
+        if (!dayjs(emp.hireDate).isSame(updated, "day")) {
+          activities.push({
+            id: `update-${emp._id}`,
+            type: "profile_update",
+            icon: "mdi-account-edit",
+            title: `${emp.fullName} updated profile`,
+            timestamp: updateDate,
+            relativeTime: updated.fromNow(),
+          });
+        }
+      }
+    }
+  });
+
+  // Get recent performance reviews (within 30 days)
+  appStore.employees.forEach((emp) => {
+    if (emp.performanceHistory && emp.performanceHistory.length > 0) {
+      const latestReview =
+        emp.performanceHistory[emp.performanceHistory.length - 1];
+      const reviewDate = dayjs(latestReview.reviewDate);
+      if (
+        reviewDate.isAfter(thirtyDaysAgo) ||
+        reviewDate.isSame(thirtyDaysAgo, "day")
+      ) {
+        activities.push({
+          id: `review-${emp._id}-${latestReview.reviewId}`,
+          type: "review",
+          icon: "mdi-chart-line",
+          title: `${emp.fullName} completed performance review`,
+          timestamp: latestReview.reviewDate,
+          relativeTime: reviewDate.fromNow(),
+        });
+      }
+    }
+  });
+
+  // Sort by timestamp (most recent first) and limit to 5
+  return activities
+    .sort((a, b) => dayjs(b.timestamp).valueOf() - dayjs(a.timestamp).valueOf())
+    .slice(0, 5);
+});
+
+// Generate comprehensive employee report
+const handleGenerateReport = () => {
+  if (appStore.employees.length === 0) {
+    console.warn("No employees to export");
+    return;
+  }
+
+  exportFullEmployeeReport(appStore.employees, "employee_full_report");
+};
 </script>
 
 <style scoped></style>

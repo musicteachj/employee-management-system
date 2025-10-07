@@ -61,7 +61,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getUnassignedHires();
-        tableActions.value = ["assign-to-manager"];
+        tableActions.value = ["assign-to-manager", "export-data"];
         tableColumns.value = [
           "firstName",
           "lastName",
@@ -81,7 +81,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getRecentHires();
-        tableActions.value = ["training-status-update"];
+        tableActions.value = ["training-status-update", "export-data"];
         tableColumns.value = [
           "firstName",
           "lastName",
@@ -102,7 +102,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getContractEmployees();
-        tableActions.value = ["convert-employee-type"];
+        tableActions.value = ["convert-employee-type", "export-data"];
         tableColumns.value = [
           "firstName",
           "lastName",
@@ -144,7 +144,7 @@ const loadData = async () => {
         enableOpenRecord.value = true;
         enableSelect.value = true;
         items.value = await appStore.getFormerEmployees();
-        tableActions.value = ["rehire-employee"];
+        tableActions.value = ["rehire-employee", "export-data"];
         tableColumns.value = [
           "firstName",
           "lastName",

@@ -22,15 +22,10 @@
         variant="text"
         @click="handleActionClick(action)"
         class="mr-2"
-        :disabled="
-          !(action.isEnabled?.(selectedItems) ?? selectedItems.length > 0)
-        "
+        :disabled="actionDisabled(action)"
       >
         <v-icon :icon="action.icon" class="mr-2" />
         {{ action.text }}
-        <v-tooltip activator="parent" location="top" v-if="action.tooltip">
-          {{ action.tooltip(selectedItems) }}
-        </v-tooltip>
       </v-btn>
       <v-btn
         icon="mdi-close"
@@ -50,17 +45,35 @@ import type { Employee, Action } from "../types";
 
 const props = defineProps<{
   selectedItems: Employee[];
+  items: Employee[];
   actions: Action[];
+}>();
+
+const emit = defineEmits<{
+  (e: "exportData"): void;
 }>();
 
 // Methods
 const handleActionClick = (action: Action) => {
-  action.action();
-  appStore.setSelectedEmployees(props.selectedItems);
+  if (action.type === "export-data") {
+    emit("exportData");
+  } else {
+    action.action();
+    appStore.setSelectedEmployees(props.selectedItems);
+  }
 };
 
 const clearSelection = () => {
   appStore.setSelectedEmployees([]);
+};
+
+const actionDisabled = (action: Action) => {
+  if (action.type === "export-data") {
+    return props.items.length === 0;
+  }
+  return !(
+    action.isEnabled?.(props.selectedItems) ?? props.selectedItems.length > 0
+  );
 };
 </script>
 

@@ -37,12 +37,6 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "assign-to-manager",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0
-          ? "Select at least one employee"
-          : selected.some((e) => e.managerId)
-          ? "All selected must be unassigned"
-          : undefined,
     },
     {
       text: "Convert Employee Type",
@@ -57,8 +51,6 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "convert-employee-type",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0 ? "Select employees to convert" : undefined,
     },
     {
       text: "Rehire Employee",
@@ -74,12 +66,6 @@ export const useDialogStore = defineStore("dialog", () => {
       type: "rehire-employee",
       isEnabled: (selected) =>
         selected.length > 0 && selected.every((e) => e.status === "Terminated"),
-      tooltip: (selected) =>
-        selected.length === 0
-          ? "Select terminated employees"
-          : selected.some((e) => e.status !== "Terminated")
-          ? "Only terminated employees can be rehired"
-          : undefined,
     },
     {
       text: "Update Training Status",
@@ -94,10 +80,6 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "training-status-update",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0
-          ? "Select employees to update training status"
-          : undefined,
     },
     {
       text: "Schedule Performance Review",
@@ -112,10 +94,6 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "schedule-performance-review",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0
-          ? "Select employees to schedule performance review"
-          : undefined,
     },
     {
       text: "Conduct Review",
@@ -130,10 +108,6 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "conduct-review",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0
-          ? "Select employees to conduct review"
-          : undefined,
     },
     {
       text: "Change Status",
@@ -148,8 +122,13 @@ export const useDialogStore = defineStore("dialog", () => {
       },
       type: "status-change",
       isEnabled: (selected) => selected.length > 0,
-      tooltip: (selected) =>
-        selected.length === 0 ? "Select employees to change status" : undefined,
+    },
+    {
+      text: "Export Data",
+      icon: "mdi-file-export",
+      action: () => {},
+      type: "export-data",
+      isEnabled: () => true,
     },
   ]);
 

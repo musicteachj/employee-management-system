@@ -312,7 +312,6 @@ export interface Action {
   action: () => void;
   type: ActionType;
   isEnabled?: (selected: Employee[]) => boolean;
-  tooltip?: (selected: Employee[]) => string | undefined;
 }
 
 export type ActionType =
@@ -322,4 +321,14 @@ export type ActionType =
   | "training-status-update"
   | "schedule-performance-review"
   | "conduct-review"
-  | "status-change";
+  | "status-change"
+  | "export-data";
+
+export interface RecentActivity {
+  id: string;
+  type: "new_hire" | "profile_update" | "status_change" | "review";
+  icon: string;
+  title: string;
+  timestamp: string;
+  relativeTime: string;
+}

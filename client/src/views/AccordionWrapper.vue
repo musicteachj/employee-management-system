@@ -83,7 +83,7 @@ const loadData = async () => {
           groupBy: "managerName",
           groupByOptions: ["managerName"],
         };
-        tableActions.value = ["assign-to-manager"];
+        tableActions.value = ["assign-to-manager", "export-data"];
         break;
       case "By Department":
         title.value = "By Department";
@@ -107,7 +107,7 @@ const loadData = async () => {
           groupBy: "department",
           groupByOptions: ["department"],
         };
-        tableActions.value = ["training-status-update"];
+        tableActions.value = ["training-status-update", "export-data"];
         break;
       case "By Status":
         title.value = "By Status";
@@ -132,7 +132,7 @@ const loadData = async () => {
           groupBy: "status",
           groupByOptions: ["status"],
         };
-        tableActions.value = ["status-change"];
+        tableActions.value = ["status-change", "export-data"];
         break;
       default:
         resetData();
