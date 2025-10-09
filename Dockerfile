@@ -10,8 +10,8 @@ COPY client/package*.json ./
 # Copy vendor folder (needed for local xlsx package)
 COPY client/vendor ./vendor
 
-# Install dependencies
-RUN npm install
+# Install dependencies (use --legacy-peer-deps for zod version conflict)
+RUN npm install --legacy-peer-deps
 
 # Copy frontend source
 COPY client/ ./
