@@ -19,9 +19,6 @@ COPY client/ ./
 # Build production frontend (outputs to ../dist)
 RUN npm run build
 
-# Debug: List built files
-RUN ls -la /app/dist && ls -la /app/dist/assets | head -20
-
 # Stage 2: Python Backend + Built Frontend
 FROM python:3.11-slim
 
@@ -41,9 +38,6 @@ COPY server/ ./
 
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /app/dist ./dist
-
-# Debug: Verify files were copied
-RUN ls -la ./dist && ls -la ./dist/assets | head -20
 
 # Expose port
 EXPOSE 8000
