@@ -46,24 +46,8 @@ app.include_router(performance.router, prefix="/api", tags=["performance"])
 
 
 if settings.environment == "production":
-    # Mount static assets first (before catch-all route)
-    app.mount("/js", StaticFiles(directory="dist/js"), name="js")
-    app.mount("/css", StaticFiles(directory="dist/css"), name="css")
-    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
-    
-    # Serve index.html for root
-    @app.get("/")
-    async def serve_root():
-        return FileResponse("dist/index.html")
-    
-    # Catch-all for Vue Router (must be last!)
-    @app.get("/{path:path}")
-    async def serve_spa(path: str):
-        # Only serve index.html for non-file paths
-        if not path.startswith(("js/", "css/", "assets/", "api/", "favicon.ico")):
-            return FileResponse("dist/index.html")
-        # If it's a file request, let it 404
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404)
+    # Mount static files with html=True to serve index.html for missing files
+    # This must be LAST - after all API routes are registered
+    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
 
 
