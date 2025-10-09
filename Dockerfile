@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Employee Management System
 # Stage 1: Build Vue 3 Frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/client
 
