@@ -2,23 +2,7 @@
 
 > A modern, full-stack employee management application with secure JWT authentication, real-time analytics, and interactive organizational hierarchy visualization.
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge)](https://your-demo-link.com)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
-
-**[🚀 View Live Demo](https://your-demo-link.com)** | **[📚 Documentation](JWT_AUTHENTICATION.md)** | **[📋 Portfolio Setup Guide](PORTFOLIO_SETUP.md)**
-
----
-
-## 📸 Screenshots
-
-> 💡 **Note:** Add screenshots here once deployed. Recruiters love visuals!
-
-<!--
-![Login Screen](screenshots/login.png)
-![Dashboard](screenshots/dashboard.png)
-![Analytics](screenshots/analytics.png)
-![Org Chart](screenshots/org-chart.png)
--->
+**[🚀 View Live Demo](https://employees.jameslittlefield.net)**
 
 ---
 
@@ -81,60 +65,6 @@
 - **Docker** - Containerization
 - **AWS** - Cloud infrastructure (S3, ECS, CloudFront, Secrets Manager)
 - **Git** - Version control
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- Node.js 18+
-- MongoDB (local or Atlas)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/employee-management-system.git
-cd employee-management-system
-
-# Install server dependencies
-cd server
-pip install -r requirements.txt
-
-# Configure environment
-cp env.example .env
-# Edit .env and update JWT_SECRET_KEY (generate with: openssl rand -hex 32)
-
-# Install client dependencies
-cd ../client
-npm install
-```
-
-### Running the Application
-
-```bash
-# Terminal 1: Start the backend server
-cd server
-uvicorn app.main:app --reload
-# Server runs at http://localhost:8000
-
-# Terminal 2: Start the frontend
-cd client
-npm run dev
-# Client runs at http://localhost:5173
-```
-
-### First Time Setup
-
-1. Open `http://localhost:5173` in your browser
-2. Click **"Register here"** to create your first account
-3. Fill in your details:
-   - **Password requirements:** 8+ characters, uppercase, lowercase, and a number
-4. You'll be automatically logged in!
-
-> 💡 **Demo Tip:** The app comes with sample employee data. Register and start exploring immediately!
 
 ---
 
@@ -234,15 +164,6 @@ npm run dev
 
 ---
 
-## 📚 Documentation
-
-- **[JWT Authentication Guide](JWT_AUTHENTICATION.md)** - Complete auth implementation details
-- **[Quick Start Guide](QUICK_START_JWT.md)** - Get up and running in 5 minutes
-- **[Portfolio Setup](PORTFOLIO_SETUP.md)** - Prepare project for recruiters
-- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs (when server is running)
-
----
-
 ## 🗂️ Project Structure
 
 ```
@@ -292,15 +213,9 @@ employee-management-system/
 - `GET /api/analytics/department` - Department statistics
 - And more...
 
-**Full API documentation:** `http://localhost:8000/docs`
-
 ---
 
 ## 🚀 Deployment
-
-### Local Development
-
-See [Quick Start](#-quick-start) above.
 
 ### Production Deployment (AWS)
 
@@ -314,8 +229,6 @@ CloudFront (CDN) → S3 (Static Frontend)
               DocumentDB/MongoDB Atlas
 ```
 
-**Deployment Guide:** See [JWT_AUTHENTICATION.md](JWT_AUTHENTICATION.md#aws-deployment-recommendations) for complete AWS deployment instructions.
-
 **Key Components:**
 
 - Frontend: S3 + CloudFront for global CDN
@@ -323,28 +236,6 @@ CloudFront (CDN) → S3 (Static Frontend)
 - Database: MongoDB Atlas (free tier) or AWS DocumentDB
 - Secrets: AWS Secrets Manager for JWT keys
 - SSL: AWS Certificate Manager for HTTPS
-
----
-
-## 🧪 Testing
-
-### Manual API Testing
-
-```bash
-# Register a new user
-curl -X POST http://localhost:8000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test123!","full_name":"Test User"}'
-
-# Login
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test123!"}'
-
-# Get employees (use token from login response)
-curl http://localhost:8000/api/employees \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-```
 
 ---
 
@@ -359,33 +250,6 @@ curl http://localhost:8000/api/employees \
 - [ ] Advanced reporting
 - [ ] Notification system
 - [ ] Integration tests
-- [ ] CI/CD pipeline
-
----
-
-## 🤝 About This Project
-
-This Employee Management System was built as a **full-stack portfolio project** to demonstrate modern web development practices, secure authentication implementation, and cloud-ready architecture.
-
-### Why I Built This
-
-I created this project to showcase my ability to:
-
-- ✅ Build complete full-stack applications from scratch
-- ✅ Implement security best practices (JWT, password hashing, protected routes)
-- ✅ Design scalable, cloud-native architectures
-- ✅ Create intuitive, responsive user interfaces
-- ✅ Write clean, maintainable, well-documented code
-- ✅ Work with modern frameworks and tools
-
-### What I Learned
-
-- **Security:** Implementing JWT authentication, understanding token-based auth vs sessions
-- **Architecture:** Designing RESTful APIs, separation of concerns, state management patterns
-- **Frontend:** Vue 3 Composition API, TypeScript, reactive programming
-- **Backend:** FastAPI async patterns, MongoDB NoSQL design, Pydantic validation
-- **DevOps:** Docker containerization, AWS deployment strategies, environment configuration
-- **Documentation:** Writing clear technical documentation for different audiences
 
 ---
 
@@ -393,10 +257,9 @@ I created this project to showcase my ability to:
 
 **James Littlefield**
 
-- 🌐 Portfolio: [yourportfolio.com](https://yourportfolio.com)
-- 💼 LinkedIn: [linkedin.com/in/yourname](https://linkedin.com/in/yourname)
-- 🐙 GitHub: [@yourusername](https://github.com/yourusername)
-- 📧 Email: your.email@example.com
+- 🌐 Portfolio: [JamesLittlefield.net](https://jameslittlefield.net)
+- 💼 LinkedIn: [linkedin.com/in/JamesLittlefield](https://www.linkedin.com/in/james-littlefield-93037713b/)
+- 🐙 GitHub: [@musicteachj](https://github.com/musicteachj)
 
 ---
 
@@ -414,11 +277,3 @@ This project is open source and available under the MIT License.
 - MongoDB for the flexible database solution
 
 ---
-
-<div align="center">
-
-**Built with ❤️ by James Littlefield**
-
-⭐ Star this repo if you find it helpful!
-
-</div>
