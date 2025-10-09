@@ -8,7 +8,7 @@ WORKDIR /app/client
 COPY client/package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --frozen-lockfile
 
 # Copy frontend source
 COPY client/ ./
