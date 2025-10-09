@@ -7,8 +7,11 @@ WORKDIR /app/client
 # Copy frontend package files
 COPY client/package*.json ./
 
+# Copy vendor folder (needed for local xlsx package)
+COPY client/vendor ./vendor
+
 # Install dependencies
-RUN npm install --frozen-lockfile
+RUN npm install
 
 # Copy frontend source
 COPY client/ ./
