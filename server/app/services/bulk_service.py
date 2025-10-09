@@ -11,6 +11,7 @@ from app.models.bulk_operations import (
     BulkChangeStatusRequest,
     BulkRehireEmployeesRequest,
     BulkUpdateTrainingStatusRequest,
+    BulkSchedulePerformanceReviewRequest,
 )
 
 
@@ -231,6 +232,65 @@ class BulkService:
             "updatedCount": updated_count,
             "failedCount": failed_count,
             "message": f"Successfully updated training status to {request.new_training_status} for {updated_count} employee(s)",
+            "failedIds": failed_ids if failed_ids else None
+        }
+
+    async def bulk_schedule_performance_review(self, request: BulkSchedulePerformanceReviewRequest) -> Dict:
+        """Schedule performance reviews for multiple employees."""
+        db = await get_database()
+        updated_count = 0
+        failed_count = 0
+        failed_ids = []
+
+        review_data = request.review_data
+
+        # Create the new review record
+        new_review = {
+            "reviewId": f"rev_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            "reviewDate": review_data.review_date,
+            "reviewPeriodStart": review_data.review_period_start,
+            "reviewPeriodEnd": review_data.review_period_end,
+            "reviewerName": review_data.reviewer_name,
+            "reviewerEmail": review_data.reviewer_email,
+            "rating": "Unrated",
+            "reviewType": review_data.review_type,
+            "nextReviewDate": review_data.next_review_date or "",
+            "comments": review_data.comments or "",
+            "priority": review_data.priority or "medium",
+        }
+
+        for emp_id in request.employee_ids:
+            try:
+                _id = ObjectId(emp_id)
+                
+                # Update the employee's next review date and add to performance history
+                update_data = {
+                    "nextReviewDate": review_data.review_date,
+                    "updatedAt": datetime.utcnow(),
+                }
+
+                result = await db.employees.update_one(
+                    {"_id": _id},
+                    {
+                        "$set": update_data,
+                        "$push": {"performanceHistory": new_review}
+                    }
+                )
+                if result.matched_count > 0:
+                    updated_count += 1
+                else:
+                    failed_count += 1
+                    failed_ids.append(emp_id)
+            except Exception as e:
+                failed_count += 1
+                failed_ids.append(emp_id)
+                print(f"Error scheduling performance review for employee {emp_id}: {e}")
+
+        return {
+            "success": failed_count == 0,
+            "updatedCount": updated_count,
+            "failedCount": failed_count,
+            "message": f"Successfully scheduled performance reviews for {updated_count} employee(s)",
             "failedIds": failed_ids if failed_ids else None
         }
 

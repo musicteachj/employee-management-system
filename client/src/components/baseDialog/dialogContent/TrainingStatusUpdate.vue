@@ -30,7 +30,7 @@
                 "
                 persistent-hint
               >
-                <template v-slot:item="{ props, item }">
+                <template v-slot:item="{ props }">
                   <v-list-item v-bind="props">
                     <template v-slot:prepend>
                       <v-avatar size="32" color="primary">
@@ -147,8 +147,6 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
-// Form validation schema imported from schemas/training.ts
-
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({
   validationSchema: toTypedSchema(updateTrainingStatusSchema),
@@ -174,8 +172,6 @@ const [effectiveDate] = defineField("effectiveDate");
 const isUpdating = ref(false);
 
 // Methods
-// Selection helpers handled by SelectedEmployeesSummary component
-
 const updateTrainingStatus = async () => {
   isUpdating.value = true;
 

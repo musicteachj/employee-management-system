@@ -112,7 +112,7 @@ const createChart = () => {
           ticks: {
             font: {
               size: 11,
-              weight: "500",
+              weight: 500,
             },
             maxRotation: 45,
             minRotation: 0,

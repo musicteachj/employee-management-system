@@ -78,6 +78,29 @@ class BulkUpdateTrainingStatusRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class ReviewData(BaseModel):
+    """Performance review details."""
+    review_date: str = Field(..., alias="reviewDate")
+    review_period_start: str = Field(..., alias="reviewPeriodStart")
+    review_period_end: str = Field(..., alias="reviewPeriodEnd")
+    reviewer_name: str = Field(..., alias="reviewerName")
+    reviewer_email: str = Field(..., alias="reviewerEmail")
+    review_type: str = Field(..., alias="reviewType")
+    next_review_date: Optional[str] = Field(None, alias="nextReviewDate")
+    comments: Optional[str] = None
+    priority: Optional[str] = None
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class BulkSchedulePerformanceReviewRequest(BaseModel):
+    """Request to schedule performance reviews for multiple employees."""
+    employee_ids: List[str] = Field(..., alias="employeeIds")
+    review_data: ReviewData = Field(..., alias="reviewData")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class BulkOperationResponse(BaseModel):
     """Response for bulk operations."""
     success: bool

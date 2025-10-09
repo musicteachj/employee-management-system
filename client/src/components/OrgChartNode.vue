@@ -154,12 +154,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import dayjs from "dayjs";
-import type {
-  Employee,
-  JobLevel,
-  ActiveStatus,
-  EmploymentType,
-} from "../types";
+import type { Employee, JobLevel } from "../types";
 
 interface Props {
   employee: Employee & { children?: Employee[] };
@@ -277,27 +272,6 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
     CEO: "orange",
   };
   return colorMap[jobLevel] || "grey";
-};
-
-const getStatusColor = (status: ActiveStatus): string => {
-  const colorMap: Record<ActiveStatus, string> = {
-    Active: "success",
-    Inactive: "grey",
-    "On Leave": "warning",
-    Terminated: "error",
-  };
-  return colorMap[status] || "grey";
-};
-
-const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
-  const colorMap: Record<EmploymentType, string> = {
-    "Full-time": "primary",
-    "Part-time": "info",
-    Contract: "warning",
-    Intern: "success",
-    Temporary: "secondary",
-  };
-  return colorMap[employmentType] || "grey";
 };
 </script>
 

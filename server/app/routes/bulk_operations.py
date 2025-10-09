@@ -8,6 +8,7 @@ from app.models.bulk_operations import (
     BulkChangeStatusRequest,
     BulkRehireEmployeesRequest,
     BulkUpdateTrainingStatusRequest,
+    BulkSchedulePerformanceReviewRequest,
     BulkOperationResponse,
 )
 from app.services.bulk_service import BulkService
@@ -58,5 +59,14 @@ async def bulk_update_training_status(
 ) -> dict:
     """Update training status for multiple employees."""
     return await service.bulk_update_training_status(request)
+
+
+@router.post("/bulk/schedule-performance-review", response_model=BulkOperationResponse)
+async def bulk_schedule_performance_review(
+    request: BulkSchedulePerformanceReviewRequest,
+    service: BulkService = Depends()
+) -> dict:
+    """Schedule performance reviews for multiple employees."""
+    return await service.bulk_schedule_performance_review(request)
 
 
