@@ -10,7 +10,7 @@ from app.database import (
     connect_to_mongo,
     close_mongo_connection,
 )
-from app.routes import health, employees, analytics, bulk_operations, performance
+from app.routes import health, employees, analytics, bulk_operations, performance, auth
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.add_middleware(
 
 
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(employees.router, prefix="/api", tags=["employees"])
 app.include_router(analytics.router, prefix="/api", tags=["analytics"])
 app.include_router(bulk_operations.router, prefix="/api", tags=["bulk"])

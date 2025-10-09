@@ -10,7 +10,9 @@ from app.models.employee import (
     EmployeeUpdate,
     SearchCriteria,
 )
+from app.models.user import UserInDB
 from app.services.employee_service import EmployeeService
+from app.utils.dependencies import get_current_user
 
 
 router = APIRouter()
@@ -23,8 +25,9 @@ async def get_employees(
     department: Optional[str] = None,
     status: Optional[str] = None,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Get employees with optional filtering."""
+    """Get employees with optional filtering. Requires authentication."""
     return await service.get_employees(skip, limit, department, status)
 
 
@@ -32,8 +35,9 @@ async def get_employees(
 async def create_employee(
     employee: EmployeeCreate,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Create new employee."""
+    """Create new employee. Requires authentication."""
     return await service.create_employee(employee)
 
 
@@ -41,8 +45,9 @@ async def create_employee(
 async def get_employee(
     employee_id: str,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Get single employee by ID."""
+    """Get single employee by ID. Requires authentication."""
     employee = await service.get_employee(employee_id)
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
@@ -54,8 +59,9 @@ async def update_employee(
     employee_id: str,
     updates: EmployeeUpdate,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Update employee."""
+    """Update employee. Requires authentication."""
     return await service.update_employee(employee_id, updates)
 
 
@@ -63,8 +69,9 @@ async def update_employee(
 async def delete_employee(
     employee_id: str,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Soft delete employee."""
+    """Soft delete employee. Requires authentication."""
     return await service.delete_employee(employee_id)
 
 
@@ -72,8 +79,9 @@ async def delete_employee(
 async def search_employees(
     criteria: SearchCriteria,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Advanced employee search."""
+    """Advanced employee search. Requires authentication."""
     return await service.search_employees(criteria)
 
 
@@ -81,16 +89,18 @@ async def search_employees(
 async def get_direct_reports(
     employee_id: str,
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Get employee's direct reports."""
+    """Get employee's direct reports. Requires authentication."""
     return await service.get_direct_reports(employee_id)
 
 
 @router.get("/managers", response_model=List[Employee])
 async def get_managers(
     service: EmployeeService = Depends(),
+    current_user: UserInDB = Depends(get_current_user),
 ):
-    """Get all employees who are managers (have direct reports or manager-level positions)."""
+    """Get all employees who are managers (have direct reports or manager-level positions). Requires authentication."""
     return await service.get_managers()
 
 

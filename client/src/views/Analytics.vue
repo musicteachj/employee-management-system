@@ -317,18 +317,14 @@ const analytics = ref<AnalyticsData>({
 const loadAnalyticsData = async () => {
   try {
     loading.value = true;
-
-    // Fetch analytics from API
     const response = await fetch("/api/analytics/dashboard");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     const data = await response.json();
     analytics.value = data;
   } catch (error) {
     console.error("Error loading analytics data:", error);
-    // Keep default empty values if API fails
   } finally {
     loading.value = false;
   }

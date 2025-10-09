@@ -203,8 +203,6 @@ const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees } = useBulkDialogForm();
 
-// Form validation schema imported from schemas/performanceReview.ts
-
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({
   validationSchema: toTypedSchema(scheduleReviewSchema),
@@ -320,12 +318,12 @@ const scheduleReview = async () => {
 
     // Create review data object
     const reviewData = {
-      reviewDate: reviewDate.value,
-      reviewPeriodStart: reviewPeriodStart.value,
-      reviewPeriodEnd: reviewPeriodEnd.value,
+      reviewDate: reviewDate.value!,
+      reviewPeriodStart: reviewPeriodStart.value!,
+      reviewPeriodEnd: reviewPeriodEnd.value!,
       reviewerName: selectedReviewer.name,
       reviewerEmail: selectedReviewer.email,
-      reviewType: reviewType.value,
+      reviewType: reviewType.value!,
       nextReviewDate: nextReviewDate.value || undefined,
       comments: reviewNotes.value || undefined,
       priority: priority.value || "medium",
@@ -336,14 +334,7 @@ const scheduleReview = async () => {
       .map((emp) => emp._id)
       .filter((id) => id) as string[];
 
-    // TODO: Implement bulkSchedulePerformanceReview method in the store
-    // appStore.bulkSchedulePerformanceReview(employeeIds, reviewData);
-    console.log(
-      "Scheduling performance reviews for employees:",
-      employeeIds,
-      "with data:",
-      reviewData
-    );
+    await appStore.bulkSchedulePerformanceReview(employeeIds, reviewData);
 
     // Close the dialog and reset form
     dialogStore.closeAndResetDialog();

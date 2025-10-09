@@ -90,7 +90,7 @@ const createChart = () => {
             padding: 20,
             font: {
               size: 12,
-              weight: "500",
+              weight: 500,
             },
             generateLabels: (chart) => {
               const data = chart.data;
@@ -101,8 +101,12 @@ const createChart = () => {
                   const percentage = props.departmentData[i]?.percentage || 0;
                   return {
                     text: `${label} (${value} - ${percentage}%)`,
-                    fillStyle: dataset.backgroundColor?.[i] as string,
-                    strokeStyle: dataset.borderColor?.[i] as string,
+                    fillStyle: (dataset.backgroundColor as string[])?.[
+                      i
+                    ] as string,
+                    strokeStyle: (dataset.borderColor as string[])?.[
+                      i
+                    ] as string,
                     lineWidth: 2,
                     hidden: false,
                     index: i,

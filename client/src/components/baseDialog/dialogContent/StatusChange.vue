@@ -126,10 +126,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { ActiveStatus } from "../../../types";
-import {
-  statusChangeSchema,
-  type StatusChangeFormData,
-} from "../../../schemas/statusChange";
+import { statusChangeSchema } from "../../../schemas/statusChange";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
@@ -137,8 +134,6 @@ import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
 const { selectedEmployees, today } = useBulkDialogForm();
-
-// Form validation schema imported from schemas/statusChange.ts
 
 // VeeValidate form setup
 const { errors, defineField, validate, resetForm } = useForm({

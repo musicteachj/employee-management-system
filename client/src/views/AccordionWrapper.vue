@@ -11,7 +11,6 @@
       :enableExport="enableExport"
       :enableOpenRecord="enableOpenRecord"
       :enableSelect="enableSelect"
-      :enableOtherGroupings="enableOtherGroupings"
       :tableColumns="tableColumns"
       :groupByInfo="groupByInfo"
       :tableActions="tableActions"
@@ -40,7 +39,6 @@ const enableActions = ref(false);
 const enableExport = ref(false);
 const enableOpenRecord = ref(false);
 const enableSelect = ref(false);
-const enableOtherGroupings = ref(false);
 const tableActions = ref<ActionType[]>([]);
 const items = ref<Employee[]>([]);
 const tableColumns = ref<string[]>([]);

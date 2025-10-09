@@ -23,6 +23,7 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
+  Filler,
 } from "chart.js";
 
 // Register Chart.js components
@@ -33,7 +34,8 @@ ChartJS.register(
   LineElement,
   CategoryScale,
   LinearScale,
-  PointElement
+  PointElement,
+  Filler
 );
 
 interface PerformanceTrend {

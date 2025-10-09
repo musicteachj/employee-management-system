@@ -99,7 +99,6 @@ const props = defineProps<{
   enableExport: boolean;
   enableOpenRecord: boolean;
   enableSelect: boolean;
-  enableOtherGroupings: boolean;
   tableColumns: string[];
   groupByInfo: GroupByInfo;
   tableActions: ActionType[];
@@ -116,7 +115,6 @@ const {
   enableExport,
   enableOpenRecord,
   enableSelect,
-  enableOtherGroupings,
   tableColumns,
   groupByInfo,
   tableActions,

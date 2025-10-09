@@ -18,6 +18,7 @@ import type {
   BusinessUnit,
 } from "../types";
 import { useNotificationStore } from "./notification";
+import { useAuthStore } from "./auth";
 
 export const useAppStore = defineStore("app", () => {
   const refreshKey = ref(0);
@@ -44,9 +45,34 @@ export const useAppStore = defineStore("app", () => {
     employmentType?: EmploymentType;
   }
 
-  // API helper functions
+  // API helper functions with JWT authentication
+  const getAuthHeaders = () => {
+    const authStore = useAuthStore();
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (authStore.token) {
+      headers["Authorization"] = `Bearer ${authStore.token}`;
+    }
+
+    return headers;
+  };
+
   const apiGet = async (url: string) => {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+    });
+
+    // Handle 401 Unauthorized - token expired or invalid
+    if (response.status === 401) {
+      const authStore = useAuthStore();
+      authStore.logout();
+      const notificationStore = useNotificationStore();
+      notificationStore.showError("Session expired. Please log in again.");
+      throw new Error("Unauthorized");
+    }
+
     if (!response.ok) {
       const notificationStore = useNotificationStore();
       const errorMessage = `Failed to fetch data: ${response.status} ${response.statusText}`;
@@ -59,11 +85,19 @@ export const useAppStore = defineStore("app", () => {
   const apiPost = async (url: string, data: any) => {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
+
+    // Handle 401 Unauthorized - token expired or invalid
+    if (response.status === 401) {
+      const authStore = useAuthStore();
+      authStore.logout();
+      const notificationStore = useNotificationStore();
+      notificationStore.showError("Session expired. Please log in again.");
+      throw new Error("Unauthorized");
+    }
+
     if (!response.ok) {
       const notificationStore = useNotificationStore();
 
@@ -2650,6 +2684,39 @@ export const useAppStore = defineStore("app", () => {
     }
   };
 
+  const bulkSchedulePerformanceReview = async (
+    employeeIds: string[],
+    reviewData: {
+      reviewDate: string;
+      reviewPeriodStart: string;
+      reviewPeriodEnd: string;
+      reviewerName: string;
+      reviewerEmail: string;
+      reviewType: string;
+      nextReviewDate?: string;
+      comments?: string;
+      priority?: string;
+    }
+  ): Promise<void> => {
+    try {
+      const response = await apiPost("/api/bulk/schedule-performance-review", {
+        employeeIds,
+        reviewData,
+      });
+
+      console.log("Bulk schedule performance review response:", response);
+
+      // Refresh employees from server to get updated data
+      await getEmployees();
+
+      selectedEmployees.value = [];
+      refreshKey.value += 1;
+    } catch (error) {
+      console.error("Error in bulk schedule performance review:", error);
+      throw error;
+    }
+  };
+
   // Performance Review Methods
   const getPerformanceReviews = async (): Promise<Employee[]> => {
     try {
@@ -2864,6 +2931,7 @@ export const useAppStore = defineStore("app", () => {
     bulkChangeStatus,
     bulkRehireEmployees,
     bulkUpdateTrainingStatus,
+    bulkSchedulePerformanceReview,
     // Performance Review Methods
     getPerformanceReviews,
     getOverdueReviews,
