@@ -46,5 +46,5 @@ EXPOSE 8000
 ENV ENVIRONMENT=production
 
 # Start FastAPI server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD sh -c "echo '=== Container dist contents ===' && ls -la ./dist && echo '=== index.html content ===' && cat ./dist/index.html && uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
