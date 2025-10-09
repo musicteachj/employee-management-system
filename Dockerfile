@@ -36,7 +36,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY server/ ./
 
-# Copy built frontend from Stage 1
+# Ensure no dist folder exists, then copy built frontend from Stage 1
+RUN rm -rf ./dist
 COPY --from=frontend-builder /app/dist ./dist
 
 # Expose port
@@ -46,5 +47,5 @@ EXPOSE 8000
 ENV ENVIRONMENT=production
 
 # Start FastAPI server
-CMD sh -c "echo '=== Container dist contents ===' && ls -la ./dist && echo '=== index.html content ===' && cat ./dist/index.html && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
