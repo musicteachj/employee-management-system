@@ -71,14 +71,36 @@
           </template>
         </div>
       </v-card-title>
-      <v-divider class="divider-gradient" />
 
-      <!-- Error Summary -->
+      <!-- Backend Error Alert -->
       <v-alert
-        v-if="errorCount > 0 && attemptedSave"
+        v-if="backendError"
         type="error"
         variant="tonal"
         class="ma-4 mb-0"
+        border="start"
+        closable
+        @click:close="backendError = null"
+        icon="mdi-alert-circle"
+        prominent
+      >
+        <div class="d-flex align-center">
+          <div>
+            <strong>Error Saving Employee</strong>
+            <div class="text-body-2 mt-2">
+              {{ backendError }}
+            </div>
+          </div>
+        </div>
+      </v-alert>
+
+      <!-- Validation Error Summary -->
+      <v-alert
+        v-if="errorCount > 0 && attemptedSave && !backendError"
+        type="error"
+        variant="tonal"
+        class="ma-4 mb-0"
+        :class="{ 'mt-0': backendError }"
         border="start"
         closable
         @click:close="attemptedSave = false"
@@ -219,29 +241,46 @@
                       />
                     </v-col>
                     <v-col cols="12" md="4">
-                      <v-text-field
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
                         v-model="state"
+                        :items="usStates"
                         label="State *"
                         required
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
                         :error-messages="errors.state"
                         class="form-field"
+                        color="primary"
+                        item-title="title"
+                        item-value="value"
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="state"
+                        label="State"
+                        variant="outlined"
+                        density="compact"
+                        readonly
                         color="primary"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
-                      <v-text-field
+                      <v-select
                         v-model="country"
+                        :items="countries"
                         label="Country *"
                         required
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
                         :error-messages="errors.country"
                         class="form-field"
                         color="primary"
+                        item-title="title"
+                        item-value="value"
+                        disabled
+                        hint="Currently only United States is supported"
+                        persistent-hint
                       />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -364,7 +403,7 @@
                       <v-select
                         v-if="isAddMode || (isEditMode && isFormEditable)"
                         v-model="jobLevel"
-                        :items="jobLevels"
+                        :items="jobLevelOptions"
                         label="Job Level *"
                         required
                         variant="outlined"
@@ -372,6 +411,8 @@
                         :error-messages="errors.jobLevel"
                         class="form-field"
                         color="primary"
+                        item-title="title"
+                        item-value="value"
                       />
                       <v-text-field
                         v-else
@@ -437,7 +478,9 @@
                         variant="outlined"
                         density="compact"
                         :hint="
-                          !managerId
+                          jobLevel === 'CEO'
+                            ? 'CEO does not require a manager'
+                            : !managerId
                             ? 'Select a manager or leave empty if none assigned yet'
                             : ''
                         "
@@ -446,6 +489,7 @@
                         color="primary"
                         item-title="title"
                         item-value="value"
+                        :disabled="jobLevel === 'CEO'"
                         clearable
                       />
                       <v-text-field
@@ -458,41 +502,48 @@
                       />
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="organizationLevel"
-                        label="Organization Level"
-                        type="number"
-                        variant="outlined"
-                        density="compact"
-                        :readonly="isEditMode && !isFormEditable"
-                        :error-messages="errors.organizationLevel"
-                        hint="0 = CEO, 1 = C-Level, 2 = VP/Director, etc."
-                        min="0"
-                        max="10"
-                        color="primary"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-text-field
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
                         v-model="costCenter"
+                        :items="appStore.formOptions.costCenters"
                         label="Cost Center"
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
                         :error-messages="errors.costCenter"
-                        hint="e.g., ENG-001, MKT-000"
+                        class="form-field"
+                        color="primary"
+                        clearable
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="costCenter || 'N/A'"
+                        label="Cost Center"
+                        variant="outlined"
+                        density="compact"
+                        readonly
                         color="primary"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
-                      <v-text-field
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
                         v-model="businessUnit"
+                        :items="businessUnits"
                         label="Business Unit"
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
                         :error-messages="errors.businessUnit"
-                        hint="e.g., Technology, Operations, Revenue"
+                        class="form-field"
+                        color="primary"
+                        clearable
+                      />
+                      <v-text-field
+                        v-else
+                        :model-value="businessUnit || 'N/A'"
+                        label="Business Unit"
+                        variant="outlined"
+                        density="compact"
+                        readonly
                         color="primary"
                       />
                     </v-col>
@@ -821,32 +872,31 @@
                 <v-card-text class="pa-3">
                   <v-row dense>
                     <v-col cols="12" md="6">
-                      <v-text-field
+                      <v-select
+                        v-if="isAddMode || (isEditMode && isFormEditable)"
                         v-model="hrAssignmentAssignedTo"
+                        :items="hrAssigneeOptions"
                         label="Assigned To *"
                         required
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
                         :error-messages="errors['hrAssignment.assignedTo']"
                         class="form-field"
                         color="primary"
+                        item-title="title"
+                        item-value="value"
                       />
-                    </v-col>
-                    <v-col cols="12" md="6">
                       <v-text-field
-                        v-model="hrAssignmentManagerEmail"
-                        label="Manager Email *"
-                        type="email"
-                        required
+                        v-else
+                        :model-value="hrAssignmentAssignedTo"
+                        label="Assigned To"
                         variant="outlined"
                         density="compact"
-                        :readonly="isEditMode && !isFormEditable"
-                        :error-messages="errors['hrAssignment.managerEmail']"
-                        class="form-field"
+                        readonly
                         color="primary"
                       />
                     </v-col>
+
                     <v-col cols="12">
                       <v-textarea
                         v-model="hrAssignmentReviewComments"
@@ -947,6 +997,7 @@ const isFormEditable = ref(false);
 const isSaving = ref(false);
 const loading = ref(false);
 const attemptedSave = ref(false);
+const backendError = ref<string | null>(null);
 
 // Page title
 const pageTitle = computed(() => {
@@ -982,7 +1033,7 @@ const {
     address: "",
     city: "",
     state: "",
-    country: "",
+    country: "United States",
     dateOfBirth: "",
     socialSecurityNumber: "",
     department: "",
@@ -993,9 +1044,8 @@ const {
     managerId: "",
     managerName: "",
     directReports: [],
-    organizationLevel: undefined,
-    costCenter: "",
-    businessUnit: "",
+    costCenter: undefined,
+    businessUnit: undefined,
     hireDate: "",
     probationEndDate: "",
     salary: 0,
@@ -1012,8 +1062,8 @@ const {
     sourceId: "",
     createdBy: "",
     hrAssignment: {
-      assignedTo: "",
-      managerEmail: "",
+      assignedTo: "Unassigned",
+      managerEmail: undefined,
       reviewComments: "",
     },
   } as AddEmployeeFormData,
@@ -1041,7 +1091,6 @@ const [workLocation] = defineField("workLocation");
 const [managerId] = defineField("managerId");
 const [managerName] = defineField("managerName");
 const [directReports] = defineField("directReports");
-const [organizationLevel] = defineField("organizationLevel");
 const [costCenter] = defineField("costCenter");
 const [businessUnit] = defineField("businessUnit");
 const [hireDate] = defineField("hireDate");
@@ -1083,6 +1132,9 @@ const {
   backgroundCheckStatuses,
   sources,
   benefitsEligibleOptions,
+  usStates,
+  countries,
+  businessUnits,
 } = appStore.formOptions;
 
 // Department and manager options
@@ -1102,11 +1154,64 @@ const managerOptions = computed(() =>
   }))
 );
 
+// CEO constraints: only one CEO allowed; CEO does not require a manager
+const hasExistingCEO = computed(() => {
+  return appStore.employees.some(
+    (emp) =>
+      emp.jobLevel === "CEO" &&
+      emp._id !== (employeeId.value || "") &&
+      emp.status !== "Terminated"
+  );
+});
+
+const jobLevelOptions = computed(() =>
+  jobLevels.map((lvl) => ({
+    title: lvl,
+    value: lvl,
+    disabled:
+      lvl === "CEO" &&
+      hasExistingCEO.value &&
+      !(isEditMode.value && employee.value?.jobLevel === "CEO"),
+  }))
+);
+
+// HR assignee options (employees in Human Resources)
+const hrAssigneeOptions = computed(() => [
+  { title: "Unassigned", value: "Unassigned", subtitle: "No HR owner yet" },
+  ...appStore.employees
+    .filter((emp) => emp.department === "Human Resources")
+    .map((emp) => ({
+      title: emp.fullName,
+      value: emp.fullName,
+      subtitle: emp.workEmail,
+    })),
+]);
+
 // Filtered managers based on selected department
 const filteredManagerOptions = computed(() => {
-  if (!department.value) return managerOptions.value;
-  return managerOptions.value.filter((manager) => {
-    const managerData = appStore.managers.find((m) => m.id === manager.value);
+  const base = managerOptions.value.filter((opt) => {
+    // Exclude self if editing and employee is a manager option
+    if (
+      isEditMode.value &&
+      employeeId.value &&
+      opt.value === employeeId.value
+    ) {
+      return false;
+    }
+    // Exclude direct reports to avoid circular relationships
+    if (
+      isEditMode.value &&
+      employee.value?.directReports &&
+      employee.value.directReports.includes(opt.value as string)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  if (!department.value) return base;
+  return base.filter((opt) => {
+    const managerData = appStore.managers.find((m) => m.id === opt.value);
     return managerData?.department === department.value;
   });
 });
@@ -1138,9 +1243,8 @@ watch(
       managerId.value = newEmployee.managerId || "";
       managerName.value = newEmployee.managerName || "";
       directReports.value = newEmployee.directReports || [];
-      organizationLevel.value = newEmployee.organizationLevel;
-      costCenter.value = newEmployee.costCenter || "";
-      businessUnit.value = newEmployee.businessUnit || "";
+      costCenter.value = newEmployee.costCenter || undefined;
+      businessUnit.value = newEmployee.businessUnit || undefined;
       hireDate.value = newEmployee.hireDate;
       probationEndDate.value = newEmployee.probationEndDate || "";
       salary.value = newEmployee.salary;
@@ -1156,7 +1260,8 @@ watch(
       sourceId.value = newEmployee.sourceId || "";
       createdBy.value = newEmployee.createdBy || "";
       hrAssignmentAssignedTo.value = newEmployee.hrAssignment.assignedTo;
-      hrAssignmentManagerEmail.value = newEmployee.hrAssignment.managerEmail;
+      hrAssignmentManagerEmail.value =
+        newEmployee.hrAssignment.managerEmail || undefined;
       hrAssignmentReviewComments.value =
         newEmployee.hrAssignment.reviewComments || "";
     }
@@ -1173,16 +1278,22 @@ watch(managerId, (newManagerId) => {
     );
     if (selectedManager) {
       managerName.value = selectedManager.name;
+      // Auto-fill manager email for HR Assignment when a manager is chosen
+      hrAssignmentManagerEmail.value = selectedManager.email;
     }
   } else {
     managerName.value = "";
+    hrAssignmentManagerEmail.value = undefined as unknown as string;
   }
 });
 
-// Clear manager selection when department changes
-watch(department, () => {
-  managerId.value = "";
-  managerName.value = "";
+// When job level is CEO, manager is not required and should be cleared/disabled
+watch(jobLevel, (newLevel) => {
+  if (newLevel === "CEO") {
+    managerId.value = "";
+    managerName.value = "";
+    hrAssignmentManagerEmail.value = undefined as unknown as string;
+  }
 });
 
 // Clear form when switching to add mode
@@ -1198,20 +1309,6 @@ watch(
   { immediate: true }
 );
 
-// Utility functions
-const generateEmployeeId = (): string => {
-  const existingIds = appStore.employees.map((emp) => emp.employeeId);
-  let counter = 1;
-  let newId = `EMP${counter.toString().padStart(3, "0")}`;
-
-  while (existingIds.includes(newId)) {
-    counter++;
-    newId = `EMP${counter.toString().padStart(3, "0")}`;
-  }
-
-  return newId;
-};
-
 // Methods
 const backClicked = () => {
   router.back();
@@ -1220,6 +1317,7 @@ const backClicked = () => {
 const toggleEditMode = () => {
   isFormEditable.value = true;
   attemptedSave.value = false; // Clear any previous save attempts
+  backendError.value = null; // Clear any backend errors
   // Don't reset form values, just clear validation errors
   // The form values should already be populated from the employee data
 };
@@ -1228,6 +1326,7 @@ const cancelEdit = () => {
   if (employee.value) {
     isFormEditable.value = false;
     attemptedSave.value = false; // Clear any previous save attempts
+    backendError.value = null; // Clear any backend errors
     // Clear validation errors and re-populate with original data
     resetVeeForm();
     // Re-trigger the employee watcher to repopulate form
@@ -1255,9 +1354,8 @@ const cancelEdit = () => {
       managerId.value = emp.managerId || "";
       managerName.value = emp.managerName || "";
       directReports.value = emp.directReports || [];
-      organizationLevel.value = emp.organizationLevel;
-      costCenter.value = emp.costCenter || "";
-      businessUnit.value = emp.businessUnit || "";
+      costCenter.value = emp.costCenter || undefined;
+      businessUnit.value = emp.businessUnit || undefined;
       hireDate.value = emp.hireDate;
       probationEndDate.value = emp.probationEndDate || "";
       salary.value = emp.salary;
@@ -1273,7 +1371,8 @@ const cancelEdit = () => {
       sourceId.value = emp.sourceId || "";
       createdBy.value = emp.createdBy || "";
       hrAssignmentAssignedTo.value = emp.hrAssignment.assignedTo;
-      hrAssignmentManagerEmail.value = emp.hrAssignment.managerEmail;
+      hrAssignmentManagerEmail.value =
+        emp.hrAssignment.managerEmail || undefined;
       hrAssignmentReviewComments.value = emp.hrAssignment.reviewComments || "";
     }
   }
@@ -1281,11 +1380,14 @@ const cancelEdit = () => {
 
 const resetForm = () => {
   resetVeeForm();
+  backendError.value = null; // Clear any backend errors
+  attemptedSave.value = false; // Clear any previous save attempts
 };
 
 const saveEmployee = async () => {
   isSaving.value = true;
   attemptedSave.value = true;
+  backendError.value = null; // Clear any previous backend errors
 
   try {
     if (isAddMode.value) {
@@ -1296,84 +1398,71 @@ const saveEmployee = async () => {
         return;
       }
 
-      // Add new employee
-      const employeeId = generateEmployeeId();
-
+      // Prepare employee data for backend (without _id and employeeId - backend generates those)
       const cleanedValues = {
         managerId: managerId.value || undefined,
         managerName: managerName.value || undefined,
         directReports: directReports.value || [],
-        organizationLevel: organizationLevel.value,
         costCenter: costCenter.value || undefined,
         businessUnit: businessUnit.value || undefined,
       };
 
-      const newEmployee: Employee = {
-        firstName: firstName.value,
-        lastName: lastName.value,
+      const newEmployee: Omit<Employee, "_id"> = {
+        firstName: firstName.value!,
+        lastName: lastName.value!,
         fullName: fullName.value,
-        personalEmail: personalEmail.value,
-        workEmail: workEmail.value,
-        phoneNumber: phoneNumber.value,
-        emergencyContactName: emergencyContactName.value,
-        emergencyContactPhone: emergencyContactPhone.value,
-        address: address.value,
-        city: city.value,
-        state: state.value,
-        country: country.value,
+        personalEmail: personalEmail.value!,
+        workEmail: workEmail.value!,
+        phoneNumber: phoneNumber.value!,
+        emergencyContactName: emergencyContactName.value!,
+        emergencyContactPhone: emergencyContactPhone.value!,
+        address: address.value!,
+        city: city.value!,
+        state: state.value!,
+        country: country.value!,
         dateOfBirth: dateOfBirth.value || undefined,
         socialSecurityNumber: socialSecurityNumber.value || undefined,
-        department: department.value,
-        position: position.value,
-        jobLevel: jobLevel.value,
-        employmentType: employmentType.value,
-        workLocation: workLocation.value,
+        department: department.value!,
+        position: position.value!,
+        jobLevel: jobLevel.value!,
+        employmentType: employmentType.value!,
+        workLocation: workLocation.value!,
         ...cleanedValues,
-        hireDate: hireDate.value,
+        hireDate: hireDate.value!,
         probationEndDate: probationEndDate.value || undefined,
-        salary: salary.value,
+        salary: salary.value!,
         currency: 1,
-        paygrade: paygrade.value,
-        benefitsEligible: benefitsEligible.value,
-        performanceRating: performanceRating.value,
-        trainingStatus: trainingStatus.value,
-        developmentNotes: developmentNotes.value,
+        paygrade: paygrade.value!,
+        benefitsEligible: benefitsEligible.value!,
+        performanceRating: performanceRating.value!,
+        trainingStatus: trainingStatus.value!,
+        developmentNotes: developmentNotes.value!,
         nextReviewDate: nextReviewDate.value || undefined,
-        status: status.value,
-        backgroundCheckStatus: backgroundCheckStatus.value,
+        status: status.value!,
+        backgroundCheckStatus: backgroundCheckStatus.value!,
         docType: "employee" as const,
-        source: source.value,
+        source: source.value!,
         sourceId: sourceId.value || undefined,
         createdBy: createdBy.value || undefined,
-        employeeId,
-        _id: `emp_${Date.now()}`,
-        createdOn: new Date().toISOString().split("T")[0],
-        updatedOn: new Date().toISOString().split("T")[0],
-        updatedAt: new Date().toISOString(),
-        lastProfileUpdate: new Date().toISOString().split("T")[0],
         hrAssignment: {
-          assignedTo: hrAssignmentAssignedTo.value,
-          managerEmail: hrAssignmentManagerEmail.value,
+          assignedTo: hrAssignmentAssignedTo.value!,
+          managerEmail: hrAssignmentManagerEmail.value || undefined,
           reviewComments: hrAssignmentReviewComments.value || undefined,
-          assignedDate: new Date().toISOString().split("T")[0],
         },
-        onboarding: {
-          author: createdBy.value || "hr_admin",
-          authorType: "HR",
-          eventDate: hireDate.value,
-          eventName: "Onboarding",
-          onboardingKey: `ONB_${Date.now()}`,
-        },
-      } as Employee;
+      };
 
-      appStore.addEmployee(newEmployee);
-      attemptedSave.value = false; // Clear the flag on successful save
-      router.push("/");
+      // Call the store method which handles API call and notifications
+      await appStore.addEmployee(newEmployee);
+
+      // Reset form after successful save
+      attemptedSave.value = false;
+      resetForm();
+
+      // Don't redirect - stay on the form so user can add another employee if needed
     } else if (isEditMode.value && employee.value) {
-      // Validate only the fields that are required and currently editable
-      const validationErrors = Object.keys(errors.value);
-      if (validationErrors.length > 0) {
-        console.log("Validation errors:", validationErrors, errors.value);
+      // Run schema validation so any invalid fields show errors in the UI
+      const { valid } = await validate();
+      if (!valid) {
         isSaving.value = false;
         return;
       }
@@ -1427,10 +1516,6 @@ const saveEmployee = async () => {
         managerName: managerName.value || employee.value.managerName,
         directReports:
           directReports.value || employee.value.directReports || [],
-        organizationLevel:
-          organizationLevel.value !== undefined
-            ? organizationLevel.value
-            : employee.value.organizationLevel,
         costCenter: costCenter.value || employee.value.costCenter,
         businessUnit: businessUnit.value || employee.value.businessUnit,
         probationEndDate:
@@ -1452,12 +1537,44 @@ const saveEmployee = async () => {
         },
       };
 
-      appStore.updateEmployee(updatedEmployee);
+      // Call the store method which handles API call and notifications
+      await appStore.updateEmployee(updatedEmployee);
+
       attemptedSave.value = false; // Clear the flag on successful save
       isFormEditable.value = false;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving employee:", error);
+
+    // Extract user-friendly error message
+    if (
+      error.message?.includes("duplicate key") ||
+      error.message?.includes("E11000")
+    ) {
+      if (error.message?.includes("workEmail")) {
+        backendError.value =
+          "This work email is already registered in the system. Please use a different email address.";
+      } else if (error.message?.includes("personalEmail")) {
+        backendError.value =
+          "This personal email is already registered in the system. Please use a different email address.";
+      } else if (error.message?.includes("employeeId")) {
+        backendError.value =
+          "This employee ID is already in use. Please contact your administrator.";
+      } else {
+        backendError.value =
+          "This employee record already exists in the system. Please check for duplicate entries.";
+      }
+    } else if (error.message && !error.message.includes("Failed to")) {
+      backendError.value = error.message;
+    } else {
+      backendError.value =
+        "An unexpected error occurred while saving. Please try again or contact support if the problem persists.";
+    }
+
+    // Scroll to top to see the error alert
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Don't clear attemptedSave so the error summary stays visible
   } finally {
     isSaving.value = false;
   }

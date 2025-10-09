@@ -12,7 +12,7 @@
           Comprehensive employee data analytics and insights
         </p>
       </v-card-subtitle>
-      <v-divider class="mt-4 divider-gradient" />
+      <v-divider class="mt-4" />
     </v-card>
 
     <!-- Loading State -->
@@ -265,15 +265,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAppStore } from "../stores/app";
-import dayjs from "dayjs";
 import DepartmentDistributionChart from "../components/charts/DepartmentDistributionChart.vue";
 import EmploymentStatusChart from "../components/charts/EmploymentStatusChart.vue";
 import SalaryDistributionChart from "../components/charts/SalaryDistributionChart.vue";
 import JobLevelChart from "../components/charts/JobLevelChart.vue";
 import HiringTrendsChart from "../components/charts/HiringTrendsChart.vue";
-
-const appStore = useAppStore();
 
 // Reactive data
 const loading = ref(true);
@@ -321,135 +317,12 @@ const analytics = ref<AnalyticsData>({
 const loadAnalyticsData = async () => {
   try {
     loading.value = true;
-
-    const employees = appStore.employees;
-    const activeEmployees = employees.filter((emp) => emp.status === "Active");
-
-    // Basic counts
-    analytics.value.totalEmployees = employees.length;
-    analytics.value.activeEmployees = activeEmployees.length;
-    analytics.value.totalDepartments = [
-      ...new Set(employees.map((emp) => emp.department)),
-    ].length;
-
-    // Average salary (active employees only)
-    const totalSalary = activeEmployees.reduce(
-      (sum, emp) => sum + emp.salary,
-      0
-    );
-    analytics.value.averageSalary =
-      activeEmployees.length > 0 ? totalSalary / activeEmployees.length : 0;
-
-    // Department distribution
-    const deptCounts = activeEmployees.reduce((acc, emp) => {
-      acc[emp.department] = (acc[emp.department] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    analytics.value.departmentDistribution = Object.entries(deptCounts)
-      .map(([name, count]) => ({
-        name,
-        count,
-        percentage: Math.round((count / activeEmployees.length) * 100),
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    // Status distribution
-    const statusCounts = employees.reduce((acc, emp) => {
-      acc[emp.status] = (acc[emp.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    analytics.value.statusDistribution = Object.entries(statusCounts).map(
-      ([status, count]) => ({
-        status,
-        count,
-        percentage: Math.round((count / employees.length) * 100),
-      })
-    );
-
-    // Salary by department
-    analytics.value.salaryByDepartment = Object.entries(deptCounts)
-      .map(([department, count]) => {
-        const deptEmployees = activeEmployees.filter(
-          (emp) => emp.department === department
-        );
-        const avgSalary =
-          deptEmployees.reduce((sum, emp) => sum + emp.salary, 0) / count;
-        return {
-          department,
-          averageSalary: Math.round(avgSalary),
-          count,
-        };
-      })
-      .sort((a, b) => b.averageSalary - a.averageSalary);
-
-    // Job level distribution
-    const levelCounts = activeEmployees.reduce((acc, emp) => {
-      acc[emp.jobLevel] = (acc[emp.jobLevel] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    analytics.value.jobLevelDistribution = Object.entries(levelCounts)
-      .map(([level, count]) => ({
-        level,
-        count,
-        percentage: Math.round((count / activeEmployees.length) * 100),
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    // Hiring trends (last 12 months)
-    const hiringTrends: Record<string, number> = {};
-    for (let i = 11; i >= 0; i--) {
-      const month = dayjs().subtract(i, "month").format("YYYY-MM");
-      hiringTrends[month] = 0;
+    const response = await fetch("/api/analytics/dashboard");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    employees.forEach((emp) => {
-      const hireMonth = dayjs(emp.hireDate).format("YYYY-MM");
-      if (hiringTrends.hasOwnProperty(hireMonth)) {
-        hiringTrends[hireMonth]++;
-      }
-    });
-
-    analytics.value.hiringTrends = Object.entries(hiringTrends).map(
-      ([month, hires]) => ({
-        month: dayjs(month).format("MMM YYYY"),
-        hires,
-      })
-    );
-
-    // Recent hires (last 30 days)
-    const thirtyDaysAgo = dayjs().subtract(30, "day");
-    analytics.value.recentHires = employees
-      .filter((emp) => dayjs(emp.hireDate).isAfter(thirtyDaysAgo))
-      .map((emp) => ({
-        id: emp._id || "",
-        name: emp.fullName,
-        department: emp.department,
-        hireDate: dayjs(emp.hireDate).format("MMM DD, YYYY"),
-      }))
-      .sort(
-        (a, b) => dayjs(b.hireDate).valueOf() - dayjs(a.hireDate).valueOf()
-      );
-
-    // Top departments
-    analytics.value.topDepartments =
-      analytics.value.departmentDistribution.slice(0, 5);
-
-    // Employment types
-    const typeCounts = activeEmployees.reduce((acc, emp) => {
-      acc[emp.employmentType] = (acc[emp.employmentType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    analytics.value.employmentTypes = Object.entries(typeCounts)
-      .map(([type, count]) => ({
-        type,
-        count,
-        percentage: Math.round((count / activeEmployees.length) * 100),
-      }))
-      .sort((a, b) => b.count - a.count);
+    const data = await response.json();
+    analytics.value = data;
   } catch (error) {
     console.error("Error loading analytics data:", error);
   } finally {

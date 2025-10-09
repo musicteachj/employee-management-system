@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: employee_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/employee-management-system}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_NAME=${DATABASE_NAME:-employee-management-system}
+    volumes:
+      - ./server:/app
+      - /app/__pycache__

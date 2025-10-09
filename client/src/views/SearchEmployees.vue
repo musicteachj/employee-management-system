@@ -10,7 +10,7 @@
           Use the filters below to search for employees across all fields
         </p>
       </v-card-subtitle>
-      <v-divider class="mb-4 divider-gradient" />
+      <v-divider class="mb-4" />
 
       <!-- Search Form -->
       <v-form @submit.prevent="performSearch">
@@ -25,6 +25,7 @@
               clearable
               prepend-inner-icon="mdi-account-search"
               hint="Search by first name, last name, or full name"
+              color="primary"
             />
           </v-col>
 
@@ -37,6 +38,7 @@
               density="compact"
               clearable
               prepend-inner-icon="mdi-office-building"
+              color="primary"
             />
           </v-col>
 
@@ -48,6 +50,7 @@
               density="compact"
               clearable
               prepend-inner-icon="mdi-briefcase"
+              color="primary"
             />
           </v-col>
 
@@ -60,6 +63,7 @@
               density="compact"
               clearable
               prepend-inner-icon="mdi-account-check"
+              color="primary"
             />
           </v-col>
 
@@ -74,6 +78,7 @@
               density="compact"
               clearable
               prepend-inner-icon="mdi-account-supervisor"
+              color="primary"
             />
           </v-col>
 
@@ -86,6 +91,7 @@
               density="compact"
               clearable
               prepend-inner-icon="mdi-card-account-details"
+              color="primary"
             />
           </v-col>
 
@@ -112,6 +118,7 @@
               :loading="searching"
               :disabled="!hasValidInput"
               size="large"
+              class="mr-3"
             >
               Search Employees
             </v-btn>
@@ -122,13 +129,14 @@
               prepend-icon="mdi-refresh"
               @click="clearSearch"
               size="large"
+              class="mr-3"
             >
               Clear All
             </v-btn>
 
             <v-btn
               v-if="searchResults.length > 0"
-              color="success"
+              color="secondary"
               variant="outlined"
               prepend-icon="mdi-download"
               @click="exportResults"
@@ -188,6 +196,7 @@
 import { ref, computed, reactive, onMounted } from "vue";
 import { useAppStore } from "../stores/app";
 import DataTable from "../components/DataTable.vue";
+import { exportToExcel } from "../modules/genericHelper";
 import type { Employee, EmploymentType, ActiveStatus } from "../types";
 
 const appStore = useAppStore();
@@ -327,8 +336,17 @@ const clearSearch = () => {
 };
 
 const exportResults = () => {
-  // TODO: Implement CSV export functionality
-  console.log("Exporting search results:", searchResults.value);
+  if (searchResults.value.length === 0) {
+    console.warn("No search results to export");
+    return;
+  }
+
+  // Export only the columns displayed in the table
+  exportToExcel(
+    searchResults.value,
+    tableColumns.value,
+    "employee_search_results"
+  );
 };
 
 // Load initial data on mount
@@ -351,29 +369,19 @@ onMounted(async () => {
 }
 
 /* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
-}
 
 /* Form field enhancements */
-:deep(.v-field__outline) {
+::deep(.v-field__outline) {
   --v-field-border-opacity: 0.3;
 }
 
-:deep(.v-field--focused .v-field__outline) {
+::deep(.v-field--focused .v-field__outline) {
   --v-field-border-opacity: 1;
   border-width: 2px;
 }
 
-:deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+::deep(.v-field__input) {
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 

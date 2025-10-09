@@ -69,6 +69,34 @@ const sourceSchema = z.enum([
 // Define benefits eligible schema
 const benefitsEligibleSchema = z.enum(["Yes", "No"] as const);
 
+// Define business unit schema
+const businessUnitSchema = z.enum([
+  "Technology",
+  "Operations",
+  "Revenue",
+  "Executive",
+] as const);
+
+const costCenterSchema = z.enum([
+  "ENG-000",
+  "ENG-001",
+  "ENG-002",
+  "MKT-000",
+  "MKT-001",
+  "MKT-002",
+  "OPS-000",
+  "OPS-001",
+  "FIN-000",
+  "FIN-001",
+  "SAL-000",
+  "SAL-001",
+  "DES-001",
+  "PRD-000",
+  "PRD-001",
+  "EXE-000",
+  "HR-000",
+] as const);
+
 // HR Assignment schema
 const hrAssignmentSchema = z.object({
   assignedTo: z
@@ -78,8 +106,8 @@ const hrAssignmentSchema = z.object({
   managerEmail: z
     .string()
     .email("Please enter a valid email address")
-    .min(1, "Manager Email is required")
-    .max(100, "Manager Email must be less than 100 characters"),
+    .max(100, "Manager Email must be less than 100 characters")
+    .optional(),
   reviewComments: z
     .string()
     .max(500, "Review Comments must be less than 500 characters")
@@ -217,17 +245,9 @@ export const addEmployeeSchema = z.object({
 
   directReports: z.array(z.string()).optional(),
 
-  organizationLevel: z.number().min(0).max(10).optional(),
+  costCenter: costCenterSchema.optional(),
 
-  costCenter: z
-    .string()
-    .max(50, "Cost Center must be less than 50 characters")
-    .optional(),
-
-  businessUnit: z
-    .string()
-    .max(100, "Business Unit must be less than 100 characters")
-    .optional(),
+  businessUnit: businessUnitSchema.optional(),
 
   probationEndDate: z.string().optional(),
 
@@ -290,5 +310,7 @@ export {
   backgroundCheckStatusSchema,
   sourceSchema,
   benefitsEligibleSchema,
+  businessUnitSchema,
   hrAssignmentSchema,
+  costCenterSchema,
 };

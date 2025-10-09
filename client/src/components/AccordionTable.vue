@@ -8,7 +8,7 @@
         {{ subtitle }}
       </p>
     </v-card-subtitle>
-    <v-divider class="mb-4 divider-gradient" />
+    <v-divider class="mb-4" />
     <v-text-field
       v-if="enableSearch"
       v-model="search"
@@ -27,25 +27,27 @@
     <BulkActionsToolbar
       v-if="enableActions"
       :selected-items="appStore.selectedEmployees"
+      :items="items"
       :actions="actions"
+      @exportData="exportData"
     />
 
     <v-data-table
       :loading="loading"
       :loading-text="loadingText"
       :headers="computedHeaders"
-      :items="groupedData"
+      :items="groupedTableFilteredData"
       density="compact"
       show-expand
       item-value="groupedBy"
       v-model:expanded="expandedRows"
-      :hide-default-footer="groupedData.length < 11"
+      :hide-default-footer="groupedTableFilteredData.length < 11"
       class="elevation-0 rounded-lg accordion-data-table"
       hover
       @update:expanded="handleExpansionUpdate"
     >
       <template v-slot:expanded-row="{ columns, item }">
-        <td :colspan="columns.length" style="background-color: #ebf5f0">
+        <td :colspan="columns.length" style="background-color: #e6f2f0">
           <v-card class="pa-4" flat color="transparent">
             <DataTable
               :items="item.items"
@@ -78,7 +80,7 @@ import type {
   ActionType,
 } from "../types";
 import DataTable from "./DataTable.vue";
-import { applyGroupTableFilter } from "../modules/genericHelper";
+import { applyGroupTableFilter, exportToExcel } from "../modules/genericHelper";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useDialogStore } from "../stores/dialog";
 import { useAppStore } from "../stores/app";
@@ -97,7 +99,6 @@ const props = defineProps<{
   enableExport: boolean;
   enableOpenRecord: boolean;
   enableSelect: boolean;
-  enableOtherGroupings: boolean;
   tableColumns: string[];
   groupByInfo: GroupByInfo;
   tableActions: ActionType[];
@@ -114,7 +115,6 @@ const {
   enableExport,
   enableOpenRecord,
   enableSelect,
-  enableOtherGroupings,
   tableColumns,
   groupByInfo,
   tableActions,
@@ -161,14 +161,18 @@ const groupedData = computed(() => {
     items,
     count: items.length,
   }));
+  return assignedData;
+});
+
+const groupedTableFilteredData = computed(() => {
   if (search.value) {
-    assignedData = applyGroupTableFilter(
+    return applyGroupTableFilter(
       search.value,
-      assignedData,
+      groupedData.value,
       tableColumns.value
     );
   }
-  return assignedData;
+  return groupedData.value;
 });
 
 const actions = computed(() => {
@@ -187,6 +191,14 @@ const handleExpansionUpdate = (expanded: string[]) => {
     expandedRows.value = expanded;
   }
 };
+
+const exportData = () => {
+  exportToExcel(
+    groupedData.value.map((item) => item.items).flat(),
+    tableColumns.value,
+    `export_${title.value}`
+  );
+};
 </script>
 
 <style scoped>
@@ -203,16 +215,6 @@ const handleExpansionUpdate = (expanded: string[]) => {
 }
 
 /* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
-}
 
 /* Search field enhancements */
 .search-field {
@@ -229,7 +231,7 @@ const handleExpansionUpdate = (expanded: string[]) => {
 }
 
 .search-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 
@@ -238,27 +240,28 @@ const handleExpansionUpdate = (expanded: string[]) => {
   background: transparent;
 }
 
-/* Table headers with enhanced styling */
-:deep(.v-data-table-header__content) {
-  font-weight: 700;
-  color: #1976d2;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
+/* Table headers with enhanced styling (scoped) */
+:deep(.v-data-table-header__content),
+:deep(.v-data-table-column__sort) {
+  font-weight: 700 !important;
+  color: var(--color-secondary) !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
 }
 
+:deep(.v-data-table thead th),
 :deep(.v-data-table__th) {
   background: #f5f7fa !important;
-  border-bottom: 2px solid #1976d2;
 }
 
 /* Row hover effects */
 :deep(.v-data-table__tr:hover) {
   background: linear-gradient(
     135deg,
-    rgba(25, 118, 210, 0.04) 0%,
-    rgba(25, 118, 210, 0.08) 100%
-  );
+    rgba(var(--color-primary-rgb), 0.04) 0%,
+    rgba(var(--color-primary-rgb), 0.08) 100%
+  ) !important;
   transform: scale(1.005);
   transition: all 0.2s ease;
 }
@@ -275,12 +278,12 @@ const handleExpansionUpdate = (expanded: string[]) => {
 
 /* Expand button styling */
 :deep(.v-data-table__expand-icon) {
-  color: #1976d2;
+  color: var(--color-primary);
   transition: all 0.3s ease;
 }
 
 :deep(.v-data-table__expand-icon:hover) {
-  color: #1565c0;
+  color: var(--color-info);
   transform: scale(1.1);
 }
 
@@ -292,7 +295,7 @@ const handleExpansionUpdate = (expanded: string[]) => {
 /* Footer styling */
 :deep(.v-data-table-footer) {
   background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(25, 118, 210, 0.2);
+  border-top: 1px solid rgba(var(--color-primary-rgb), 0.2);
   border-radius: 0 0 12px 12px;
 }
 
@@ -302,18 +305,22 @@ const handleExpansionUpdate = (expanded: string[]) => {
 }
 
 :deep(.v-pagination__item:hover) {
-  background: rgba(25, 118, 210, 0.1);
+  background: rgba(var(--color-primary-rgb), 0.1);
   transform: scale(1.05);
 }
 
 :deep(.v-pagination__item--is-active) {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-info) 100%
+  );
   color: white;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
 }
 
 /* Loading state styling */
 :deep(.v-data-table__loading) {
-  background: rgba(25, 118, 210, 0.02);
+  background: rgba(var(--color-primary-rgb), 0.02);
 }
 </style>

@@ -4,7 +4,6 @@
       <v-card-title class="text-h6 pb-2 text-primary font-weight-bold">
         Performance Trends Over Time
       </v-card-title>
-      <v-divider class="mb-4 divider-gradient" />
       <div class="chart-wrapper" style="position: relative; height: 300px">
         <Line :data="chartData" :options="chartOptions" />
       </div>
@@ -24,6 +23,7 @@ import {
   CategoryScale,
   LinearScale,
   PointElement,
+  Filler,
 } from "chart.js";
 
 // Register Chart.js components
@@ -34,7 +34,8 @@ ChartJS.register(
   LineElement,
   CategoryScale,
   LinearScale,
-  PointElement
+  PointElement,
+  Filler
 );
 
 interface PerformanceTrend {
@@ -49,17 +50,22 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const css = getComputedStyle(document.documentElement);
+const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
+const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+
 const chartData = computed(() => ({
   labels: props.performanceTrends.map((trend) => trend.period),
   datasets: [
     {
       label: "Average Rating",
       data: props.performanceTrends.map((trend) => trend.averageRating),
-      borderColor: "#2196F3",
-      backgroundColor: "rgba(33, 150, 243, 0.1)",
+      borderColor: info,
+      backgroundColor: `${info}1A`,
       borderWidth: 3,
-      pointBackgroundColor: "#2196F3",
-      pointBorderColor: "#1976D2",
+      pointBackgroundColor: info,
+      pointBorderColor: primary,
       pointBorderWidth: 2,
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -70,11 +76,11 @@ const chartData = computed(() => ({
     {
       label: "Review Count",
       data: props.performanceTrends.map((trend) => trend.reviewCount),
-      borderColor: "#4CAF50",
-      backgroundColor: "rgba(76, 175, 80, 0.1)",
+      borderColor: success,
+      backgroundColor: `${success}1A`,
       borderWidth: 3,
-      pointBackgroundColor: "#4CAF50",
-      pointBorderColor: "#388E3C",
+      pointBackgroundColor: success,
+      pointBorderColor: primary,
       pointBorderWidth: 2,
       pointRadius: 6,
       pointHoverRadius: 8,
@@ -107,7 +113,7 @@ const chartOptions = computed(() => ({
       backgroundColor: "rgba(0, 0, 0, 0.8)",
       titleColor: "#fff",
       bodyColor: "#fff",
-      borderColor: "#ddd",
+      borderColor: primary,
       borderWidth: 1,
       callbacks: {
         label: (context: any) => {
@@ -143,7 +149,7 @@ const chartOptions = computed(() => ({
       title: {
         display: true,
         text: "Average Rating",
-        color: "#2196F3",
+        color: info,
         font: {
           size: 14,
           weight: "bold" as const,
@@ -166,7 +172,7 @@ const chartOptions = computed(() => ({
       title: {
         display: true,
         text: "Review Count",
-        color: "#4CAF50",
+        color: success,
         font: {
           size: 14,
           weight: "bold" as const,
@@ -199,18 +205,6 @@ const chartOptions = computed(() => ({
 .chart-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
 }
 
 .chart-wrapper {

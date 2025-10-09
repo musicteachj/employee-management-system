@@ -95,6 +95,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
+import { useNotificationStore } from "../../../stores/notification";
 import type { Manager } from "../../../types";
 import {
   assignManagerSchema,
@@ -106,6 +107,7 @@ import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
+const notificationStore = useNotificationStore();
 const { selectedEmployees, today } = useBulkDialogForm();
 
 // Form validation schema imported from schemas/manager.ts
@@ -153,7 +155,7 @@ const assignManager = async () => {
   try {
     // Check if there are selected employees
     if (selectedEmployees.value.length === 0) {
-      console.error("No employees selected");
+      notificationStore.showError("No employees selected");
       isAssigning.value = false;
       return;
     }
@@ -161,6 +163,7 @@ const assignManager = async () => {
     // Validate the form
     const { valid } = await validate();
     if (!valid) {
+      notificationStore.showWarning("Please fill in all required fields");
       isAssigning.value = false;
       return;
     }
@@ -170,7 +173,7 @@ const assignManager = async () => {
       (m: Manager) => m.id === selectedManagerId.value
     );
     if (!selectedManager) {
-      console.error("Selected manager not found");
+      notificationStore.showError("Selected manager not found");
       isAssigning.value = false;
       return;
     }
@@ -179,11 +182,16 @@ const assignManager = async () => {
     const employeeIds = selectedEmployees.value
       .map((emp) => emp._id)
       .filter((id) => id) as string[];
-    appStore.bulkAssignManager(
+    await appStore.bulkAssignManager(
       employeeIds,
       selectedManager.id,
       effectiveDate.value || new Date().toISOString().split("T")[0],
       assignmentNotes.value || ""
+    );
+
+    // Show success message
+    notificationStore.showSuccess(
+      `Successfully assigned ${selectedEmployees.value.length} employee(s) to ${selectedManager.name}`
     );
 
     // Close the dialog and reset form
@@ -191,6 +199,9 @@ const assignManager = async () => {
     resetForm();
   } catch (error) {
     console.error("Error assigning manager:", error);
+    notificationStore.showError(
+      error instanceof Error ? error.message : "Failed to assign manager"
+    );
   } finally {
     isAssigning.value = false;
   }

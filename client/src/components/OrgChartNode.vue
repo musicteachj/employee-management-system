@@ -154,12 +154,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import dayjs from "dayjs";
-import type {
-  Employee,
-  JobLevel,
-  ActiveStatus,
-  EmploymentType,
-} from "../types";
+import type { Employee, JobLevel } from "../types";
 
 interface Props {
   employee: Employee & { children?: Employee[] };
@@ -278,27 +273,6 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
   };
   return colorMap[jobLevel] || "grey";
 };
-
-const getStatusColor = (status: ActiveStatus): string => {
-  const colorMap: Record<ActiveStatus, string> = {
-    Active: "success",
-    Inactive: "grey",
-    "On Leave": "warning",
-    Terminated: "error",
-  };
-  return colorMap[status] || "grey";
-};
-
-const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
-  const colorMap: Record<EmploymentType, string> = {
-    "Full-time": "primary",
-    "Part-time": "info",
-    Contract: "warning",
-    Intern: "success",
-    Temporary: "secondary",
-  };
-  return colorMap[employmentType] || "grey";
-};
 </script>
 
 <style scoped>
@@ -328,9 +302,9 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   content: "";
   position: absolute;
   width: 3px;
-  height: 24px;
-  background-color: #1976d2;
-  top: -24px;
+  height: 28px;
+  background-color: var(--color-primary);
+  top: -28px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 2px;
@@ -346,9 +320,9 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   content: "";
   position: absolute;
   width: 3px;
-  height: 34px;
-  background-color: #1976d2;
-  bottom: -36px;
+  height: 40px;
+  background-color: var(--color-primary);
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 2px;
@@ -359,13 +333,13 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 .employee-card:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  border-color: rgba(25, 118, 210, 0.3);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
 }
 
 .employee-card.highlighted {
-  border-color: #1976d2;
+  border-color: var(--color-primary);
   background: linear-gradient(135deg, #e3f2fd 0%, #f8fafc 100%);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+  box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .employee-avatar {
@@ -385,7 +359,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 
 /* Connection lines */
 .connection-line {
-  background-color: #1976d2;
+  background-color: var(--color-primary);
   position: absolute;
   z-index: 1;
   opacity: 0.6;
@@ -404,7 +378,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 /* Children container */
 .children-container {
   position: relative;
-  margin-top: 30px;
+  margin-top: 20px;
   width: 100%;
   overflow-x: visible;
   padding: 0 20px;
@@ -416,7 +390,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
   justify-content: center;
   gap: 25px;
   flex-wrap: nowrap;
-  margin-top: 24px;
+  margin-top: 28px;
   align-items: flex-start;
   min-width: fit-content;
   padding: 0 20px;
@@ -521,13 +495,13 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 /* Animation for highlighting */
 @keyframes highlight-pulse {
   0% {
-    box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
   }
   50% {
-    box-shadow: 0 12px 35px rgba(25, 118, 210, 0.4);
+    box-shadow: 0 12px 35px rgba(var(--color-primary-rgb), 0.4);
   }
   100% {
-    box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
   }
 }
 
@@ -536,7 +510,7 @@ const getEmploymentTypeColor = (employmentType: EmploymentType): string => {
 }
 
 /* Chip styling enhancements */
-:deep(.v-chip) {
+::deep(.v-chip) {
   font-weight: 600;
   letter-spacing: 0.5px;
 }

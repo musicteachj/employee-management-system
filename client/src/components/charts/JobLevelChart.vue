@@ -39,15 +39,20 @@ const props = defineProps<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: ChartJS | null = null;
 
+const css = getComputedStyle(document.documentElement);
+const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
+const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+
 const levelColors: Record<string, string> = {
-  Entry: "#4caf50",
-  Mid: "#2196f3",
-  Senior: "#ff9800",
-  Lead: "#9c27b0",
-  Manager: "#f44336",
-  Director: "#795548",
-  VP: "#607d8b",
-  "C-Level": "#e91e63",
+  Entry: success,
+  Mid: info,
+  Senior: "#ffb74d",
+  Lead: "#5e35b1",
+  Manager: "#ef5350",
+  Director: "#8d6e63",
+  VP: "#90a4ae",
+  "C-Level": "#26c6da",
 };
 
 const createChart = () => {
@@ -112,7 +117,7 @@ const createChart = () => {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          borderColor: "#1976d2",
+          borderColor: primary,
           borderWidth: 1,
           cornerRadius: 8,
           displayColors: false,
@@ -148,7 +153,7 @@ const createChart = () => {
           ticks: {
             font: {
               size: 12,
-              weight: "500",
+              weight: 500,
             },
           },
         },

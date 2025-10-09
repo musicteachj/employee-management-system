@@ -4,7 +4,6 @@
       <v-card-title class="text-h6 pb-2 text-primary font-weight-bold">
         Performance Rating Distribution
       </v-card-title>
-      <v-divider class="mb-4 divider-gradient" />
       <div class="chart-wrapper" style="position: relative; height: 300px">
         <Doughnut
           :data="chartData"
@@ -46,9 +45,24 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const css = getComputedStyle(document.documentElement);
+// const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
+const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+const warning = css.getPropertyValue("--color-warning").trim() || "#ff9800";
+const error = css.getPropertyValue("--color-error").trim() || "#f44336";
+
 const chartData = computed(() => {
   const labels = Object.keys(props.ratingDistribution) as PerformanceRating[];
   const data = Object.values(props.ratingDistribution);
+
+  const palette = [
+    success, // Exceeds Expectations
+    info, // Meets Expectations
+    warning, // Needs Improvement
+    error, // Unsatisfactory
+    "#90a4ae", // Unrated - Gray
+  ];
 
   return {
     labels: labels.filter((_, index) => data[index] > 0), // Only show labels with data
@@ -56,20 +70,11 @@ const chartData = computed(() => {
       {
         label: "Employees",
         data: data.filter((value) => value > 0), // Only show data points > 0
-        backgroundColor: [
-          "#4CAF50", // Exceeds Expectations - Green
-          "#2196F3", // Meets Expectations - Blue
-          "#FF9800", // Needs Improvement - Orange
-          "#F44336", // Unsatisfactory - Red
-          "#9E9E9E", // Unrated - Gray
-        ].slice(0, data.filter((value) => value > 0).length),
-        borderColor: [
-          "#388E3C",
-          "#1976D2",
-          "#F57C00",
-          "#D32F2F",
-          "#616161",
-        ].slice(0, data.filter((value) => value > 0).length),
+        backgroundColor: palette.slice(0, data.filter((v) => v > 0).length),
+        borderColor: ["#388E3C", info, "#F57C00", "#D32F2F", "#616161"].slice(
+          0,
+          data.filter((v) => v > 0).length
+        ),
         borderWidth: 2,
         hoverOffset: 4,
       },
@@ -159,18 +164,6 @@ const chartPlugins = computed(() => [
 .chart-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
 }
 
 .chart-wrapper {

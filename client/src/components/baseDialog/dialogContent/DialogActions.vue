@@ -14,6 +14,7 @@
       :loading="loading"
       :disabled="disabled"
       @click="onSubmit"
+      class="ml-3"
     >
       <v-icon class="mr-2" size="small" :icon="submitIcon" />
       {{ submitText }}
@@ -22,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   loading: boolean;
   disabled: boolean;
   submitText: string;

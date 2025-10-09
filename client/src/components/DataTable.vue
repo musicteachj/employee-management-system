@@ -8,7 +8,7 @@
         {{ subtitle }}
       </p>
     </v-card-subtitle>
-    <v-divider v-if="showTitles" class="mb-4 divider-gradient" />
+    <v-divider v-if="showTitles" class="mb-4" />
     <v-text-field
       v-if="enableSearch"
       v-model="search"
@@ -26,7 +26,9 @@
     <BulkActionsToolbar
       v-if="enableActions"
       :selected-items="selectedItems"
+      :items="items"
       :actions="actions"
+      @exportData="exportData"
     />
 
     <v-data-table
@@ -38,19 +40,15 @@
       :items-per-page="10"
       :items-per-page-options="[5, 10, 25, 50]"
       :hide-default-footer="filteredItems.length < 11"
+      :loading="loading"
+      :loading-text="loadingText"
       hover
       v-model="selectedItems"
       item-value="_id"
       return-object
     >
       <template v-slot:item.actions="{ item }">
-        <v-btn
-          icon
-          size="small"
-          variant="text"
-          class="action-btn"
-          @click="viewRecord(item)"
-        >
+        <v-btn icon size="small" variant="text" @click="viewRecord(item)">
           <v-icon icon="mdi-eye" color="primary" />
           <v-tooltip activator="parent" location="top">
             View Details
@@ -68,6 +66,7 @@ import type { Employee, ActionType } from "../types";
 import { useDialogStore } from "../stores/dialog";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useAppStore } from "../stores/app";
+import { exportToExcel } from "../modules/genericHelper";
 const appStore = useAppStore();
 const dialogStore = useDialogStore();
 const router = useRouter();
@@ -91,6 +90,8 @@ const {
   items,
   title,
   subtitle,
+  loading,
+  loadingText,
   enableSearch,
   enableOpenRecord,
   enableActions,
@@ -171,6 +172,10 @@ const actions = computed(() => {
   return dialogStore.getActions(props.tableActions);
 });
 
+const exportData = () => {
+  exportToExcel(items.value, tableColumns.value, `export_${title.value}`);
+};
+
 // Clear selections when underlying items set changes
 watch(
   () => items.value,
@@ -198,16 +203,6 @@ watch(
 }
 
 /* Enhanced divider with gradient */
-.divider-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #1976d2 50%,
-    transparent 100%
-  );
-  height: 2px;
-  border: none;
-}
 
 /* Search field enhancements */
 .search-field {
@@ -224,7 +219,7 @@ watch(
 }
 
 .search-field :deep(.v-field__input) {
-  background: rgba(25, 118, 210, 0.02);
+  background: rgba(var(--color-primary-rgb), 0.02);
   border-radius: 8px;
 }
 
@@ -233,27 +228,28 @@ watch(
   background: transparent;
 }
 
-/* Table headers with enhanced styling */
-:deep(.v-data-table-header__content) {
-  font-weight: 700;
-  color: #1976d2;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
+/* Table headers with enhanced styling (scoped) */
+:deep(.v-data-table-header__content),
+:deep(.v-data-table-column__sort) {
+  font-weight: 700 !important;
+  color: var(--color-secondary) !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
 }
 
+:deep(.v-data-table thead th),
 :deep(.v-data-table__th) {
   background: #f5f7fa !important;
-  border-bottom: 2px solid #1976d2;
 }
 
 /* Row hover effects */
 :deep(.v-data-table__tr:hover) {
   background: linear-gradient(
     135deg,
-    rgba(25, 118, 210, 0.04) 0%,
-    rgba(25, 118, 210, 0.08) 100%
-  );
+    rgba(var(--color-primary-rgb), 0.04) 0%,
+    rgba(var(--color-primary-rgb), 0.08) 100%
+  ) !important;
   transform: scale(1.005);
   transition: all 0.2s ease;
 }
@@ -268,30 +264,10 @@ watch(
   background: rgba(248, 250, 252, 0.5);
 }
 
-/* Action button styling */
-.action-btn {
-  transition: all 0.3s ease;
-  border-radius: 50%;
-}
-
-.action-btn:hover {
-  background: rgba(25, 118, 210, 0.1);
-  transform: scale(1.1);
-}
-
-.action-btn :deep(.v-icon) {
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover :deep(.v-icon) {
-  transform: scale(1.2);
-  color: #1565c0;
-}
-
 /* Footer styling */
 :deep(.v-data-table-footer) {
   background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(25, 118, 210, 0.2);
+  border-top: 1px solid rgba(var(--color-primary-rgb), 0.2);
   border-radius: 0 0 12px 12px;
 }
 
@@ -301,13 +277,17 @@ watch(
 }
 
 :deep(.v-pagination__item:hover) {
-  background: rgba(25, 118, 210, 0.1);
+  background: rgba(var(--color-primary-rgb), 0.1);
   transform: scale(1.05);
 }
 
 :deep(.v-pagination__item--is-active) {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-info) 100%
+  );
   color: white;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
 }
 </style>

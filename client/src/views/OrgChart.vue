@@ -13,7 +13,7 @@
           relationships
         </p>
       </v-card-subtitle>
-      <v-divider class="mt-4 divider-gradient" />
+      <v-divider class="mt-4" />
     </v-card>
 
     <!-- Loading State -->
@@ -163,7 +163,6 @@
             Organizational Hierarchy
           </h5>
         </v-card-title>
-        <v-divider class="mb-4 divider-gradient" />
 
         <div class="org-chart-container">
           <div v-if="filteredOrgChart.length === 0" class="text-center pa-8">
@@ -252,12 +251,9 @@ const orgChart = computed<EmployeeNode[]>(() => {
   };
 
   const compareNodes = (a: EmployeeNode, b: EmployeeNode) => {
-    const aRank = (a.organizationLevel ??
-      jobLevelRank[a.jobLevel] ??
-      999) as number;
-    const bRank = (b.organizationLevel ??
-      jobLevelRank[b.jobLevel] ??
-      999) as number;
+    // Sort by job level rank
+    const aRank = jobLevelRank[a.jobLevel] ?? 999;
+    const bRank = jobLevelRank[b.jobLevel] ?? 999;
     if (aRank !== bRank) return aRank - bRank;
     if (a.department !== b.department)
       return a.department.localeCompare(b.department);

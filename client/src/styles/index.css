@@ -1,5 +1,28 @@
 /* Main styles entry point */
+
+/* Import all component styles first - @import must precede all other statements */
 @import "./cards.css";
 @import "./forms.css";
 @import "./components.css";
 @import "./utilities.css";
+
+/* Theme variables aligned with Vuetify teal theme */
+:root {
+  /* Base hex colors */
+  --color-primary: #00897b; /* Teal */
+  --color-secondary: #37474f; /* Dark blue-gray */
+  --color-accent: #26c6da; /* Light cyan */
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+  --color-info: #1565c0;
+  --color-success: #4caf50;
+
+  /* RGB triplets for alpha usage */
+  --color-primary-rgb: 0, 137, 123;
+  --color-secondary-rgb: 55, 71, 79;
+  --color-accent-rgb: 38, 198, 218;
+  --color-error-rgb: 244, 67, 54;
+  --color-warning-rgb: 255, 152, 0;
+  --color-info-rgb: 21, 101, 192;
+  --color-success-rgb: 76, 175, 80;
+}

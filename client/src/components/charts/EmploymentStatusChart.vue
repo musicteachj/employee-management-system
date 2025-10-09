@@ -29,12 +29,19 @@ const props = defineProps<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: ChartJS | null = null;
 
+const css = getComputedStyle(document.documentElement);
+const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
+const warning = css.getPropertyValue("--color-warning").trim() || "#ff9800";
+const error = css.getPropertyValue("--color-error").trim() || "#f44336";
+const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
+const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
+
 const statusColors: Record<string, string> = {
-  Active: "#4caf50",
-  Inactive: "#ff9800",
-  Terminated: "#f44336",
-  "On Leave": "#2196f3",
-  Probation: "#9c27b0",
+  Active: success,
+  Inactive: warning,
+  Terminated: error,
+  "On Leave": info,
+  Probation: "#5e35b1", // indigo for distinction
 };
 
 const createChart = () => {
@@ -81,7 +88,7 @@ const createChart = () => {
             padding: 15,
             font: {
               size: 12,
-              weight: "500",
+              weight: 500,
             },
             generateLabels: (chart) => {
               const data = chart.data;
@@ -92,8 +99,12 @@ const createChart = () => {
                   const percentage = props.statusData[i]?.percentage || 0;
                   return {
                     text: `${label} (${percentage}%)`,
-                    fillStyle: dataset.backgroundColor?.[i] as string,
-                    strokeStyle: dataset.borderColor?.[i] as string,
+                    fillStyle: (dataset.backgroundColor as string[])?.[
+                      i
+                    ] as string,
+                    strokeStyle: (dataset.borderColor as string[])?.[
+                      i
+                    ] as string,
                     lineWidth: 2,
                     hidden: false,
                     index: i,
@@ -108,7 +119,7 @@ const createChart = () => {
           backgroundColor: "rgba(0, 0, 0, 0.8)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          borderColor: "#1976d2",
+          borderColor: primary,
           borderWidth: 1,
           cornerRadius: 8,
           displayColors: true,
