@@ -46,8 +46,22 @@ app.include_router(performance.router, prefix="/api", tags=["performance"])
 
 
 if settings.environment == "production":
-    # Mount static files with html=True to serve index.html for missing files
-    # This must be LAST - after all API routes are registered
-    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+    from pathlib import Path
+    
+    # Serve static assets explicitly
+    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
+    
+    # Catch-all route for SPA (must be LAST)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Serve the Vue.js SPA for all non-API routes."""
+        # If requesting a file with extension, try to serve it from dist
+        if "." in full_path.split("/")[-1]:
+            file_path = Path("dist") / full_path
+            if file_path.is_file():
+                return FileResponse(file_path)
+        
+        # For all other paths (Vue routes), serve index.html
+        return FileResponse("dist/index.html")
 
 
