@@ -24,6 +24,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  DoughnutController,
   CategoryScale,
   LinearScale,
 } from "chart.js";
@@ -35,6 +36,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   ArcElement,
+  DoughnutController,
   CategoryScale,
   LinearScale
 );

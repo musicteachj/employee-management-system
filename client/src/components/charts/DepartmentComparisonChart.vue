@@ -20,6 +20,7 @@ import {
   Tooltip,
   Legend,
   BarElement,
+  BarController,
   CategoryScale,
   LinearScale,
 } from "chart.js";
@@ -30,6 +31,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   BarElement,
+  BarController,
   CategoryScale,
   LinearScale
 );

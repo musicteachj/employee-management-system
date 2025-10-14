@@ -11,10 +11,11 @@ import {
   ArcElement,
   Tooltip,
   Legend,
+  DoughnutController,
   type ChartConfiguration,
 } from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 interface DepartmentData {
   name: string;

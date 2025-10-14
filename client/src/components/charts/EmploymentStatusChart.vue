@@ -11,10 +11,11 @@ import {
   ArcElement,
   Tooltip,
   Legend,
+  PieController,
   type ChartConfiguration,
 } from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, PieController);
 
 interface StatusData {
   status: string;
@@ -95,7 +96,6 @@ const createChart = () => {
               if (data.labels && data.datasets.length) {
                 return data.labels.map((label, i) => {
                   const dataset = data.datasets[0];
-                  const value = dataset.data[i] as number;
                   const percentage = props.statusData[i]?.percentage || 0;
                   return {
                     text: `${label} (${percentage}%)`,
