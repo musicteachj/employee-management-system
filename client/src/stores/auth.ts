@@ -2,7 +2,10 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { User, AuthToken, UserLogin, UserRegister } from "../types";
 
-const API_BASE_URL = "http://localhost:8000/api";
+// Use production API if in production, otherwise use localhost
+const API_BASE_URL = import.meta.env.PROD
+  ? "https://employees.jameslittlefield.net/api"
+  : "http://localhost:8000/api";
 
 export const useAuthStore = defineStore("auth", () => {
   // State
