@@ -234,7 +234,6 @@
               size="small"
               variant="text"
               color="primary"
-              class="mr-1"
               @click="viewEmployee(item)"
             ></v-btn>
             <v-btn
@@ -242,7 +241,6 @@
               size="small"
               variant="text"
               color="primary"
-              class="mr-1"
               @click="scheduleReview(item)"
             ></v-btn>
             <v-btn

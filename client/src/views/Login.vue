@@ -24,6 +24,36 @@
               {{ authStore.error }}
             </v-alert>
 
+            <!-- Demo Credentials Info -->
+            <v-alert
+              type="info"
+              variant="tonal"
+              class="mb-6"
+              prominent
+              border="start"
+            >
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold mb-1">
+                    Demo Credentials
+                  </div>
+                  <div class="text-body-2">
+                    <strong>Email:</strong> test@example.com<br />
+                    <strong>Password:</strong> Test123!
+                  </div>
+                </div>
+                <v-btn
+                  color="info"
+                  variant="elevated"
+                  size="small"
+                  @click="fillDemoCredentials"
+                  class="ml-4"
+                >
+                  Use Demo
+                </v-btn>
+              </div>
+            </v-alert>
+
             <v-form @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
@@ -105,6 +135,12 @@ const { handleSubmit } = useForm({
 const { value: email, errorMessage: emailError } = useField<string>("email");
 const { value: password, errorMessage: passwordError } =
   useField<string>("password");
+
+// Fill demo credentials
+const fillDemoCredentials = () => {
+  email.value = "test@example.com";
+  password.value = "Test123!";
+};
 
 const handleLogin = handleSubmit(async (values) => {
   const success = await authStore.login({
