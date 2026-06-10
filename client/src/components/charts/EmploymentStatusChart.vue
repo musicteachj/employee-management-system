@@ -42,7 +42,7 @@ const statusColors: Record<string, string> = {
   Inactive: warning,
   Terminated: error,
   "On Leave": info,
-  Probation: "#5e35b1", // indigo for distinction
+  Probation: "#4F46E5", // indigo for distinction
 };
 
 const createChart = () => {

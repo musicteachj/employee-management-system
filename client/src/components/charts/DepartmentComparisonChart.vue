@@ -1,9 +1,10 @@
 <template>
   <div class="chart-container">
-    <v-card class="pa-4 chart-card" elevation="3" rounded="lg">
-      <v-card-title class="text-h6 pb-2 text-primary font-weight-bold">
+    <v-card class="chart-card" flat>
+      <div class="card-head">
+        <v-icon size="20">mdi-chart-bar</v-icon>
         Performance by Department
-      </v-card-title>
+      </div>
       <div class="chart-wrapper" style="position: relative; height: 350px">
         <Bar :data="chartData" :options="chartOptions" />
       </div>
@@ -202,24 +203,10 @@ const chartOptions = computed(() => ({
   width: 100%;
 }
 
-/* Chart card styling */
-.chart-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
 .chart-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  padding: 8px;
+  padding: 16px;
 }
 </style>

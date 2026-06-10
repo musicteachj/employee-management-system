@@ -46,15 +46,17 @@ const primary = css.getPropertyValue("--color-primary").trim() || "#00897b";
 const success = css.getPropertyValue("--color-success").trim() || "#4caf50";
 const info = css.getPropertyValue("--color-info").trim() || "#1565c0";
 
+// Ordinal seniority scale: cool neutrals → indigo → gold at the top
 const levelColors: Record<string, string> = {
-  Entry: success,
-  Mid: info,
-  Senior: "#ffb74d",
-  Lead: "#5e35b1",
-  Manager: "#ef5350",
-  Director: "#8d6e63",
-  VP: "#90a4ae",
-  "C-Level": "#26c6da",
+  Entry: "#94A3B8",
+  Mid: info, // info blue
+  Senior: "#0891B2", // cyan
+  Lead: success, // green
+  Manager: primary, // indigo
+  Director: "#6366F1",
+  VP: "#818CF8", // soft violet
+  "C-Level": "#A16207", // deep gold
+  CEO: "#EAB308", // gold (top)
 };
 
 const createChart = () => {

@@ -1,54 +1,53 @@
 <template>
-  <v-card class="pa-4 ma-2 accordion-table-card" elevation="3" rounded="lg">
-    <v-card-title class="pa-0 mb-2">
-      <h5 class="text-h5 text-primary font-weight-bold">{{ title }}</h5>
-    </v-card-title>
-    <v-card-subtitle class="pa-0 mb-4">
-      <p class="text-body-2 text-medium-emphasis">
-        {{ subtitle }}
-      </p>
-    </v-card-subtitle>
-    <v-divider class="mb-4" />
-    <v-text-field
-      v-if="enableSearch"
-      v-model="search"
-      label="Search groups..."
-      prepend-inner-icon="mdi-magnify"
-      variant="outlined"
-      hide-details
-      single-line
-      density="compact"
-      clearable
-      class="search-field mb-4"
-      color="primary"
-    ></v-text-field>
+  <div>
+    <!-- Page header -->
+    <div class="page-head">
+      <h1 class="page-title">{{ title }}</h1>
+      <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
+    </div>
 
-    <!-- Bulk Actions Toolbar -->
-    <BulkActionsToolbar
-      v-if="enableActions"
-      :selected-items="appStore.selectedEmployees"
-      :items="items"
-      :actions="actions"
-      @exportData="exportData"
-    />
+    <v-card class="table-card" flat>
+      <div class="pa-4">
+        <v-text-field
+          v-if="enableSearch"
+          v-model="search"
+          placeholder="Search groups…"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          hide-details
+          single-line
+          density="comfortable"
+          clearable
+          class="search-field mb-4"
+          color="primary"
+        ></v-text-field>
 
-    <v-data-table
-      :loading="loading"
-      :loading-text="loadingText"
-      :headers="computedHeaders"
-      :items="groupedTableFilteredData"
-      density="compact"
-      show-expand
-      item-value="groupedBy"
-      v-model:expanded="expandedRows"
-      :hide-default-footer="groupedTableFilteredData.length < 11"
-      class="elevation-0 rounded-lg accordion-data-table"
-      hover
-      @update:expanded="handleExpansionUpdate"
-    >
-      <template v-slot:expanded-row="{ columns, item }">
-        <td :colspan="columns.length" style="background-color: #e6f2f0">
-          <v-card class="pa-4" flat color="transparent">
+        <!-- Bulk Actions Toolbar -->
+        <BulkActionsToolbar
+          v-if="enableActions"
+          :selected-items="appStore.selectedEmployees"
+          :items="items"
+          :actions="actions"
+          @exportData="exportData"
+        />
+
+        <v-data-table
+          :loading="loading"
+          :loading-text="loadingText"
+          :headers="computedHeaders"
+          :items="groupedTableFilteredData"
+          density="compact"
+          show-expand
+          item-value="groupedBy"
+          v-model:expanded="expandedRows"
+          :hide-default-footer="groupedTableFilteredData.length < 11"
+          class="elevation-0 accordion-data-table"
+          hover
+          @update:expanded="handleExpansionUpdate"
+        >
+          <template v-slot:expanded-row="{ columns, item }">
+            <td :colspan="columns.length" class="accordion-expanded-cell">
+              <v-card class="pa-2" flat color="transparent">
             <DataTable
               :items="item.items"
               :title="item.groupedBy"
@@ -64,11 +63,13 @@
               :tableActions="[]"
               :tableColumns="tableColumns"
             />
-          </v-card>
-        </td>
-      </template>
-    </v-data-table>
-  </v-card>
+              </v-card>
+            </td>
+          </template>
+        </v-data-table>
+      </div>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -202,125 +203,18 @@ const exportData = () => {
 </script>
 
 <style scoped>
-/* Card styling with subtle gradient */
-.accordion-table-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.accordion-table-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-
-/* Search field enhancements */
-.search-field {
-  transition: all 0.3s ease;
-}
-
-.search-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-.search-field :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-.search-field :deep(.v-field__input) {
-  background: rgba(var(--color-primary-rgb), 0.02);
-  border-radius: 8px;
-}
-
-/* Table styling */
+/* Table/card visuals are handled by global CSS; keep this component lean. */
 .accordion-data-table {
   background: transparent;
 }
 
-/* Table headers with enhanced styling (scoped) */
-:deep(.v-data-table-header__content),
-:deep(.v-data-table-column__sort) {
-  font-weight: 700 !important;
-  color: var(--color-secondary) !important;
-  text-transform: uppercase !important;
-  font-size: 0.75rem !important;
-  letter-spacing: 0.5px !important;
+/* Expanded group panel — pale lavender (info background) */
+.accordion-expanded-cell {
+  background-color: var(--color-primary-pale);
+  padding: 4px 8px;
 }
 
-:deep(.v-data-table thead th),
-:deep(.v-data-table__th) {
-  background: #f5f7fa !important;
-}
-
-/* Row hover effects */
-:deep(.v-data-table__tr:hover) {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--color-primary-rgb), 0.04) 0%,
-    rgba(var(--color-primary-rgb), 0.08) 100%
-  ) !important;
-  transform: scale(1.005);
-  transition: all 0.2s ease;
-}
-
-:deep(.v-data-table__td) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 12px 16px;
-}
-
-/* Alternating row colors for better readability */
-:deep(.v-data-table__tr:nth-child(even)) {
-  background: rgba(248, 250, 252, 0.5);
-}
-
-/* Expand button styling */
-:deep(.v-data-table__expand-icon) {
-  color: var(--color-primary);
-  transition: all 0.3s ease;
-}
-
-:deep(.v-data-table__expand-icon:hover) {
-  color: var(--color-info);
-  transform: scale(1.1);
-}
-
-/* Expanded row styling - keep the original background color */
 :deep(.v-data-table__expanded__content) {
-  background-color: #ebf5f0;
-}
-
-/* Footer styling */
-:deep(.v-data-table-footer) {
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(var(--color-primary-rgb), 0.2);
-  border-radius: 0 0 12px 12px;
-}
-
-/* Pagination button styling */
-:deep(.v-pagination__item) {
-  transition: all 0.3s ease;
-}
-
-:deep(.v-pagination__item:hover) {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  transform: scale(1.05);
-}
-
-:deep(.v-pagination__item--is-active) {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-info) 100%
-  );
-  color: white;
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
-}
-
-/* Loading state styling */
-:deep(.v-data-table__loading) {
-  background: rgba(var(--color-primary-rgb), 0.02);
+  background-color: var(--color-primary-pale);
 }
 </style>

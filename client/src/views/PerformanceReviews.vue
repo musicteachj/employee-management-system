@@ -1,104 +1,77 @@
 <template>
   <div class="performance-reviews">
-    <!-- Header Section -->
-    <v-card class="pa-4 ma-2 mb-4 header-card" elevation="3" rounded="lg">
-      <v-card-title class="pa-0 mb-2">
-        <h5 class="text-h5 text-primary font-weight-bold">
-          Performance Reviews Dashboard
-        </h5>
-      </v-card-title>
-      <v-card-subtitle class="pa-0">
-        <p class="text-body-2 text-medium-emphasis">
-          Comprehensive performance analytics and review management
-        </p>
-      </v-card-subtitle>
-      <v-divider class="mt-4" />
-    </v-card>
+    <!-- Page header -->
+    <div class="page-head">
+      <span class="eyebrow">Overview</span>
+      <h1 class="page-title">Performance Reviews</h1>
+      <p class="page-subtitle">
+        Performance analytics and review management across your organization.
+      </p>
+    </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center pa-8">
       <v-progress-circular
         indeterminate
         color="primary"
-        size="64"
+        size="56"
       ></v-progress-circular>
-      <p class="mt-4 text-body-1">Loading performance data...</p>
+      <p class="mt-4 text-body-2 text-muted">Loading performance data…</p>
     </div>
 
     <!-- Main Content -->
     <div v-else>
       <!-- Summary Cards -->
-      <v-row class="ma-n1">
+      <v-row>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="primary"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-chart-line" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ analytics.totalReviews }}</h3>
-                <p class="text-body-2">Total Reviews</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon">
+              <v-icon size="24">mdi-chart-line</v-icon>
             </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="success"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-star" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">
-                  {{ analytics.averageRating.toFixed(1) }}
-                </h3>
-                <p class="text-body-2">Average Rating</p>
-              </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Total Reviews</span>
+              <span class="kpi-value tabular-nums">{{
+                analytics.totalReviews
+              }}</span>
             </div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="info"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-account-group" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">
-                  {{ Object.keys(analytics.departmentPerformance).length }}
-                </h3>
-                <p class="text-body-2">Departments</p>
-              </div>
+          <v-card class="kpi-card kpi-card--gold" flat>
+            <div class="kpi-icon">
+              <v-icon size="24">mdi-star</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Average Rating</span>
+              <span class="kpi-value tabular-nums">{{
+                analytics.averageRating.toFixed(1)
+              }}</span>
             </div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="warning"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-clock-alert" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ analytics.overdueReviews }}</h3>
-                <p class="text-body-2">Overdue Reviews</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon kpi-icon--info">
+              <v-icon size="24">mdi-account-group</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Departments</span>
+              <span class="kpi-value tabular-nums">{{
+                Object.keys(analytics.departmentPerformance).length
+              }}</span>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="3">
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon kpi-icon--error">
+              <v-icon size="24">mdi-clock-alert-outline</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Overdue Reviews</span>
+              <span class="kpi-value tabular-nums">{{
+                analytics.overdueReviews
+              }}</span>
             </div>
           </v-card>
         </v-col>
@@ -127,7 +100,7 @@
       </v-row>
 
       <!-- Filters and Search -->
-      <v-card class="pa-4 ma-2 mb-4 filters-card" elevation="3" rounded="lg">
+      <v-card class="pa-4 mb-4 filters-card" flat>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
@@ -183,19 +156,17 @@
       </v-card>
 
       <!-- Review Status Table -->
-      <v-card class="pa-4 ma-2 table-card" elevation="3" rounded="lg">
-        <v-card-title class="pa-0 mb-2">
-          <h5 class="text-h5 text-primary font-weight-bold">
-            Employee Review Status
-          </h5>
-        </v-card-title>
-        <v-divider class="mb-4" />
+      <v-card class="table-card" flat>
+        <div class="card-head">
+          <v-icon size="20">mdi-clipboard-text-clock-outline</v-icon>
+          Employee Review Status
+        </div>
 
         <v-data-table
           :headers="tableHeaders"
           :items="filteredEmployees"
           density="compact"
-          class="elevation-0 rounded-lg performance-data-table"
+          class="elevation-0 performance-data-table px-2 pb-2"
           :items-per-page="15"
           :items-per-page-options="[10, 15, 25, 50]"
           :hide-default-footer="filteredEmployees.length < 11"
@@ -458,129 +429,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Component-specific styles only - common styles are in global CSS */
-
-/* Search field enhancements */
-.search-field {
-  transition: all 0.3s ease;
-}
-
-.search-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-.search-field :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-.search-field :deep(.v-field__input) {
-  background: rgba(var(--color-primary-rgb), 0.02);
-  border-radius: 8px;
-}
-
-/* Filter field enhancements */
-.filter-field {
-  transition: all 0.3s ease;
-}
-
-.filter-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-.filter-field :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-/* Table styling */
+/* Component-specific styles only — common table/card styles live in global CSS */
 .performance-data-table {
   background: transparent;
-}
-
-/* Table headers with enhanced styling */
-.performance-data-table :deep(.v-data-table-header__content) {
-  font-weight: 700;
-  color: var(--color-secondary);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-}
-
-.performance-data-table :deep(.v-data-table__th) {
-  background: #f5f7fa !important;
-}
-
-/* Row hover effects */
-.performance-data-table :deep(.v-data-table__tr:hover) {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--color-primary-rgb), 0.04) 0%,
-    rgba(var(--color-primary-rgb), 0.08) 100%
-  );
-  transform: scale(1.005);
-  transition: all 0.2s ease;
-}
-
-.performance-data-table :deep(.v-data-table__td) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Alternating row colors for better readability */
-.performance-data-table :deep(.v-data-table__tr:nth-child(even)) {
-  background: rgba(248, 250, 252, 0.5);
-}
-
-/* Footer styling */
-.performance-data-table :deep(.v-data-table-footer) {
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-top: 1px solid rgba(var(--color-primary-rgb), 0.2);
-  border-radius: 0 0 12px 12px;
-}
-
-/* Pagination button styling */
-.performance-data-table :deep(.v-pagination__item) {
-  transition: all 0.3s ease;
-}
-
-.performance-data-table :deep(.v-pagination__item:hover) {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  transform: scale(1.05);
-}
-
-.performance-data-table :deep(.v-pagination__item--is-active) {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-info) 100%
-  );
-  color: white;
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
-}
-
-/* Card styling with subtle gradient */
-.header-card,
-.filters-card,
-.table-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.header-card:hover,
-.filters-card:hover,
-.table-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Summary card enhancements */
-.summary-card {
-  transition: all 0.3s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 </style>

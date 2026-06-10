@@ -1,106 +1,86 @@
-/* Form Components Styles */
+/* Form Components — clean fields with indigo focus */
 
-/* Form field base styling */
 .form-field,
 .search-field,
 .filter-field {
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-/* Form field outline styling */
+/* Field outlines: quiet by default, indigo + 2px on focus */
 .form-field :deep(.v-field__outline),
 .search-field :deep(.v-field__outline),
-.filter-field :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
+.filter-field :deep(.v-field__outline),
+.v-text-field .v-field__outline,
+.v-select .v-field__outline,
+.v-textarea .v-field__outline,
+.v-autocomplete .v-field__outline {
+  --v-field-border-opacity: 0.5;
 }
 
 .form-field :deep(.v-field--focused .v-field__outline),
 .search-field :deep(.v-field--focused .v-field__outline),
-.filter-field :deep(.v-field--focused .v-field__outline) {
+.filter-field :deep(.v-field--focused .v-field__outline),
+.v-field--focused .v-field__outline {
   --v-field-border-opacity: 1;
   border-width: 2px;
 }
 
-/* Form field input background */
+/* Subtle field fill */
 .form-field :deep(.v-field__input),
 .search-field :deep(.v-field__input),
-.filter-field :deep(.v-field__input) {
-  background: rgba(var(--color-primary-rgb), 0.02);
-  border-radius: 8px;
-}
-
-/* Global form field styling for consistency */
-::deep(.v-text-field .v-field__outline),
-::deep(.v-select .v-field__outline),
-::deep(.v-textarea .v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-::deep(.v-text-field .v-field--focused .v-field__outline),
-::deep(.v-select .v-field--focused .v-field__outline),
-::deep(.v-textarea .v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-::deep(.v-text-field .v-field__input),
-::deep(.v-select .v-field__input),
-::deep(.v-textarea .v-field__input) {
-  background: rgba(var(--color-primary-rgb), 0.02);
-  border-radius: 8px;
+.filter-field :deep(.v-field__input),
+.v-text-field .v-field__input,
+.v-select .v-field__input,
+.v-textarea .v-field__input {
+  border-radius: var(--radius-sm);
 }
 
 /* Readonly field styling */
-::deep(.v-field--readonly) {
-  background: #f5f7fa !important;
-  opacity: 0.8;
+.v-field--readonly {
+  background: var(--color-surface) !important;
 }
 
 .bg-grey-lighten-5 {
-  background-color: #f5f7fa !important;
+  background-color: var(--color-surface) !important;
 }
 
-/* Form validation styling */
-::deep(.v-messages__message) {
+/* Validation messages */
+.v-messages__message {
   color: var(--color-error);
   font-weight: 500;
 }
 
-/* Enhanced spacing and typography */
-::deep(.v-label) {
+/* Labels */
+.v-label {
   font-weight: 500;
-  color: #424242;
+  color: var(--color-slate);
 }
 
-::deep(.v-field--focused .v-label) {
-  color: var(--color-success);
+.v-field--focused .v-label {
+  color: var(--color-primary);
 }
 
-/* Section headers styling */
+/* Section headers — flat label band, indigo accent rule */
 .section-header {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8f4fd 100%);
-  color: var(--color-secondary);
+  background: var(--color-surface);
+  color: var(--color-slate);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.875rem;
-  border-bottom: 1px solid rgba(var(--color-secondary-rgb), 0.2);
+  letter-spacing: 0.6px;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
 }
 
-.section-header :deep(.v-icon) {
-  color: var(--color-secondary);
+.section-header :deep(.v-icon),
+.section-header .v-icon {
+  color: var(--color-primary);
 }
 
-/* Header section styling for forms */
+/* Form page header band */
 .header-section {
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f4fd 100%);
-  border-bottom: 2px solid var(--color-secondary);
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
   margin: -16px -16px 0 -16px;
   padding: 16px 24px;
-}
-
-/* Hover effects for form sections */
-.section-card .v-card-text:hover {
-  background: rgba(var(--color-secondary-rgb), 0.01);
-  transition: background 0.3s ease;
 }
