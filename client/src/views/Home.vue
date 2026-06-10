@@ -1,122 +1,141 @@
 <template>
-  <v-container>
-    <!-- Welcome Header -->
-    <v-row class="mb-6">
-      <v-col cols="12">
-        <v-card class="pa-6 text-center" color="primary" dark>
-          <v-card-title class="text-h3 mb-2">
-            <v-icon size="large" class="mr-3">mdi-office-building</v-icon>
-            Welcome to Employee Management System
-          </v-card-title>
-          <v-card-subtitle class="text-h6">
-            Manage your workforce efficiently and effectively
-          </v-card-subtitle>
+  <v-container fluid class="pa-0">
+    <!-- Page header -->
+    <div class="page-head d-flex flex-wrap align-center justify-space-between">
+      <div>
+        <span class="eyebrow">Overview</span>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">
+          A live snapshot of your workforce and recent activity.
+        </p>
+      </div>
+      <v-btn
+        color="primary"
+        prepend-icon="mdi-account-plus-outline"
+        @click="$router.push('/employee/new')"
+      >
+        Add Employee
+      </v-btn>
+    </div>
+
+    <!-- KPI stats -->
+    <v-row class="mb-2">
+      <v-col cols="12" sm="6" md="3">
+        <v-card class="kpi-card kpi-card--gold" flat>
+          <div class="kpi-icon">
+            <v-icon size="24">mdi-account-multiple</v-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Total Employees</span>
+            <span class="kpi-value tabular-nums">{{ totalEmployees }}</span>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card class="kpi-card" flat>
+          <div class="kpi-icon kpi-icon--success">
+            <v-icon size="24">mdi-account-plus</v-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">New Hires</span>
+            <span class="kpi-value tabular-nums">{{ newHires }}</span>
+            <span class="kpi-sub">Last 30 days</span>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card class="kpi-card" flat>
+          <div class="kpi-icon kpi-icon--info">
+            <v-icon size="24">mdi-domain</v-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Departments</span>
+            <span class="kpi-value tabular-nums">{{ totalDepartments }}</span>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card class="kpi-card" flat>
+          <div class="kpi-icon">
+            <v-icon size="24">mdi-chart-line</v-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Active Rate</span>
+            <span class="kpi-value tabular-nums">{{ activeRate }}%</span>
+          </div>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Quick Stats -->
-    <v-row class="mb-6">
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="x-large" color="primary" class="mb-2"
-            >mdi-account-multiple</v-icon
-          >
-          <h3 class="text-h4">{{ totalEmployees }}</h3>
-          <p class="text-subtitle1">Total Employees</p>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="x-large" color="success" class="mb-2"
-            >mdi-account-plus</v-icon
-          >
-          <h3 class="text-h4">{{ newHires }}</h3>
-          <p class="text-subtitle1">New Hires</p>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="x-large" color="warning" class="mb-2"
-            >mdi-domain</v-icon
-          >
-          <h3 class="text-h4">{{ totalDepartments }}</h3>
-          <p class="text-subtitle1">Departments</p>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="text-center pa-4" elevation="2">
-          <v-icon size="x-large" color="info" class="mb-2"
-            >mdi-chart-line</v-icon
-          >
-          <h3 class="text-h4">{{ activeRate }}%</h3>
-          <p class="text-subtitle1">Active Rate</p>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Quick Actions -->
+    <!-- Quick actions + recent activity -->
     <v-row>
-      <v-col cols="12" md="6">
-        <v-card class="pa-4" elevation="2">
-          <v-card-title>
-            <v-icon class="mr-2">mdi-lightning-bolt</v-icon>
+      <v-col cols="12" md="5">
+        <v-card class="info-card" flat>
+          <div class="card-head">
+            <v-icon size="20">mdi-lightning-bolt-outline</v-icon>
             Quick Actions
-          </v-card-title>
-          <v-card-text>
-            <v-btn
-              color="primary"
-              class="ma-2"
-              prepend-icon="mdi-account-plus"
-              variant="outlined"
-              @click="$router.push('/employee/new')"
-            >
-              Add New Employee
-            </v-btn>
-            <v-btn
-              color="secondary"
-              class="ma-2"
-              prepend-icon="mdi-file-document"
-              variant="outlined"
-              @click="handleGenerateReport"
-              :disabled="totalEmployees === 0"
-            >
-              Generate Report
-            </v-btn>
-            <v-btn
-              color="secondary"
-              class="ma-2"
-              prepend-icon="mdi-chart-box"
-              variant="outlined"
-              @click="$router.push('/analytics')"
-            >
-              View Analytics
-            </v-btn>
+          </div>
+          <v-card-text class="pa-4">
+            <div class="d-flex flex-column gap-3">
+              <v-btn
+                color="primary"
+                prepend-icon="mdi-account-plus-outline"
+                block
+                @click="$router.push('/employee/new')"
+              >
+                Add New Employee
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                prepend-icon="mdi-chart-box-outline"
+                block
+                @click="$router.push('/analytics')"
+              >
+                View Analytics
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                prepend-icon="mdi-file-download-outline"
+                block
+                @click="handleGenerateReport"
+                :disabled="totalEmployees === 0"
+              >
+                Generate Report
+              </v-btn>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" md="6">
-        <v-card class="pa-4" elevation="2">
-          <v-card-title>
-            <v-icon class="mr-2">mdi-bell</v-icon>
+      <v-col cols="12" md="7">
+        <v-card class="info-card" flat>
+          <div class="card-head">
+            <v-icon size="20">mdi-bell-outline</v-icon>
             Recent Activity
-          </v-card-title>
-          <v-card-text>
-            <v-list v-if="recentActivities.length > 0" density="compact">
+          </div>
+          <v-card-text class="pa-2">
+            <v-list v-if="recentActivities.length > 0" class="activity-list">
               <v-list-item
                 v-for="activity in recentActivities"
                 :key="activity.id"
-                :prepend-icon="activity.icon"
+                class="activity-item"
               >
-                <v-list-item-title>{{ activity.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{
+                <template #prepend>
+                  <div class="activity-icon">
+                    <v-icon size="18">{{ activity.icon }}</v-icon>
+                  </div>
+                </template>
+                <v-list-item-title class="activity-title">{{
+                  activity.title
+                }}</v-list-item-title>
+                <v-list-item-subtitle class="activity-time">{{
                   activity.relativeTime
                 }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
-            <div v-else class="text-center text-medium-emphasis pa-4">
-              <v-icon size="large" class="mb-2">mdi-information-outline</v-icon>
-              <p>No recent activity to display</p>
+            <div v-else class="empty-state ma-2">
+              <v-icon size="32" class="mb-2">mdi-information-outline</v-icon>
+              <p class="mb-0">No recent activity to display</p>
             </div>
           </v-card-text>
         </v-card>
@@ -254,4 +273,35 @@ const handleGenerateReport = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.activity-list {
+  background: transparent;
+}
+.activity-item {
+  border-radius: var(--radius-sm);
+  margin-bottom: 2px;
+}
+.activity-item:hover {
+  background: var(--color-surface);
+}
+.activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  margin-right: 12px;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+.activity-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--color-gray);
+}
+</style>

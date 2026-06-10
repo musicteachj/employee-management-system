@@ -21,9 +21,9 @@
 
 - ⚡ **Fast & Responsive** - Optimized Vue 3 with Composition API
 - 🛡️ **Security First** - Protected routes, token expiration, auto-logout
-- 📱 **Mobile Friendly** - Fully responsive design with Vuetify
+- 🖥️ **Desktop & Tablet Optimized** - Responsive layouts tuned for desktop and tablet, with a collapsible sidebar
 - 🔄 **Real-time Updates** - Reactive state management with Pinia
-- 🎨 **Modern UI** - Beautiful Material Design interface
+- 🎨 **Enterprise Design System** - Custom indigo & gold console UI on Vuetify, with a dark sidebar and Plus Jakarta Sans typography
 - ☁️ **Cloud Ready** - Designed for AWS deployment with horizontal scaling
 
 ---
@@ -57,7 +57,7 @@
 - **MongoDB** - Flexible NoSQL database
 - **Motor** - Async MongoDB driver
 - **Pydantic** - Data validation
-- **PyJWT** - JSON Web Token implementation
+- **python-jose** - JSON Web Token (JOSE) implementation
 - **Passlib** - Password hashing with bcrypt
 
 ### DevOps & Deployment
@@ -138,7 +138,7 @@
 - Dynamic tree traversal
 - Visual relationship indicators
 - Interactive node expansion/collapse
-- Responsive layout for mobile devices
+- Responsive layout for desktop and tablet
 
 ### 3. Real-Time Analytics
 

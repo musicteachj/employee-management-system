@@ -3,13 +3,13 @@
     <v-toolbar
       color="primary"
       density="compact"
-      class="mb-4 rounded-lg"
-      elevation="2"
+      class="mb-4 rounded-lg bulk-toolbar"
+      flat
     >
-      <v-toolbar-title class="text-white">
+      <v-toolbar-title class="text-white bulk-toolbar-title">
         <v-fade-transition mode="out-in">
           <span :key="selectedItems.length">
-            {{ selectedItems.length }}
+            <strong class="tabular-nums">{{ selectedItems.length }}</strong>
             selected
           </span>
         </v-fade-transition>
@@ -78,34 +78,14 @@ const actionDisabled = (action: Action) => {
 </script>
 
 <style scoped>
-/* Toolbar styling */
-::deep(.v-toolbar) {
-  transition: all 0.3s ease;
+.bulk-toolbar {
+  box-shadow: var(--shadow-sm);
 }
-
-::deep(.v-toolbar:hover) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb), 0.3);
+.bulk-toolbar-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
-
-/* Button styling */
-::deep(.v-btn) {
-  transition: all 0.3s ease;
-}
-
-::deep(.v-btn:hover) {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
-}
-
-/* Icon styling */
-::deep(.v-icon) {
-  transition: all 0.3s ease;
-}
-
-/* Toolbar title styling */
-::deep(.v-toolbar-title) {
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.bulk-toolbar-title strong {
+  font-weight: 800;
 }
 </style>
