@@ -13,9 +13,15 @@ from app.models.bulk_operations import (
     BulkUpdateTrainingStatusRequest,
     BulkSchedulePerformanceReviewRequest,
 )
+from app.services.employee_service import EmployeeService
 
 
 class BulkService:
+    def __init__(self):
+        # Reuse the single-employee hierarchy validation so bulk and single paths
+        # enforce exactly the same rules.
+        self._employee_service = EmployeeService()
+
     async def bulk_assign_manager(self, request: BulkAssignManagerRequest) -> Dict:
         """Assign a manager to multiple employees."""
         db = await get_database()
@@ -39,6 +45,20 @@ class BulkService:
         for emp_id in request.employee_ids:
             try:
                 _id = ObjectId(emp_id)
+                employee = await db.employees.find_one({"_id": _id})
+                if not employee:
+                    failed_count += 1
+                    failed_ids.append(emp_id)
+                    continue
+
+                # Enforce the same hierarchy rules as single-employee assignment
+                # (manager seniority, status, employment type, no self-management).
+                await self._employee_service._validate_manager_constraints(
+                    db,
+                    {"managerId": request.manager_id, "jobLevel": employee.get("jobLevel")},
+                    exclude_id=_id,
+                )
+
                 result = await db.employees.update_one(
                     {"_id": _id},
                     {
@@ -121,15 +141,21 @@ class BulkService:
                     "updatedAt": datetime.utcnow(),
                 }
 
-                # If terminating, set termination date
+                # Keep terminationDate consistent across status transitions.
                 if request.new_status == "Terminated":
                     update_data["terminationDate"] = request.effective_date
+                elif request.new_status in ("Active", "On Leave", "Inactive"):
+                    update_data["terminationDate"] = None
 
                 result = await db.employees.update_one(
                     {"_id": _id},
                     {"$set": update_data}
                 )
                 if result.matched_count > 0:
+                    # Terminating a manager must re-home their reports (skip-level),
+                    # same as the single-employee path.
+                    if request.new_status == "Terminated":
+                        await self._employee_service._clear_reports_for_terminated(db, _id)
                     updated_count += 1
                 else:
                     failed_count += 1
@@ -159,6 +185,22 @@ class BulkService:
         for emp_id in request.employee_ids:
             try:
                 _id = ObjectId(emp_id)
+
+                manager_id = rehire_data.manager_id
+                manager_name = rehire_data.manager_name
+
+                # Rehiring as CEO: enforce the single-CEO rule and drop any manager.
+                if rehire_data.job_level == "CEO":
+                    await self._employee_service._assert_single_ceo(db, exclude_id=_id)
+                    manager_id, manager_name = None, None
+
+                # Enforce the same hierarchy rules as a normal hire/assignment.
+                await self._employee_service._validate_manager_constraints(
+                    db,
+                    {"managerId": manager_id, "jobLevel": rehire_data.job_level},
+                    exclude_id=_id,
+                )
+
                 result = await db.employees.update_one(
                     {"_id": _id},
                     {
@@ -170,8 +212,8 @@ class BulkService:
                             "jobLevel": rehire_data.job_level,
                             "salary": rehire_data.salary,
                             "employmentType": rehire_data.employment_type,
-                            "managerId": rehire_data.manager_id,
-                            "managerName": rehire_data.manager_name,
+                            "managerId": manager_id,
+                            "managerName": manager_name,
                             "updatedAt": datetime.utcnow(),
                         },
                         "$unset": {

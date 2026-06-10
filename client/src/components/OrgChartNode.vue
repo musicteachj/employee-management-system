@@ -7,6 +7,7 @@
         highlighted: isHighlighted,
         'no-top-line': level === 0,
         'has-children': hasChildren,
+        executive: isExecutive,
       }"
       elevation="4"
       rounded="lg"
@@ -25,9 +26,16 @@
           </v-avatar>
           <div class="flex-grow-1">
             <h6
-              class="text-body-2 font-weight-bold text-primary mb-0 text-truncate"
+              class="text-body-2 font-weight-bold text-primary mb-0 text-truncate d-flex align-center"
             >
-              {{ employee.fullName }}
+              <v-icon
+                v-if="isExecutive"
+                :icon="executiveIcon"
+                size="14"
+                color="#A16207"
+                class="mr-1 flex-shrink-0"
+              />
+              <span class="text-truncate">{{ employee.fullName }}</span>
             </h6>
             <!-- <p class="text-caption text-medium-emphasis mb-0 text-truncate">
               {{ employee.position }}
@@ -79,14 +87,29 @@
             {{ employee.jobLevel }}
           </v-chip>
           <v-chip
+            v-if="hasChildren"
             color="primary"
             size="x-small"
             variant="tonal"
-            class="text-caption ml-1"
-            prepend-icon="mdi-account-multiple-outline"
+            class="text-caption ml-1 toggle-chip"
+            :prepend-icon="isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+            :title="`${isExpanded ? 'Collapse' : 'Expand'} ${
+              children.length
+            } direct report${children.length === 1 ? '' : 's'}`"
+            @click.stop="toggle"
           >
             {{ children.length }}
           </v-chip>
+          <v-btn
+            v-if="hasChildren"
+            icon="mdi-target"
+            size="x-small"
+            variant="text"
+            color="primary"
+            class="ml-1 focus-btn"
+            title="Focus on this team"
+            @click.stop="focus"
+          />
         </div>
       </v-card-text>
 
@@ -107,7 +130,7 @@
 
     <!-- Children -->
     <div
-      v-if="hasChildren"
+      v-if="hasChildren && isExpanded"
       class="children-container"
       ref="childrenContainerRef"
     >
@@ -152,9 +175,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { computed, inject, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import dayjs from "dayjs";
 import type { Employee, JobLevel } from "../types";
+import { ORG_CHART_API } from "../constants/orgChart";
 
 interface Props {
   employee: Employee & { children?: Employee[] };
@@ -175,9 +199,34 @@ defineEmits<Emits>();
 // Reactive data
 const showOverlay = ref(false);
 
+// Collapse/focus API provided by the OrgChart view (null-safe if used standalone).
+const org = inject(ORG_CHART_API, null);
+
 // Computed properties
 const children = computed(() => props.employee.children || []);
 const hasChildren = computed(() => children.value.length > 0);
+
+const isExpanded = computed(() => {
+  const id = props.employee._id;
+  if (!org || !id) return true;
+  return !org.isCollapsed(id);
+});
+
+const toggle = () => {
+  if (org && props.employee._id) org.toggleCollapsed(props.employee._id);
+};
+const focus = () => {
+  if (org && props.employee._id) org.focusNode(props.employee._id);
+};
+
+// Executives (CEO / C-Level) get a distinct marker in the chart.
+const isExecutive = computed(
+  () =>
+    props.employee.jobLevel === "CEO" || props.employee.jobLevel === "C-Level"
+);
+const executiveIcon = computed(() =>
+  props.employee.jobLevel === "CEO" ? "mdi-crown" : "mdi-star-circle"
+);
 
 const isHighlighted = computed(() => {
   if (!props.searchQuery) return false;
@@ -217,44 +266,54 @@ const setChildRef = (el: any, index: number) => {
 };
 
 const computeHorizontalLine = () => {
-  if (
-    !childrenContainerRef.value ||
-    childRefs.value.filter(Boolean).length < 2
-  ) {
+  const wrappers = childRefs.value.filter(Boolean);
+  if (!childrenContainerRef.value || wrappers.length < 2) {
     horizontalLineLeft.value = 0;
     horizontalLineWidth.value = 0;
     return;
   }
-  const containerRect = childrenContainerRef.value.getBoundingClientRect();
-  const centers = childRefs.value
-    .filter(Boolean)
-    .map((el) => {
-      const r = el.getBoundingClientRect();
-      return r.left - containerRect.left + r.width / 2;
-    })
+  // Use layout offsets, not getBoundingClientRect: offsetLeft/offsetWidth are in
+  // layout pixels relative to .children-container (the positioned ancestor the
+  // connector line also anchors to), so they're immune to CSS `zoom` and scroll
+  // and stay aligned at any zoom level.
+  const centers = wrappers
+    .map((el) => el.offsetLeft + el.offsetWidth / 2)
     .sort((a, b) => a - b);
-  if (centers.length < 2) {
-    horizontalLineLeft.value = 0;
-    horizontalLineWidth.value = 0;
-    return;
+  horizontalLineLeft.value = centers[0];
+  horizontalLineWidth.value = centers[centers.length - 1] - centers[0];
+};
+
+// Recompute on any layout change in this node's children row. Expanding a deeper
+// node widens its column, which resizes this row and shifts siblings — the
+// observer catches that and re-measures, so the connector lines stay aligned.
+let resizeObserver: ResizeObserver | null = null;
+const observeGrid = (el: HTMLElement | null) => {
+  resizeObserver?.disconnect();
+  if (el && typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver(() =>
+      requestAnimationFrame(computeHorizontalLine)
+    );
+    resizeObserver.observe(el);
   }
-  // Start slightly to the left of the first child center and end slightly to the right of the last child center
-  const halfStub = 0; // stubs are centered on cards, no extra padding needed
-  horizontalLineLeft.value = centers[0] - halfStub;
-  horizontalLineWidth.value =
-    centers[centers.length - 1] - centers[0] + halfStub * 2;
 };
 
 onMounted(() => {
-  nextTick(() => computeHorizontalLine());
+  nextTick(() => {
+    computeHorizontalLine();
+    observeGrid(childrenGridRef.value);
+  });
   window.addEventListener("resize", computeHorizontalLine);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", computeHorizontalLine);
+  resizeObserver?.disconnect();
 });
 
-watch(children, async () => {
+// Re-attach the observer whenever the children row mounts/unmounts (it's v-if'd).
+watch(childrenGridRef, (el) => observeGrid(el));
+
+watch([children, isExpanded], async () => {
   await nextTick();
   computeHorizontalLine();
 });
@@ -342,6 +401,12 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
   border-color: var(--color-primary);
   background: var(--color-primary-pale);
   box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-sm);
+}
+
+/* Executives (CEO / C-Level): subtle gold ring to match the enterprise theme */
+.employee-card.executive {
+  border-color: #d4a82a;
+  box-shadow: 0 0 0 1px #d4a82a, var(--shadow-sm);
 }
 
 .employee-avatar {
@@ -515,6 +580,20 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
 ::deep(.v-chip) {
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+/* Collapse toggle chip reads as interactive */
+.toggle-chip {
+  cursor: pointer;
+}
+.toggle-chip:hover {
+  filter: brightness(0.95);
+}
+.focus-btn {
+  opacity: 0.55;
+}
+.focus-btn:hover {
+  opacity: 1;
 }
 
 /* Icon styling */

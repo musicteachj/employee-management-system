@@ -4,112 +4,100 @@
 
     <!-- Status Change Form -->
     <v-form>
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-account-switch</v-icon>
-          Employee Status Change
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12">
-              <v-select
-                v-model="newStatus"
-                :items="appStore.formOptions.statuses as string[]"
-                label="New Status *"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.newStatus"
-                class="form-field"
-                color="primary"
-                clearable
-                :hint="
-                  newStatus
-                    ? `Changing status to: ${newStatus}`
-                    : 'Choose the new status for selected employees'
-                "
-                persistent-hint
-              >
-                <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <v-avatar size="32" :color="getStatusColor(item.title)">
-                        <v-icon :icon="getStatusIcon(item.title)" />
-                      </v-avatar>
-                    </template>
-                  </v-list-item>
+      <v-row dense>
+        <v-col cols="12">
+          <v-select
+            v-model="newStatus"
+            :items="appStore.formOptions.statuses as string[]"
+            label="New Status *"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.newStatus"
+            class="form-field"
+            color="primary"
+            clearable
+            :hint="
+              newStatus
+                ? `Changing status to: ${newStatus}`
+                : 'Choose the new status for selected employees'
+            "
+            persistent-hint
+          >
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar size="32" :color="getStatusColor(item.title)">
+                    <v-icon :icon="getStatusIcon(item.title)" />
+                  </v-avatar>
                 </template>
-              </v-select>
-            </v-col>
-            <v-col cols="12">
-              <v-textarea
-                v-model="statusChangeReason"
-                label="Reason for Status Change"
-                variant="outlined"
-                rows="3"
-                density="compact"
-                :error-messages="errors.statusChangeReason"
-                class="form-field"
-                color="primary"
-                hint="Optional reason or notes about this status change"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
-                v-model="effectiveDate"
-                label="Effective Date *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.effectiveDate"
-                class="form-field"
-                color="primary"
-                hint="Date when the status change becomes effective"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-card variant="outlined" class="notification-section">
-                <v-card-title class="text-subtitle-2 py-2">
-                  <v-icon class="mr-2" size="small">mdi-bell-outline</v-icon>
-                  Notifications
-                </v-card-title>
-                <v-card-text class="pa-3">
-                  <v-row dense>
-                    <v-col cols="12" md="6">
-                      <v-checkbox
-                        v-model="notifyEmployee"
-                        label="Notify Employee"
-                        color="primary"
-                        density="compact"
-                        :error-messages="errors.notifyEmployee"
-                        hide-details="auto"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <v-checkbox
-                        v-model="notifyManager"
-                        label="Notify Manager"
-                        color="primary"
-                        density="compact"
-                        :error-messages="errors.notifyManager"
-                        hide-details="auto"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+              </v-list-item>
+            </template>
+          </v-select>
+        </v-col>
+        <v-col cols="12" v-if="newStatus && skippedCount > 0">
+          <v-alert
+            :type="allSkipped ? 'warning' : 'info'"
+            variant="tonal"
+            density="compact"
+            class="text-caption"
+          >
+            {{ skippedCount }} selected employee(s) are already "{{
+              newStatus
+            }}" and will be skipped.
+          </v-alert>
+        </v-col>
+        <v-col cols="12">
+          <v-textarea
+            v-model="statusChangeReason"
+            label="Reason for Status Change"
+            variant="outlined"
+            rows="3"
+            density="comfortable"
+            :error-messages="errors.statusChangeReason"
+            class="form-field"
+            color="primary"
+            hint="Optional reason or notes about this status change"
+          />
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-text-field
+            v-model="effectiveDate"
+            label="Effective Date *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.effectiveDate"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+        <v-col cols="12">
+          <div class="notify-row">
+            <span class="notify-label">Notify</span>
+            <v-checkbox
+              v-model="notifyEmployee"
+              label="Employee"
+              color="primary"
+              density="compact"
+              hide-details
+            />
+            <v-checkbox
+              v-model="notifyManager"
+              label="Manager"
+              color="primary"
+              density="compact"
+              hide-details
+            />
+          </div>
+        </v-col>
+      </v-row>
 
       <!-- Action Buttons -->
       <DialogActions
         :loading="isChangingStatus"
-        :disabled="!newStatus || selectedEmployees.length === 0"
+        :disabled="!newStatus || selectedEmployees.length === 0 || allSkipped"
         submit-text="Change Status"
         submit-icon="mdi-account-switch"
         :on-cancel="() => dialogStore.closeAndResetDialog()"
@@ -130,6 +118,7 @@ import { statusChangeSchema } from "../../../schemas/statusChange";
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
+import { useApplicableEmployees } from "../../../composables/useApplicableEmployees";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
@@ -156,6 +145,12 @@ const [notifyManager] = defineField("notifyManager");
 
 // State
 const isChangingStatus = ref(false);
+
+// Skip employees already in the chosen status — changing them is a no-op.
+const { applicableIds, skippedCount, allSkipped } = useApplicableEmployees(
+  selectedEmployees,
+  (emp) => emp.status !== newStatus.value
+);
 
 // Methods
 const getStatusColor = (status: string) => {
@@ -206,10 +201,12 @@ const changeEmployeeStatus = async () => {
       return;
     }
 
-    // Use the bulk status change method from the store
-    const employeeIds = selectedEmployees.value
-      .map((emp) => emp._id)
-      .filter((id) => id) as string[];
+    // Only change employees not already in the chosen status.
+    const employeeIds = applicableIds.value;
+    if (employeeIds.length === 0) {
+      isChangingStatus.value = false;
+      return;
+    }
 
     appStore.bulkChangeStatus(
       employeeIds,
@@ -240,7 +237,16 @@ onMounted(() => {
 
 <style scoped>
 /* Component-specific styles only - common styles are in global CSS */
-.notification-section {
-  margin-top: 8px;
+.notify-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.notify-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-gray);
 }
 </style>

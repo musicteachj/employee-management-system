@@ -8,6 +8,7 @@ import Analytics from "../views/Analytics.vue";
 import OrgChart from "../views/OrgChart.vue";
 import SearchEmployees from "../views/SearchEmployees.vue";
 import { useAuthStore } from "../stores/auth";
+import { useAppStore } from "../stores/app";
 
 const routes = [
   {
@@ -121,6 +122,16 @@ const routes = [
     component: AccordionWrapper,
   },
   {
+    path: "/by-job-level",
+    name: "By Job Level",
+    meta: {
+      title: "By Job Level",
+      description: "Employees grouped by seniority / job level",
+      requiresAuth: true,
+    },
+    component: AccordionWrapper,
+  },
+  {
     path: "/performance-reviews",
     name: "Performance Reviews",
     meta: {
@@ -208,6 +219,14 @@ router.beforeEach((to, _from, next) => {
   // Allow navigation
   else {
     next();
+  }
+});
+
+// Bulk selection is per-view: clear it whenever the route actually changes so a
+// selection made on one "By X" view doesn't carry over to another.
+router.afterEach((to, from) => {
+  if (to.path !== from.path) {
+    useAppStore().setSelectedEmployees([]);
   }
 });
 

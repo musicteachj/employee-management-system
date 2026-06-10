@@ -64,6 +64,7 @@
 import { toRefs, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { Employee, ActionType } from "../types";
+import { bySeniorityDesc } from "../constants/hierarchy";
 import { useDialogStore } from "../stores/dialog";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useAppStore } from "../stores/app";
@@ -147,13 +148,17 @@ const selectedItems = computed<Employee[]>({
 });
 
 const filteredItems = computed(() => {
+  // Baseline ordering: most senior first (CEO -> Entry), consistent with the
+  // org chart. The data table's own column sorting overrides this on click.
+  const base = [...items.value].sort(bySeniorityDesc);
+
   if (!search.value) {
-    return items.value;
+    return base;
   }
 
   const searchTerm = search.value.trim().toLowerCase();
 
-  return items.value.filter((item) => {
+  return base.filter((item) => {
     // Only search in the columns specified by tableColumns prop
     return tableColumns.value.some((column) => {
       const value = item[column as keyof Employee];

@@ -107,6 +107,30 @@ const loadData = async () => {
         };
         tableActions.value = ["training-status-update", "export-data"];
         break;
+      case "By Job Level":
+        title.value = "By Job Level";
+        subtitle.value = "Employees by seniority / job level";
+        enableSearch.value = true;
+        enableActions.value = true;
+        enableExport.value = true;
+        enableOpenRecord.value = true;
+        enableSelect.value = true;
+        items.value = await appStore.getByJobLevel();
+        tableColumns.value = [
+          "firstName",
+          "lastName",
+          "department",
+          "position",
+          "managerName",
+          "workEmail",
+          "status",
+        ];
+        groupByInfo.value = {
+          groupBy: "jobLevel",
+          groupByOptions: ["jobLevel"],
+        };
+        tableActions.value = ["assign-to-manager", "export-data"];
+        break;
       case "By Status":
         title.value = "By Status";
         subtitle.value = "Employees by status";

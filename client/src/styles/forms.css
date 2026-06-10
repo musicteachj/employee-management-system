@@ -44,8 +44,15 @@
   background-color: var(--color-surface) !important;
 }
 
-/* Validation messages */
+/* Helper / validation messages.
+   Vuetify reuses .v-messages__message for both hints and errors, so default it
+   to a quiet grey hint and only paint it red when the field is in an error state. */
 .v-messages__message {
+  color: var(--color-gray);
+  font-weight: 400;
+}
+
+.v-input--error .v-messages__message {
   color: var(--color-error);
   font-weight: 500;
 }
@@ -75,6 +82,20 @@
 .section-header :deep(.v-icon),
 .section-header .v-icon {
   color: var(--color-primary);
+}
+
+/* Lightweight section heading for inside dialogs — a quiet label instead of the
+   heavy bordered card + band used on full-page forms. */
+.dialog-subhead {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-gray);
+  margin: 0 0 8px;
+}
+.dialog-subhead:not(:first-child) {
+  margin-top: 20px;
 }
 
 /* Form page header band */

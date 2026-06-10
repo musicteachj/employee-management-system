@@ -1,17 +1,13 @@
 import { z } from "zod";
+import type { JobLevel } from "../types";
+import { JOB_LEVELS } from "../constants/hierarchy";
 
-// Define the job levels as a Zod enum
-const jobLevelSchema = z.enum([
-  "Entry",
-  "Mid",
-  "Senior",
-  "Lead",
-  "Manager",
-  "Director",
-  "VP",
-  "C-Level",
-  "CEO",
-] as const);
+// Define the job levels as a Zod enum, derived from the canonical ordering so it
+// can never drift from the rest of the app. The cast keeps z.infer narrowed to
+// the JobLevel union rather than widening to string.
+const jobLevelSchema = z.enum(
+  JOB_LEVELS as unknown as [JobLevel, ...JobLevel[]]
+);
 
 // Define the employment type schema
 const employmentTypeSchema = z.enum([

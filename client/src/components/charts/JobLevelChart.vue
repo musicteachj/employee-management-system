@@ -16,6 +16,7 @@ import {
   Legend,
   type ChartConfiguration,
 } from "chart.js";
+import { jobLevelRank } from "../../constants/hierarchy";
 
 ChartJS.register(
   CategoryScale,
@@ -68,22 +69,10 @@ const createChart = () => {
     chartInstance.destroy();
   }
 
-  // Define level order for consistent display
-  const levelOrder = [
-    "Entry",
-    "Mid",
-    "Senior",
-    "Lead",
-    "Manager",
-    "Director",
-    "VP",
-    "C-Level",
-  ];
-  const sortedData = [...props.jobLevelData].sort((a, b) => {
-    const aIndex = levelOrder.indexOf(a.level);
-    const bIndex = levelOrder.indexOf(b.level);
-    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-  });
+  // Order by canonical seniority (Entry -> CEO) from the shared hierarchy.
+  const sortedData = [...props.jobLevelData].sort(
+    (a, b) => jobLevelRank(a.level) - jobLevelRank(b.level)
+  );
 
   const data = {
     labels: sortedData.map((level) => level.level),

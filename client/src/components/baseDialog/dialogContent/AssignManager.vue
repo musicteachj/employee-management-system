@@ -4,82 +4,87 @@
 
     <!-- Manager Assignment Form -->
     <v-form>
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-account-tie</v-icon>
-          Manager Assignment
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12">
-              <v-select
-                v-model="selectedManagerId"
-                :items="managerOptions"
-                label="Select Manager *"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.managerId"
-                class="form-field"
-                color="primary"
-                item-title="title"
-                item-value="value"
-                clearable
-                :hint="
-                  selectedManagerId
-                    ? `Manager: ${getSelectedManagerInfo()}`
-                    : 'Choose a manager to assign to selected employees'
-                "
-                persistent-hint
-              >
-                <template v-slot:item="{ props }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <v-avatar size="32" color="primary">
-                        <v-icon icon="mdi-account-tie" />
-                      </v-avatar>
-                    </template>
-                  </v-list-item>
+      <v-row dense>
+        <v-col cols="12">
+          <v-select
+            v-model="selectedManagerId"
+            :items="managerOptions"
+            label="Select Manager *"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.managerId"
+            class="form-field"
+            color="primary"
+            item-title="title"
+            item-value="value"
+            clearable
+            no-data-text="No eligible managers for the selected employees' level"
+            :hint="
+              selectedManagerId
+                ? `Manager: ${getSelectedManagerInfo()}`
+                : managerOptions.length === 0
+                ? 'No eligible managers — a manager must be at or above the most senior selected employee'
+                : 'Choose a manager to assign to selected employees'
+            "
+            persistent-hint
+          >
+            <template v-slot:item="{ props }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar size="32" color="primary">
+                    <v-icon icon="mdi-account-tie" />
+                  </v-avatar>
                 </template>
-              </v-select>
-            </v-col>
-            <v-col cols="12">
-              <v-textarea
-                v-model="assignmentNotes"
-                label="Assignment Notes"
-                variant="outlined"
-                rows="3"
-                density="compact"
-                :error-messages="errors.assignmentNotes"
-                class="form-field"
-                color="primary"
-                hint="Optional notes about this manager assignment"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
-                v-model="effectiveDate"
-                label="Effective Date *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.effectiveDate"
-                class="form-field"
-                color="primary"
-                hint="Date when the manager assignment becomes effective"
-                persistent-hint
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+              </v-list-item>
+            </template>
+          </v-select>
+        </v-col>
+        <v-col cols="12" v-if="selectedManagerId && skippedCount > 0">
+          <v-alert
+            :type="allSkipped ? 'warning' : 'info'"
+            variant="tonal"
+            density="compact"
+            class="text-caption"
+          >
+            {{ skippedCount }} selected employee(s) already report to this
+            manager and will be skipped.
+          </v-alert>
+        </v-col>
+        <v-col cols="12">
+          <v-textarea
+            v-model="assignmentNotes"
+            label="Assignment Notes"
+            variant="outlined"
+            rows="3"
+            density="comfortable"
+            :error-messages="errors.assignmentNotes"
+            class="form-field"
+            color="primary"
+            hint="Optional notes about this manager assignment"
+          />
+        </v-col>
+        <v-col cols="12">
+          <v-text-field
+            v-model="effectiveDate"
+            label="Effective Date *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.effectiveDate"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+      </v-row>
 
       <!-- Action Buttons -->
       <DialogActions
         :loading="isAssigning"
-        :disabled="!selectedManagerId || selectedEmployees.length === 0"
+        :disabled="
+          !selectedManagerId || selectedEmployees.length === 0 || allSkipped
+        "
         submit-text="Assign Manager"
         submit-icon="mdi-account-plus"
         :on-cancel="() => dialogStore.closeAndResetDialog()"
@@ -97,6 +102,7 @@ import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import { useNotificationStore } from "../../../stores/notification";
 import type { Manager } from "../../../types";
+import { getEligibleManagers } from "../../../constants/hierarchy";
 import {
   assignManagerSchema,
   type AssignManagerFormData,
@@ -104,6 +110,7 @@ import {
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
+import { useApplicableEmployees } from "../../../composables/useApplicableEmployees";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
@@ -130,8 +137,25 @@ const [effectiveDate] = defineField("effectiveDate");
 // State
 const isAssigning = ref(false);
 
+// Skip employees already reporting to the chosen manager — re-assigning them is
+// a no-op that would only churn their manager-assignment date.
+const { applicableIds, skippedCount, allSkipped } = useApplicableEmployees(
+  selectedEmployees,
+  (emp) => emp.managerId !== selectedManagerId.value
+);
+
+// Only managers who may actually manage the selected employees (rank >= the
+// most senior selected employee, Active/On Leave, Full-time/Part-time, no cycles).
+const eligibleManagers = computed(() =>
+  getEligibleManagers({
+    reports: selectedEmployees.value,
+    managers: appStore.managers,
+    employees: appStore.employees,
+  })
+);
+
 const managerOptions = computed(() =>
-  appStore.managers.map((manager: Manager) => ({
+  eligibleManagers.value.map((manager: Manager) => ({
     title: manager.name,
     value: manager.id,
     subtitle: `${manager.department} - ${manager.email}`,
@@ -178,10 +202,15 @@ const assignManager = async () => {
       return;
     }
 
-    // Use the bulk assign method from the store
-    const employeeIds = selectedEmployees.value
-      .map((emp) => emp._id)
-      .filter((id) => id) as string[];
+    // Only assign employees not already reporting to this manager.
+    const employeeIds = applicableIds.value;
+    if (employeeIds.length === 0) {
+      notificationStore.showWarning(
+        "All selected employees already report to this manager."
+      );
+      isAssigning.value = false;
+      return;
+    }
     await appStore.bulkAssignManager(
       employeeIds,
       selectedManager.id,
@@ -191,7 +220,7 @@ const assignManager = async () => {
 
     // Show success message
     notificationStore.showSuccess(
-      `Successfully assigned ${selectedEmployees.value.length} employee(s) to ${selectedManager.name}`
+      `Successfully assigned ${employeeIds.length} employee(s) to ${selectedManager.name}`
     );
 
     // Close the dialog and reset form

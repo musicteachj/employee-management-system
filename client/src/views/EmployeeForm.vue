@@ -969,6 +969,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useAppStore } from "../stores/app";
+import { getEligibleManagers } from "../constants/hierarchy";
 import type {
   Employee,
   JobLevel,
@@ -1146,14 +1147,6 @@ const departmentOptions = computed(() =>
   }))
 );
 
-const managerOptions = computed(() =>
-  appStore.managers.map((manager) => ({
-    title: manager.name,
-    value: manager.id,
-    subtitle: `${manager.department} - ${manager.email}`,
-  }))
-);
-
 // CEO constraints: only one CEO allowed; CEO does not require a manager
 const hasExistingCEO = computed(() => {
   return appStore.employees.some(
@@ -1187,33 +1180,52 @@ const hrAssigneeOptions = computed(() => [
     })),
 ]);
 
-// Filtered managers based on selected department
+// Managers eligible for this employee under the canonical hierarchy rules
+// (rank >= the chosen job level, Active/On Leave, Full-time/Part-time, no
+// self/cycle). Cross-department reporting is allowed — same-department managers
+// are surfaced first rather than excluded. The currently-assigned manager is
+// always kept so editing an existing record never silently drops it.
 const filteredManagerOptions = computed(() => {
-  const base = managerOptions.value.filter((opt) => {
-    // Exclude self if editing and employee is a manager option
-    if (
-      isEditMode.value &&
-      employeeId.value &&
-      opt.value === employeeId.value
-    ) {
-      return false;
-    }
-    // Exclude direct reports to avoid circular relationships
-    if (
-      isEditMode.value &&
-      employee.value?.directReports &&
-      employee.value.directReports.includes(opt.value as string)
-    ) {
-      return false;
-    }
-    return true;
+  const eligible = getEligibleManagers({
+    reports: isEditMode.value && employee.value ? [employee.value] : [],
+    managers: appStore.managers,
+    employees: appStore.employees,
+    reportLevelOverride: (jobLevel.value as JobLevel) || undefined,
   });
 
-  if (!department.value) return base;
-  return base.filter((opt) => {
-    const managerData = appStore.managers.find((m) => m.id === opt.value);
-    return managerData?.department === department.value;
-  });
+  const pool = [...eligible];
+  if (
+    managerId.value &&
+    !pool.some((m) => m.id === managerId.value)
+  ) {
+    const current = appStore.managers.find((m) => m.id === managerId.value);
+    if (current) pool.push(current);
+  }
+
+  const options = pool.map((manager) => ({
+    title: manager.name,
+    value: manager.id,
+    subtitle: `${manager.department} - ${manager.email}`,
+  }));
+
+  if (!department.value) return options;
+  // Stable sort: same-department managers first.
+  return options
+    .map((opt, i) => ({ opt, i }))
+    .sort((a, b) => {
+      const aSame =
+        appStore.managers.find((m) => m.id === a.opt.value)?.department ===
+        department.value
+          ? 0
+          : 1;
+      const bSame =
+        appStore.managers.find((m) => m.id === b.opt.value)?.department ===
+        department.value
+          ? 0
+          : 1;
+      return aSame - bSame || a.i - b.i;
+    })
+    .map(({ opt }) => opt);
 });
 
 // Initialize form with employee data in edit mode
