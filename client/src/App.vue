@@ -53,6 +53,7 @@ const navGroups = [
     items: [
       { title: "By Manager", icon: "mdi-account-tie-outline", to: "/by-manager" },
       { title: "By Department", icon: "mdi-domain", to: "/by-department" },
+      { title: "By Job Level", icon: "mdi-stairs", to: "/by-job-level" },
       { title: "By Status", icon: "mdi-account-switch-outline", to: "/by-status" },
       {
         title: "Contract Employees",
@@ -84,8 +85,13 @@ const navGroups = [
   },
 ];
 
-// Current page title for the top bar
-const pageTitle = computed(() => (route.name ? String(route.name) : "Dashboard"));
+// Current page title for the top bar — prefer the route's human-readable title
+// over its internal name (e.g. "Add Employee" instead of "employee-new").
+const pageTitle = computed(
+  () =>
+    (route.meta?.title as string | undefined) ??
+    (route.name ? String(route.name) : "Dashboard")
+);
 
 // Initials for the user avatar
 const userInitials = computed(() => {
@@ -272,12 +278,16 @@ watch(
           :model-value="initialLoading"
           class="align-center justify-center"
         >
-          <v-progress-circular
-            indeterminate
-            size="64"
-            color="primary"
-          ></v-progress-circular>
-          <div class="text-h6 mt-4">Loading Employee Management System...</div>
+          <div class="d-flex flex-column align-center text-center">
+            <v-progress-circular
+              indeterminate
+              size="64"
+              color="primary"
+            ></v-progress-circular>
+            <div class="text-h6 mt-4">
+              Loading Employee Management System...
+            </div>
+          </div>
         </v-overlay>
 
         <router-view v-if="!initialLoading" class="pa-4" />

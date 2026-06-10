@@ -321,6 +321,7 @@ class SearchCriteria(BaseModel):
     status: Optional[ActiveStatus] = None
     manager_id: Optional[str] = Field(None, alias="managerId")
     employment_type: Optional[str] = Field(None, alias="employmentType")
+    job_level: Optional[str] = Field(None, alias="jobLevel")
 
     model_config = ConfigDict(populate_by_name=True)
 

@@ -17,6 +17,7 @@ import type {
   PerformanceAnalytics,
   BusinessUnit,
 } from "../types";
+import { JOB_LEVELS } from "../constants/hierarchy";
 import { useNotificationStore } from "./notification";
 import { useAuthStore } from "./auth";
 
@@ -2243,17 +2244,8 @@ export const useAppStore = defineStore("app", () => {
 
   // Form Options - Centralized for consistency across the app
   const formOptions = {
-    jobLevels: [
-      "Entry",
-      "Mid",
-      "Senior",
-      "Lead",
-      "Manager",
-      "Director",
-      "VP",
-      "C-Level",
-      "CEO",
-    ] as JobLevel[],
+    // Derived from the canonical hierarchy ordering (constants/hierarchy.ts).
+    jobLevels: JOB_LEVELS,
 
     employmentTypes: [
       "Full-time",
@@ -2413,6 +2405,10 @@ export const useAppStore = defineStore("app", () => {
 
   const getByDepartment = async (): Promise<Employee[]> => {
     return employees.value.filter((employee) => employee.department);
+  };
+
+  const getByJobLevel = async (): Promise<Employee[]> => {
+    return employees.value.filter((employee) => employee.jobLevel);
   };
 
   const getActiveTerminated = async (): Promise<Employee[]> => {
@@ -2920,6 +2916,7 @@ export const useAppStore = defineStore("app", () => {
     getRecentHires,
     getByManager,
     getByDepartment,
+    getByJobLevel,
     getActiveTerminated,
     getContractEmployees,
     getFormerEmployees,

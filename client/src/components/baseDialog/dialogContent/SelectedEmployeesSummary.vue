@@ -1,53 +1,43 @@
 <template>
-  <v-card variant="outlined" class="mb-4 summary-card dialog-summary">
-    <v-card-title class="text-subtitle-1 section-header py-2">
-      <v-icon class="mr-2" size="small">mdi-account-multiple</v-icon>
-      Selected Employees ({{ selectedEmployees.length }})
-    </v-card-title>
-    <v-card-text class="pa-3">
-      <div v-if="selectedEmployees.length === 0" class="empty-state">
-        <v-icon size="48" color="grey-lighten-1" class="mb-3">
-          mdi-account-off
-        </v-icon>
-        <p class="text-body-2 text-grey-darken-1 mb-0">
-          No employees selected.
-        </p>
-        <p class="text-caption text-grey">
-          Please select employees from the table first.
-        </p>
-      </div>
+  <div class="selected-summary mb-4">
+    <div class="d-flex align-center justify-space-between mb-2">
+      <span class="summary-label">
+        Selected
+        <span class="summary-count">{{ selectedEmployees.length }}</span>
+      </span>
+      <v-btn
+        v-if="selectedEmployees.length > 1"
+        size="x-small"
+        variant="text"
+        color="medium-emphasis"
+        class="text-caption"
+        @click="clearAllEmployees"
+      >
+        Clear all
+      </v-btn>
+    </div>
 
-      <div v-else class="employee-list">
-        <v-chip
-          v-for="employee in selectedEmployees"
-          :key="employee._id"
-          class="ma-1"
-          color="primary"
-          variant="outlined"
-          size="small"
-          closable
-          @click:close="removeEmployee(employee._id)"
-        >
-          <v-icon start icon="mdi-account" />
-          {{ employee.fullName }}
-          <span class="ml-2 text-caption">({{ employee.department }})</span>
-        </v-chip>
+    <div v-if="selectedEmployees.length === 0" class="empty-hint">
+      <v-icon size="18" class="mr-1">mdi-account-off-outline</v-icon>
+      No employees selected — pick some from the table first.
+    </div>
 
-        <div class="mt-3" v-if="selectedEmployees.length > 1">
-          <v-btn
-            size="small"
-            variant="text"
-            color="error"
-            @click="clearAllEmployees"
-            class="text-caption"
-          >
-            <v-icon start size="small">mdi-close-circle</v-icon>
-            Clear All
-          </v-btn>
-        </div>
-      </div>
-    </v-card-text>
-  </v-card>
+    <div v-else class="chip-row">
+      <v-chip
+        v-for="employee in selectedEmployees"
+        :key="employee._id"
+        class="ma-1 ml-0"
+        color="primary"
+        variant="tonal"
+        size="small"
+        closable
+        @click:close="removeEmployee(employee._id)"
+      >
+        {{ employee.fullName }}
+        <span class="ml-1 text-medium-emphasis">· {{ employee.department }}</span>
+      </v-chip>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,4 +57,37 @@ const removeEmployee = (employeeId: string | undefined) => {
 const clearAllEmployees = () => appStore.setSelectedEmployees([]);
 </script>
 
-<style scoped></style>
+<style scoped>
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-gray);
+}
+.summary-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 10px;
+  background: var(--color-primary-pale);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.empty-hint {
+  display: flex;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: var(--color-gray);
+  padding: 4px 0;
+}
+</style>

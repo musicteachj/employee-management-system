@@ -4,13 +4,8 @@
 
     <!-- Performance Review Form -->
     <v-form>
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-star-circle</v-icon>
-          Performance Assessment
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
+      <div class="dialog-subhead">Performance Assessment</div>
+      <v-row dense>
             <v-col cols="12">
               <v-select
                 v-model="performanceRating"
@@ -37,16 +32,9 @@
               </v-select>
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-calendar-range</v-icon>
-          Review Period
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
+      <div class="dialog-subhead">Review Period</div>
+      <v-row dense>
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="reviewPeriodStart"
@@ -93,16 +81,9 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-trophy</v-icon>
-          Achievements & Strengths
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
+      <div class="dialog-subhead">Achievements &amp; Strengths</div>
+      <v-row dense>
             <v-col cols="12">
               <v-textarea
                 v-model="achievements"
@@ -132,16 +113,9 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-trending-up</v-icon>
-          Development & Improvement
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
+      <div class="dialog-subhead">Development &amp; Improvement</div>
+      <v-row dense>
             <v-col cols="12">
               <v-textarea
                 v-model="areasForImprovement"
@@ -171,16 +145,9 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-comment-text</v-icon>
-          Additional Comments
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
+      <div class="dialog-subhead">Additional Comments</div>
+      <v-row dense>
             <v-col cols="12">
               <v-textarea
                 v-model="managerFeedback"
@@ -210,8 +177,6 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
 
       <!-- Action Buttons -->
       <DialogActions

@@ -77,23 +77,80 @@ class EmployeeService:
         manager_status = manager_doc.get("status")
         if manager_status not in ["Active", "On Leave"]:
             raise ValueError("Manager must be Active or On Leave.")
+        manager_type = manager_doc.get("employmentType")
+        if manager_type not in ["Full-time", "Part-time"]:
+            raise ValueError("Manager must be a Full-time or Part-time employee.")
         manager_level = manager_doc.get("jobLevel")
         employee_level = employee_payload.get("jobLevel")
         if employee_level and self._job_level_rank(manager_level) < self._job_level_rank(employee_level):
             raise ValueError("Manager's job level must not be below the employee's level.")
-        # Prevent selecting self as manager
+        # Prevent self-management and circular reporting chains. Only relevant on
+        # update (on create the employee has no id yet and can't be an ancestor).
         if exclude_id is not None:
-            manager_doc_id = manager_doc.get("_id")
-            if isinstance(manager_doc_id, ObjectId):
-                manager_doc_id = str(manager_doc_id)
-            if manager_id == str(exclude_id) or manager_doc_id == str(exclude_id):
+            employee_id_str = str(exclude_id)
+            manager_doc_id = str(manager_doc.get("_id"))
+            if manager_id == employee_id_str or manager_doc_id == employee_id_str:
                 raise ValueError("An employee cannot be their own manager.")
 
+            # Walk up the proposed manager's chain; if we reach the employee being
+            # edited, this assignment would close a loop. (Equal-level reporting is
+            # allowed, so a cycle is otherwise possible without this check.)
+            current = manager_doc.get("managerId")
+            seen = {manager_id, manager_doc_id}
+            steps = 0
+            while current and current not in seen and steps < 10000:
+                if current == employee_id_str:
+                    raise ValueError(
+                        "This assignment would create a circular reporting relationship."
+                    )
+                seen.add(current)
+                steps += 1
+                node = (
+                    await db.employees.find_one(
+                        {"_id": ObjectId(current)}, {"managerId": 1}
+                    )
+                    if ObjectId.is_valid(current)
+                    else await db.employees.find_one(
+                        {"_id": current}, {"managerId": 1}
+                    )
+                )
+                current = (node or {}).get("managerId")
+
+    async def _assert_level_outranks_reports(self, db, employee_id: ObjectId, new_level: str) -> None:
+        """A level change must still outrank the employee's existing direct reports."""
+        new_rank = self._job_level_rank(new_level)
+        cursor = db.employees.find({"managerId": str(employee_id)}, {"jobLevel": 1})
+        async for rep in cursor:
+            if self._job_level_rank(rep.get("jobLevel")) > new_rank:
+                raise ValueError(
+                    "New job level is below an existing direct report's level. "
+                    "Reassign that person's reports before changing this level."
+                )
+
     async def _clear_reports_for_terminated(self, db, employee_id: ObjectId) -> None:
+        """Re-home a terminated manager's reports to the skip-level manager.
+
+        When a manager is terminated their reports move up to the terminated
+        manager's own manager (skip-level), keeping the org tree intact. If the
+        terminated person had no manager (org root), the reports are detached.
+        """
         manager_id_str = str(employee_id)
+        terminated = await db.employees.find_one({"_id": employee_id})
+        skip_manager_id = (terminated or {}).get("managerId")
+
+        update_fields = {"managerId": None, "managerName": None}
+        if skip_manager_id and ObjectId.is_valid(skip_manager_id):
+            skip_manager = await db.employees.find_one({"_id": ObjectId(skip_manager_id)})
+            # Only re-home to a manager who is still active.
+            if skip_manager and skip_manager.get("status") in ["Active", "On Leave"]:
+                update_fields = {
+                    "managerId": skip_manager_id,
+                    "managerName": skip_manager.get("fullName", ""),
+                }
+
         await db.employees.update_many(
             {"managerId": manager_id_str},
-            {"$set": {"managerId": None, "managerName": None}}
+            {"$set": update_fields},
         )
 
     async def get_employees(
@@ -147,6 +204,8 @@ class EmployeeService:
             query["managerId"] = criteria.manager_id
         if criteria.employment_type:
             query["employmentType"] = criteria.employment_type
+        if criteria.job_level:
+            query["jobLevel"] = criteria.job_level
 
         cursor = db.employees.find(query)
         docs = await cursor.to_list(length=None)
@@ -161,23 +220,37 @@ class EmployeeService:
         return [Employee(**d) for d in docs]
 
     async def get_managers(self) -> List[Employee]:
-        """Get all employees who are managers.
-        
-        Managers are identified by either:
-        1. Having direct reports
-        2. Having a manager-level job level (Manager, Director, VP, C-Level, CEO)
+        """Get all employees who are eligible to be managers.
+
+        A manager is identified by either:
+        1. Having at least one direct report (someone points to them via managerId), or
+        2. Having a manager-level job level (Manager, Director, VP, C-Level, CEO).
+
+        In both cases they must also be Active/On Leave and Full-time/Part-time
+        (the canonical eligibility rules).
         """
         db = await get_database()
-        
-        # Query for employees who are managers based on job level or have direct reports
+
+        # managerId is the single source of truth for reporting relationships, so
+        # derive "has reports" from it rather than the denormalized directReports
+        # array (which is not maintained on write).
+        ids_with_reports = await db.employees.distinct(
+            "managerId", {"managerId": {"$nin": [None, ""]}}
+        )
+        # Stored managerIds are strings of the manager's _id; convert to ObjectId.
+        object_ids_with_reports = [
+            ObjectId(mid) for mid in ids_with_reports if mid and ObjectId.is_valid(mid)
+        ]
+
         query = {
             "$or": [
-                {"directReports": {"$exists": True, "$ne": [], "$ne": None}},
-                {"jobLevel": {"$in": ["Manager", "Director", "VP", "C-Level", "CEO"]}}
+                {"_id": {"$in": object_ids_with_reports}},
+                {"jobLevel": {"$in": ["Manager", "Director", "VP", "C-Level", "CEO"]}},
             ],
-            "status": {"$in": ["Active", "On Leave"]}  # Only active managers
+            "status": {"$in": ["Active", "On Leave"]},
+            "employmentType": {"$in": ["Full-time", "Part-time"]},
         }
-        
+
         cursor = db.employees.find(query).sort("fullName", 1)
         docs = await cursor.to_list(length=None)
         docs = [self._normalize_employee_doc(d) for d in docs]
@@ -270,17 +343,44 @@ class EmployeeService:
             # No fields to update, just return current
             return await self.get_employee(employee_id)
 
+        current = await db.employees.find_one({"_id": _id})
+        if not current:
+            raise ValueError("Employee not found")
+
         # CEO constraints
         if update_dict.get("jobLevel") == "CEO":
             await self._assert_single_ceo(db, exclude_id=_id)
             update_dict = self._apply_ceo_constraints(update_dict)
 
-        # Manager constraints
-        await self._validate_manager_constraints(db, update_dict, exclude_id=_id)
+        # Manager constraints — validate the *effective* manager/level by merging
+        # the update over the current doc, so a partial update (e.g. level only)
+        # is still checked against the existing manager.
+        effective = {
+            "managerId": update_dict.get("managerId", current.get("managerId")),
+            "jobLevel": update_dict.get("jobLevel", current.get("jobLevel")),
+        }
+        await self._validate_manager_constraints(db, effective, exclude_id=_id)
 
-        # Handle termination: if status becomes Terminated, clear manager from reports
-        if update_dict.get("status") == "Terminated":
+        # A level change must still outrank the employee's existing direct reports.
+        if "jobLevel" in update_dict:
+            await self._assert_level_outranks_reports(db, _id, update_dict["jobLevel"])
+
+        # Status transitions: keep terminationDate and reports consistent.
+        new_status = update_dict.get("status")
+        if new_status == "Terminated":
+            if not update_dict.get("terminationDate"):
+                update_dict["terminationDate"] = datetime.utcnow().isoformat()
             await self._clear_reports_for_terminated(db, _id)
+        elif new_status in ("Active", "On Leave", "Inactive"):
+            # Reactivating: drop any stale termination date.
+            update_dict["terminationDate"] = None
+
+        # Keep reports' denormalized managerName in sync when this person renames.
+        if "fullName" in update_dict and update_dict["fullName"] != current.get("fullName"):
+            await db.employees.update_many(
+                {"managerId": str(_id)},
+                {"$set": {"managerName": update_dict["fullName"]}},
+            )
 
         update_dict["updatedAt"] = datetime.utcnow()
 

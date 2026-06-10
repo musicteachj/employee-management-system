@@ -81,6 +81,7 @@ import type {
   ActionType,
 } from "../types";
 import DataTable from "./DataTable.vue";
+import { jobLevelRank } from "../constants/hierarchy";
 import { applyGroupTableFilter, exportToExcel } from "../modules/genericHelper";
 import BulkActionsToolbar from "./BulkActionsToolbar.vue";
 import { useDialogStore } from "../stores/dialog";
@@ -130,6 +131,7 @@ const computedHeaders = computed(() => {
     managerName: "Manager",
     department: "Department",
     status: "Status",
+    jobLevel: "Job Level",
     // Add more mappings as needed
   };
 
@@ -162,6 +164,14 @@ const groupedData = computed(() => {
     items,
     count: items.length,
   }));
+
+  // When grouping by job level, order the groups by seniority (CEO -> Entry)
+  // instead of arbitrary insertion order.
+  if (groupByInfo.value.groupBy === "jobLevel") {
+    assignedData = assignedData.sort(
+      (a, b) => jobLevelRank(b.groupedBy) - jobLevelRank(a.groupedBy)
+    );
+  }
   return assignedData;
 });
 

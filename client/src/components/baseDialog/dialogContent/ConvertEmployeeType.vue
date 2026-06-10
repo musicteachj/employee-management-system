@@ -4,80 +4,85 @@
 
     <!-- Employment Type Conversion Form -->
     <v-form>
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-account-convert</v-icon>
-          Employment Type Conversion
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12">
-              <v-select
-                v-model="selectedEmploymentType"
-                :items="appStore.formOptions.employmentTypes as string[]"
-                label="New Employment Type *"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.employmentType"
-                class="form-field"
-                color="primary"
-                clearable
-                :hint="
-                  selectedEmploymentType
-                    ? `Converting to: ${selectedEmploymentType}`
-                    : 'Choose the new employment type for selected employees'
-                "
-                persistent-hint
-              >
-                <template v-slot:item="{ props }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <v-avatar size="32" color="primary">
-                        <v-icon icon="mdi-account-convert" />
-                      </v-avatar>
-                    </template>
-                  </v-list-item>
+      <v-row dense>
+        <v-col cols="12">
+          <v-select
+            v-model="selectedEmploymentType"
+            :items="appStore.formOptions.employmentTypes as string[]"
+            label="New Employment Type *"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.employmentType"
+            class="form-field"
+            color="primary"
+            clearable
+            :hint="
+              selectedEmploymentType
+                ? `Converting to: ${selectedEmploymentType}`
+                : 'Choose the new employment type for selected employees'
+            "
+            persistent-hint
+          >
+            <template v-slot:item="{ props }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar size="32" color="primary">
+                    <v-icon icon="mdi-account-convert" />
+                  </v-avatar>
                 </template>
-              </v-select>
-            </v-col>
-            <v-col cols="12">
-              <v-textarea
-                v-model="conversionNotes"
-                label="Conversion Notes"
-                variant="outlined"
-                rows="3"
-                density="compact"
-                :error-messages="errors.conversionNotes"
-                class="form-field"
-                color="primary"
-                hint="Optional notes about this employment type conversion"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
-                v-model="effectiveDate"
-                label="Effective Date *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.effectiveDate"
-                class="form-field"
-                color="primary"
-                hint="Date when the employment type change becomes effective"
-                persistent-hint
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+              </v-list-item>
+            </template>
+          </v-select>
+        </v-col>
+        <v-col cols="12" v-if="selectedEmploymentType && skippedCount > 0">
+          <v-alert
+            :type="allSkipped ? 'warning' : 'info'"
+            variant="tonal"
+            density="compact"
+            class="text-caption"
+          >
+            {{ skippedCount }} selected employee(s) are already "{{
+              selectedEmploymentType
+            }}" and will be skipped.
+          </v-alert>
+        </v-col>
+        <v-col cols="12">
+          <v-textarea
+            v-model="conversionNotes"
+            label="Conversion Notes"
+            variant="outlined"
+            rows="3"
+            density="comfortable"
+            :error-messages="errors.conversionNotes"
+            class="form-field"
+            color="primary"
+            hint="Optional notes about this employment type conversion"
+          />
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-text-field
+            v-model="effectiveDate"
+            label="Effective Date *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.effectiveDate"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+      </v-row>
 
       <!-- Action Buttons -->
       <DialogActions
         :loading="isConverting"
-        :disabled="!selectedEmploymentType || selectedEmployees.length === 0"
+        :disabled="
+          !selectedEmploymentType ||
+          selectedEmployees.length === 0 ||
+          allSkipped
+        "
         submit-text="Convert Employment Type"
         submit-icon="mdi-account-convert"
         :on-cancel="() => dialogStore.closeAndResetDialog()"
@@ -101,6 +106,7 @@ import {
 import SelectedEmployeesSummary from "./SelectedEmployeesSummary.vue";
 import DialogActions from "./DialogActions.vue";
 import { useBulkDialogForm } from "../../../composables/useBulkDialogForm";
+import { useApplicableEmployees } from "../../../composables/useApplicableEmployees";
 
 const dialogStore = useDialogStore();
 const appStore = useAppStore();
@@ -126,6 +132,12 @@ const [effectiveDate] = defineField("effectiveDate");
 // State
 const isConverting = ref(false);
 
+// Skip employees already of the chosen employment type — converting is a no-op.
+const { applicableIds, skippedCount, allSkipped } = useApplicableEmployees(
+  selectedEmployees,
+  (emp) => emp.employmentType !== selectedEmploymentType.value
+);
+
 // Methods
 // Selection helpers handled by SelectedEmployeesSummary component
 
@@ -147,10 +159,12 @@ const convertEmploymentType = async () => {
       return;
     }
 
-    // Use the bulk convert method from the store
-    const employeeIds = selectedEmployees.value
-      .map((emp) => emp._id)
-      .filter((id) => id) as string[];
+    // Only convert employees not already of the chosen type.
+    const employeeIds = applicableIds.value;
+    if (employeeIds.length === 0) {
+      isConverting.value = false;
+      return;
+    }
 
     appStore.bulkConvertEmploymentType(
       employeeIds,
