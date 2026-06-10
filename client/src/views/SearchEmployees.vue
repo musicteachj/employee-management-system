@@ -1,17 +1,16 @@
 <template>
   <div>
-    <!-- Search Form Card -->
-    <v-card class="pa-4 ma-2 data-table-card" elevation="3" rounded="lg">
-      <v-card-title class="pa-0 mb-2">
-        <h5 class="text-h5 text-primary font-weight-bold">Search Employees</h5>
-      </v-card-title>
-      <v-card-subtitle class="pa-0 mb-4">
-        <p class="text-body-2 text-medium-emphasis">
-          Use the filters below to search for employees across all fields
-        </p>
-      </v-card-subtitle>
-      <v-divider class="mb-4" />
+    <!-- Page header -->
+    <div class="page-head">
+      <span class="eyebrow">People</span>
+      <h1 class="page-title">Search Employees</h1>
+      <p class="page-subtitle">
+        Use the filters below to search for employees across all fields.
+      </p>
+    </div>
 
+    <!-- Search Form Card -->
+    <v-card class="filters-card pa-5" flat>
       <!-- Search Form -->
       <v-form @submit.prevent="performSearch">
         <v-row>
@@ -173,18 +172,17 @@
     <!-- No Results Message -->
     <v-card
       v-if="hasSearched && searchResults.length === 0 && !searching"
-      class="pa-6 ma-2 text-center"
-      elevation="2"
-      rounded="lg"
+      class="pa-8 text-center info-card"
+      flat
     >
       <v-icon
-        icon="mdi-account-search"
-        size="64"
-        color="grey-lighten-1"
-        class="mb-4"
+        icon="mdi-account-search-outline"
+        size="48"
+        color="primary"
+        class="mb-3"
       />
-      <h6 class="text-h6 text-medium-emphasis mb-2">No employees found</h6>
-      <p class="text-body-2 text-medium-emphasis">
+      <h6 class="text-h6 mb-1">No employees found</h6>
+      <p class="text-body-2 text-muted mb-0">
         Try adjusting your search criteria or clearing some filters to see more
         results.
       </p>
@@ -356,42 +354,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Card styling with subtle gradient */
-.data-table-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.data-table-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced divider with gradient */
-
-/* Form field enhancements */
-::deep(.v-field__outline) {
-  --v-field-border-opacity: 0.3;
-}
-
-::deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
-  border-width: 2px;
-}
-
-::deep(.v-field__input) {
-  background: rgba(var(--color-primary-rgb), 0.02);
-  border-radius: 8px;
-}
-
-/* Button styling */
-.v-btn {
-  transition: all 0.3s ease;
-}
-
-.v-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+/* Visuals handled by global CSS. */
 </style>

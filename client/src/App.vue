@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify";
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
 import { dialogRegistry, dialogMeta } from "./components/baseDialog/registry";
 import { useDialogStore } from "./stores/dialog";
@@ -9,10 +10,90 @@ import { useAppStore } from "./stores/app";
 import { useAuthStore } from "./stores/auth";
 
 const router = useRouter();
+const route = useRoute();
 const rail = ref(false);
 const drawer = ref(true);
-const open = ref<string[]>([]);
 const initialLoading = ref(true);
+
+// Auto-collapse the sidebar to its icon rail below desktop (tablet/small laptop),
+// keep it expanded on desktop. The toolbar button still toggles manually.
+const { lgAndUp } = useDisplay();
+watch(
+  lgAndUp,
+  (isDesktop) => {
+    rail.value = !isDesktop;
+  },
+  { immediate: true }
+);
+
+// Grouped sidebar navigation (enterprise console structure)
+const navGroups = [
+  {
+    label: "Overview",
+    items: [
+      { title: "Dashboard", icon: "mdi-view-dashboard-outline", to: "/" },
+      { title: "Analytics", icon: "mdi-chart-box-outline", to: "/analytics" },
+      {
+        title: "Performance Reviews",
+        icon: "mdi-chart-line",
+        to: "/performance-reviews",
+      },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { title: "Search Employees", icon: "mdi-magnify", to: "/search-employees" },
+      { title: "Add Employee", icon: "mdi-account-plus-outline", to: "/employee/new" },
+      { title: "Organization Chart", icon: "mdi-sitemap-outline", to: "/org-chart" },
+    ],
+  },
+  {
+    label: "Segments",
+    items: [
+      { title: "By Manager", icon: "mdi-account-tie-outline", to: "/by-manager" },
+      { title: "By Department", icon: "mdi-domain", to: "/by-department" },
+      { title: "By Status", icon: "mdi-account-switch-outline", to: "/by-status" },
+      {
+        title: "Contract Employees",
+        icon: "mdi-file-document-outline",
+        to: "/contract-employees",
+      },
+      {
+        title: "Former Employees",
+        icon: "mdi-account-minus-outline",
+        to: "/former-employees",
+      },
+    ],
+  },
+  {
+    label: "Pipeline",
+    items: [
+      {
+        title: "Unassigned Hires",
+        icon: "mdi-account-question-outline",
+        to: "/unassigned-hires",
+      },
+      { title: "Recent Hires", icon: "mdi-clock-outline", to: "/recent-hires" },
+      {
+        title: "Updated Profiles",
+        icon: "mdi-account-edit-outline",
+        to: "/updated-profiles",
+      },
+    ],
+  },
+];
+
+// Current page title for the top bar
+const pageTitle = computed(() => (route.name ? String(route.name) : "Dashboard"));
+
+// Initials for the user avatar
+const userInitials = computed(() => {
+  const name = authStore.user?.full_name?.trim();
+  if (!name) return "?";
+  const parts = name.split(/\s+/);
+  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+});
 
 const dialogStore = useDialogStore();
 const notificationStore = useNotificationStore();
@@ -107,76 +188,84 @@ watch(
 <template>
   <v-app>
     <v-layout>
-      <v-app-bar color="primary" flat>
-        <v-app-bar-nav-icon
-          v-if="authStore.isAuthenticated"
-          @click.stop="rail = !rail"
-        />
-        <v-app-bar-title>
-          <router-link to="/" class="text-white text-decoration-none">
-            Employee Management System
+      <v-navigation-drawer
+        v-if="authStore.isAuthenticated"
+        :rail="rail"
+        v-model="drawer"
+        permanent
+        width="264"
+        class="app-sidebar"
+      >
+        <!-- Brand header -->
+        <div class="sidebar-brand" :class="{ 'sidebar-brand--rail': rail }">
+          <router-link to="/" class="brand-link">
+            <div class="brand-tile">
+              <v-icon size="20" color="#EAB308">mdi-account-group</v-icon>
+            </div>
+            <div v-if="!rail" class="brand-text">
+              <span class="brand-name">EMS</span>
+              <span class="brand-sub">Employee Console</span>
+            </div>
           </router-link>
+        </div>
+
+        <v-divider class="sidebar-divider" />
+
+        <!-- Grouped navigation -->
+        <div class="sidebar-nav">
+          <template v-for="group in navGroups" :key="group.label">
+            <div v-if="!rail" class="nav-group-label">{{ group.label }}</div>
+            <v-list
+              density="compact"
+              nav
+              color="primary"
+              class="nav-list"
+              :class="{ 'nav-list--rail': rail }"
+            >
+              <v-list-item
+                v-for="item in group.items"
+                :key="item.to"
+                :to="item.to"
+                :prepend-icon="item.icon"
+                :title="item.title"
+                class="nav-item"
+                exact
+              />
+            </v-list>
+          </template>
+        </div>
+      </v-navigation-drawer>
+
+      <v-app-bar
+        v-if="authStore.isAuthenticated"
+        flat
+        class="app-topbar"
+        color="white"
+        height="64"
+      >
+        <v-app-bar-nav-icon icon="mdi-menu" @click.stop="rail = !rail" />
+        <v-app-bar-title class="topbar-title">
+          {{ pageTitle }}
         </v-app-bar-title>
 
         <v-spacer></v-spacer>
 
         <template v-if="authStore.isAuthenticated && authStore.user">
-          <v-chip class="mr-2" variant="flat" color="white">
-            <v-icon class="mr-2" color="primary">mdi-account-circle</v-icon>
-            {{ authStore.user.full_name }}
-          </v-chip>
-          <v-btn icon="mdi-logout" @click="handleLogout" title="Logout"></v-btn>
+          <div class="user-chip">
+            <v-avatar size="32" color="primary" class="user-avatar">
+              <span class="user-initials">{{ userInitials }}</span>
+            </v-avatar>
+            <span class="user-name">{{ authStore.user.full_name }}</span>
+          </div>
+          <v-btn
+            icon="mdi-logout-variant"
+            variant="text"
+            class="ml-1"
+            @click="handleLogout"
+            title="Logout"
+          ></v-btn>
         </template>
       </v-app-bar>
-      <v-navigation-drawer
-        v-if="authStore.isAuthenticated"
-        expand-on-hover
-        :rail="rail"
-        v-model="drawer"
-        permanent
-      >
-        <v-list density="compact" v-model:opened="open" color="primary">
-          <v-list-item prepend-icon="mdi-plus" to="/employee/new">
-            <v-list-item-title>Add New Employee</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-magnify" to="/search-employees">
-            <v-list-item-title>Search Employees</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-account-plus" to="/unassigned-hires">
-            <v-list-item-title>Unassigned Hires</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-clock-outline" to="/recent-hires">
-            <v-list-item-title>Recent Hires</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-account-edit" to="/updated-profiles">
-            <v-list-item-title>Updated Profiles</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-account-tie" to="/by-manager">
-            <v-list-item-title>By Manager</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-domain" to="/by-department">
-            <v-list-item-title>By Department</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-account-switch" to="/by-status">
-            <v-list-item-title>By Status</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-handshake" to="/contract-employees">
-            <v-list-item-title>Contract Employees</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-account-minus" to="/former-employees">
-            <v-list-item-title>Former Employees</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-chart-line" to="/performance-reviews">
-            <v-list-item-title>Performance Reviews</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-chart-box" to="/analytics">
-            <v-list-item-title>Analytics</v-list-item-title>
-          </v-list-item>
-          <v-list-item prepend-icon="mdi-sitemap" to="/org-chart">
-            <v-list-item-title>Organization Chart</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
       <v-main>
         <!-- Global loading overlay -->
         <v-overlay
@@ -218,4 +307,169 @@ watch(
   </v-app>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* ===== Sidebar (midnight indigo) ===== */
+.app-sidebar {
+  background: var(--color-sidebar) !important;
+  border-right: none !important;
+  color: #e8e8f5;
+}
+
+/* Brand header */
+.sidebar-brand {
+  padding: 20px 16px 16px;
+}
+.sidebar-brand--rail {
+  padding: 20px 0 16px;
+  display: flex;
+  justify-content: center;
+}
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.brand-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(129, 140, 248, 0.18);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  flex-shrink: 0;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.brand-name {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+.brand-sub {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  color: #a5a3d4;
+}
+
+.sidebar-divider {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Navigation */
+.sidebar-nav {
+  padding: 8px 0 24px;
+  overflow-y: auto;
+}
+.nav-group-label {
+  padding: 14px 20px 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #7c7aae;
+}
+.nav-list {
+  background: transparent !important;
+  padding: 0 10px;
+}
+.nav-list--rail {
+  padding: 0 8px;
+}
+
+/* List item text/icons → light on indigo */
+.app-sidebar :deep(.v-list-item__content),
+.app-sidebar :deep(.v-list-item-title) {
+  color: #c7c6e8;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.app-sidebar :deep(.v-list-item__prepend > .v-icon) {
+  color: #9a98ce;
+  opacity: 1;
+  margin-inline-end: 12px;
+}
+.app-sidebar :deep(.v-list-item) {
+  border-radius: 8px;
+  min-height: 40px;
+  margin-bottom: 2px;
+}
+
+/* Hover */
+.app-sidebar :deep(.v-list-item:hover) {
+  background: rgba(255, 255, 255, 0.06);
+}
+.app-sidebar :deep(.v-list-item:hover .v-list-item-title) {
+  color: #ffffff;
+}
+.app-sidebar :deep(.v-list-item:hover .v-icon) {
+  color: #c7c6e8;
+}
+
+/* Active — soft violet text + left accent + tinted bg */
+.app-sidebar :deep(.v-list-item--active) {
+  background: rgba(129, 140, 248, 0.16);
+}
+.app-sidebar :deep(.v-list-item--active)::before {
+  opacity: 0;
+}
+.app-sidebar :deep(.v-list-item--active .v-list-item-title) {
+  color: #ffffff;
+}
+.app-sidebar :deep(.v-list-item--active .v-icon) {
+  color: #818cf8;
+  opacity: 1;
+}
+.app-sidebar :deep(.v-list-item--active)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #818cf8;
+}
+
+/* ===== Top bar (white) ===== */
+.app-topbar {
+  border-bottom: 1px solid var(--color-border) !important;
+}
+.topbar-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  margin-right: 4px;
+}
+.user-initials {
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-slate);
+}
+@media (max-width: 600px) {
+  .user-name {
+    display: none;
+  }
+}
+</style>

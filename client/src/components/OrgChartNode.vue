@@ -290,9 +290,11 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
   width: 200px;
   min-height: 100px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  box-shadow: var(--shadow-xs);
   position: relative;
   z-index: 2;
   overflow: visible; /* allow pseudo-element to render above card */
@@ -331,15 +333,15 @@ const getJobLevelColor = (jobLevel: JobLevel): string => {
 }
 
 .employee-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  border-color: rgba(var(--color-primary-rgb), 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(var(--color-primary-rgb), 0.45);
 }
 
 .employee-card.highlighted {
   border-color: var(--color-primary);
-  background: linear-gradient(135deg, #e3f2fd 0%, #f8fafc 100%);
-  box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.2);
+  background: var(--color-primary-pale);
+  box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-sm);
 }
 
 .employee-avatar {

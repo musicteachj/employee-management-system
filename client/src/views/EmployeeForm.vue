@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="pa-4 ma-2 main-form-card" elevation="3" rounded="lg">
+    <v-card class="pa-4 main-form-card" flat rounded="lg">
       <!-- Header with navigation and actions -->
       <v-card-title
         class="py-3 d-flex justify-space-between align-center header-section"
@@ -13,7 +13,7 @@
             @click="backClicked"
             class="mr-2"
           />
-          <h5 class="text-h5 text-primary font-weight-bold">
+          <h5 class="text-h5 font-weight-bold text-ink">
             {{ pageTitle }}
           </h5>
         </div>
