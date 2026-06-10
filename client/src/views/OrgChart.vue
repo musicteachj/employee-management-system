@@ -131,18 +131,71 @@
         <div class="card-head">
           <v-icon size="20">mdi-sitemap-outline</v-icon>
           Organizational Hierarchy
+          <div class="chart-tools">
+            <v-btn size="small" variant="text" @click="expandAll">
+              Expand all
+            </v-btn>
+            <v-btn size="small" variant="text" @click="collapseAll">
+              Collapse all
+            </v-btn>
+            <v-divider vertical class="mx-1" />
+            <v-btn
+              icon="mdi-minus"
+              size="x-small"
+              variant="text"
+              title="Zoom out"
+              @click="zoomOut"
+            />
+            <span class="zoom-label tabular-nums">{{ Math.round(zoom * 100) }}%</span>
+            <v-btn
+              icon="mdi-plus"
+              size="x-small"
+              variant="text"
+              title="Zoom in"
+              @click="zoomIn"
+            />
+            <v-btn size="small" variant="text" @click="fitToWidth">Fit</v-btn>
+            <v-btn
+              icon="mdi-backup-restore"
+              size="x-small"
+              variant="text"
+              title="Reset zoom"
+              @click="resetZoom"
+            />
+          </div>
         </div>
 
-        <div class="org-chart-container">
-          <div v-if="filteredOrgChart.length === 0" class="empty-state ma-4">
+        <!-- Focus breadcrumb -->
+        <div v-if="focusedId" class="focus-bar">
+          <v-icon size="15">mdi-target</v-icon>
+          <button class="crumb" @click="clearFocus">Full org</button>
+          <template v-for="(c, i) in focusBreadcrumb" :key="c._id">
+            <v-icon size="13">mdi-chevron-right</v-icon>
+            <button
+              class="crumb"
+              :class="{ active: i === focusBreadcrumb.length - 1 }"
+              @click="c._id && orgApi.focusNode(c._id)"
+            >
+              {{ c.fullName }}
+            </button>
+          </template>
+        </div>
+
+        <div class="org-chart-container" ref="containerRef">
+          <div v-if="displayRoots.length === 0" class="empty-state ma-4">
             <v-icon icon="mdi-account-search-outline" size="40"></v-icon>
             <p class="mt-2 mb-0">No employees found matching your criteria</p>
           </div>
-          <div v-else class="org-hierarchy">
+          <div
+            v-else
+            class="org-hierarchy org-canvas"
+            ref="canvasRef"
+            :style="{ zoom }"
+          >
             <!-- Root level employees (CEO, top executives) -->
             <div class="root-level">
               <OrgChartNode
-                v-for="employee in filteredOrgChart"
+                v-for="employee in displayRoots"
                 :key="employee._id"
                 :employee="employee"
                 :level="0"
@@ -158,11 +211,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, reactive, computed, provide, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import type { Employee, JobLevel } from "../types";
+import { bySeniorityDesc } from "../constants/hierarchy";
 import OrgChartNode from "../components/OrgChartNode.vue";
+import { ORG_CHART_API, type OrgChartApi } from "../constants/orgChart";
 
 const router = useRouter();
 const appStore = useAppStore();
@@ -170,6 +225,19 @@ const appStore = useAppStore();
 // Reactive data
 const loading = ref(true);
 const employees = ref<Employee[]>([]);
+
+// Levels 0..DEFAULT_VISIBLE_DEPTH are shown by default; deeper nodes start
+// collapsed so the chart isn't an endless horizontal scroll.
+const DEFAULT_VISIBLE_DEPTH = 2;
+
+// Collapse state — a node is collapsed (children hidden) if its id is in the set.
+const collapsedIds = reactive(new Set<string>());
+// Focus / re-root — when set, only this node's subtree renders.
+const focusedId = ref<string | null>(null);
+// Zoom (CSS `zoom`, which scales layout so the scroll footprint shrinks too).
+const zoom = ref(1);
+const containerRef = ref<HTMLElement | null>(null);
+const canvasRef = ref<HTMLElement | null>(null);
 
 // Local enriched node type for org chart
 type EmployeeNode = Employee & {
@@ -204,24 +272,10 @@ const totalDepartments = computed(() => {
 
 // Organization chart structure
 const orgChart = computed<EmployeeNode[]>(() => {
-  // Rank map for job levels to help with consistent ordering
-  const jobLevelRank: Record<JobLevel, number> = {
-    CEO: 0,
-    "C-Level": 1,
-    VP: 2,
-    Director: 3,
-    Manager: 4,
-    Lead: 5,
-    Senior: 6,
-    Mid: 7,
-    Entry: 8,
-  };
-
   const compareNodes = (a: EmployeeNode, b: EmployeeNode) => {
-    // Sort by job level rank
-    const aRank = jobLevelRank[a.jobLevel] ?? 999;
-    const bRank = jobLevelRank[b.jobLevel] ?? 999;
-    if (aRank !== bRank) return aRank - bRank;
+    // Most senior first (CEO -> Entry), then by department/position/name.
+    const bySeniority = bySeniorityDesc(a, b);
+    if (bySeniority !== 0) return bySeniority;
     if (a.department !== b.department)
       return a.department.localeCompare(b.department);
     if (a.position !== b.position) return a.position.localeCompare(b.position);
@@ -345,6 +399,94 @@ const totalManagers = computed(() => {
   return count;
 });
 
+// Flat node lookup (built from the tree) for focus / breadcrumb.
+const nodeById = computed(() => {
+  const map = new Map<string, EmployeeNode>();
+  const stack = [...orgChart.value];
+  while (stack.length) {
+    const n = stack.pop()!;
+    if (n._id) map.set(n._id, n);
+    for (const c of n.children) stack.push(c);
+  }
+  return map;
+});
+
+// --- Collapse / expand ---
+const orgApi: OrgChartApi = {
+  // While searching, ignore collapse so matches are never hidden.
+  isCollapsed: (id) => (searchQuery.value ? false : collapsedIds.has(id)),
+  toggleCollapsed: (id) =>
+    collapsedIds.has(id) ? collapsedIds.delete(id) : collapsedIds.add(id),
+  focusNode: (id) => {
+    focusedId.value = id;
+  },
+};
+provide(ORG_CHART_API, orgApi);
+
+const seedCollapse = (nodes: EmployeeNode[]) => {
+  const stack = [...nodes];
+  while (stack.length) {
+    const n = stack.pop()!;
+    if (n._id && n.children.length > 0 && n.computedLevel >= DEFAULT_VISIBLE_DEPTH) {
+      collapsedIds.add(n._id);
+    }
+    for (const c of n.children) stack.push(c);
+  }
+};
+
+// Seed the default-collapsed state once the tree is first available.
+const seeded = ref(false);
+watch(
+  orgChart,
+  (nodes) => {
+    if (seeded.value || nodes.length === 0) return;
+    seedCollapse(nodes);
+    seeded.value = true;
+  },
+  { immediate: true }
+);
+
+const expandAll = () => collapsedIds.clear();
+const collapseAll = () => {
+  collapsedIds.clear();
+  for (const [id, node] of nodeById.value) {
+    if (node.children.length > 0) collapsedIds.add(id);
+  }
+};
+
+// --- Zoom ---
+const clampZoom = (z: number) => Math.min(1, Math.max(0.3, z));
+const zoomIn = () => (zoom.value = clampZoom(zoom.value + 0.1));
+const zoomOut = () => (zoom.value = clampZoom(zoom.value - 0.1));
+const resetZoom = () => (zoom.value = 1);
+const fitToWidth = () => {
+  const container = containerRef.value;
+  const canvas = canvasRef.value;
+  if (!container || !canvas) return;
+  // offsetWidth already reflects the current zoom, so unscale to get natural width.
+  const natural = canvas.offsetWidth / zoom.value;
+  if (!natural) return;
+  zoom.value = clampZoom((container.clientWidth - 48) / natural);
+};
+
+// --- Focus / re-root ---
+const focusBreadcrumb = computed<EmployeeNode[]>(() => {
+  if (!focusedId.value) return [];
+  const byEmpId = new Map(employees.value.map((e) => [e._id ?? "", e]));
+  const path: EmployeeNode[] = [];
+  let current: string | null | undefined = focusedId.value;
+  const seen = new Set<string>();
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    const node = nodeById.value.get(current);
+    if (node) path.unshift(node);
+    current = byEmpId.get(current)?.managerId;
+  }
+  return path;
+});
+
+const clearFocus = () => (focusedId.value = null);
+
 // Filtered organization chart
 const filteredOrgChart = computed<EmployeeNode[]>(() => {
   if (
@@ -397,6 +539,15 @@ const filteredOrgChart = computed<EmployeeNode[]>(() => {
     .filter((emp) => emp !== null) as EmployeeNode[];
 });
 
+// What actually renders: a focused subtree if focus is set, else the filtered tree.
+const displayRoots = computed<EmployeeNode[]>(() => {
+  if (focusedId.value) {
+    const node = nodeById.value.get(focusedId.value);
+    return node ? [node] : filteredOrgChart.value;
+  }
+  return filteredOrgChart.value;
+});
+
 // Methods
 const loadData = async () => {
   try {
@@ -427,4 +578,56 @@ onMounted(() => {
 
 <style scoped>
 /* Component-specific styles only - common styles are in global CSS */
+
+/* Chart toolbar (right side of the card header) */
+.chart-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;
+}
+.zoom-label {
+  min-width: 40px;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-slate);
+}
+
+/* Focus breadcrumb bar */
+.focus-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 20px;
+  background: var(--color-primary-pale);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+}
+.focus-bar .v-icon {
+  color: var(--color-primary);
+}
+.crumb {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--color-primary);
+  font: inherit;
+  border-radius: 4px;
+}
+.crumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.12);
+}
+.crumb.active {
+  color: var(--color-ink);
+  font-weight: 700;
+  cursor: default;
+}
+
+/* The zoom canvas scales layout via CSS `zoom`, so the scroll area shrinks too. */
+.org-canvas {
+  transition: none;
+}
 </style>

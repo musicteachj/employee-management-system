@@ -221,7 +221,7 @@ export interface GroupByInfo {
 // This should match the keys in the Employee interface pick
 export type GroupByOption = keyof Pick<
   Employee,
-  "managerName" | "department" | "status"
+  "managerName" | "department" | "status" | "jobLevel"
 >;
 
 // Performance Review Enhanced Types

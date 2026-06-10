@@ -4,172 +4,140 @@
 
     <!-- Performance Review Scheduling Form -->
     <v-form>
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-calendar-clock</v-icon>
-          Performance Review Details
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reviewDate"
-                label="Review Date *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.reviewDate"
-                class="form-field"
-                color="primary"
-                hint="Date when the performance review will be conducted"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="nextReviewDate"
-                label="Next Review Date"
-                type="date"
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.nextReviewDate"
-                class="form-field"
-                color="primary"
-                hint="Date for the following review cycle"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reviewPeriodStart"
-                label="Review Period Start *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.reviewPeriodStart"
-                class="form-field"
-                color="primary"
-                hint="Start date of the performance period being reviewed"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reviewPeriodEnd"
-                label="Review Period End *"
-                type="date"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.reviewPeriodEnd"
-                class="form-field"
-                color="primary"
-                hint="End date of the performance period being reviewed"
-                persistent-hint
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+      <div class="dialog-subhead">Review Details</div>
+      <v-row dense>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="reviewDate"
+            label="Review Date *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.reviewDate"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="nextReviewDate"
+            label="Next Review Date"
+            type="date"
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.nextReviewDate"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="reviewPeriodStart"
+            label="Review Period Start *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.reviewPeriodStart"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="reviewPeriodEnd"
+            label="Review Period End *"
+            type="date"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.reviewPeriodEnd"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+      </v-row>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-account-tie</v-icon>
-          Reviewer Assignment
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12">
-              <v-select
-                v-model="selectedReviewerId"
-                :items="reviewerOptions"
-                label="Select Reviewer *"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.reviewerId"
-                class="form-field"
-                color="primary"
-                item-title="title"
-                item-value="value"
-                clearable
-                :hint="
-                  selectedReviewerId
-                    ? `Reviewer: ${getSelectedReviewerInfo()}`
-                    : 'Choose a reviewer to conduct the performance reviews'
-                "
-                persistent-hint
-              >
-                <template v-slot:item="{ props }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <v-avatar size="32" color="primary">
-                        <v-icon icon="mdi-account-tie" />
-                      </v-avatar>
-                    </template>
-                  </v-list-item>
+      <div class="dialog-subhead">Reviewer Assignment</div>
+      <v-row dense>
+        <v-col cols="12">
+          <v-select
+            v-model="selectedReviewerId"
+            :items="reviewerOptions"
+            label="Select Reviewer *"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.reviewerId"
+            class="form-field"
+            color="primary"
+            item-title="title"
+            item-value="value"
+            clearable
+            no-data-text="No eligible reviewers for the selected employees' level"
+            :hint="
+              selectedReviewerId
+                ? `Reviewer: ${getSelectedReviewerInfo()}`
+                : reviewerOptions.length === 0
+                ? 'No eligible reviewers — a reviewer must be at or above the most senior selected employee'
+                : 'Choose a reviewer to conduct the performance reviews'
+            "
+            persistent-hint
+          >
+            <template v-slot:item="{ props }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar size="32" color="primary">
+                    <v-icon icon="mdi-account-tie" />
+                  </v-avatar>
                 </template>
-              </v-select>
-            </v-col>
-            <v-col cols="12">
-              <v-select
-                v-model="reviewType"
-                :items="reviewTypeOptions"
-                label="Review Type *"
-                required
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.reviewType"
-                class="form-field"
-                color="primary"
-                hint="Type of performance review to be conducted"
-                persistent-hint
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+              </v-list-item>
+            </template>
+          </v-select>
+        </v-col>
+        <v-col cols="12">
+          <v-select
+            v-model="reviewType"
+            :items="reviewTypeOptions"
+            label="Review Type *"
+            required
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.reviewType"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+      </v-row>
 
-      <v-card variant="outlined" class="section-card">
-        <v-card-title class="text-subtitle-1 section-header py-2">
-          <v-icon class="mr-2" size="small">mdi-note-text</v-icon>
-          Additional Information
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-row dense>
-            <v-col cols="12">
-              <v-textarea
-                v-model="reviewNotes"
-                label="Review Notes"
-                variant="outlined"
-                rows="3"
-                density="compact"
-                :error-messages="errors.reviewNotes"
-                class="form-field"
-                color="primary"
-                hint="Optional notes or special instructions for the performance review"
-                persistent-hint
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-select
-                v-model="priority"
-                :items="priorityOptions"
-                label="Priority"
-                variant="outlined"
-                density="compact"
-                :error-messages="errors.priority"
-                class="form-field"
-                color="primary"
-                hint="Priority level for scheduling this review"
-                persistent-hint
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+      <div class="dialog-subhead">Additional Information</div>
+      <v-row dense>
+        <v-col cols="12">
+          <v-textarea
+            v-model="reviewNotes"
+            label="Review Notes"
+            variant="outlined"
+            rows="3"
+            density="comfortable"
+            :error-messages="errors.reviewNotes"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-select
+            v-model="priority"
+            :items="priorityOptions"
+            label="Priority"
+            variant="outlined"
+            density="comfortable"
+            :error-messages="errors.priority"
+            class="form-field"
+            color="primary"
+          />
+        </v-col>
+      </v-row>
 
       <!-- Action Buttons -->
       <DialogActions
@@ -191,6 +159,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useDialogStore } from "../../../stores/dialog";
 import { useAppStore } from "../../../stores/app";
 import type { Manager } from "../../../types";
+import { getEligibleManagers } from "../../../constants/hierarchy";
 import {
   scheduleReviewSchema,
   type ScheduleReviewFormData,
@@ -249,8 +218,14 @@ const priorityOptions = [
   { title: "Urgent", value: "urgent" },
 ];
 
+// A reviewer must be able to manage the selected employees: at or above their
+// level, Active/On Leave, Full-time/Part-time, and not one of them.
 const reviewerOptions = computed(() =>
-  appStore.managers.map((manager: Manager) => ({
+  getEligibleManagers({
+    reports: selectedEmployees.value,
+    managers: appStore.managers,
+    employees: appStore.employees,
+  }).map((manager: Manager) => ({
     title: manager.name,
     value: manager.id,
     subtitle: `${manager.department} - ${manager.email}`,

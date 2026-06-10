@@ -94,6 +94,19 @@
             />
           </v-col>
 
+          <v-col cols="12" md="6">
+            <v-select
+              v-model="searchCriteria.jobLevel"
+              :items="appStore.formOptions.jobLevels"
+              label="Job Level"
+              variant="outlined"
+              density="compact"
+              clearable
+              prepend-inner-icon="mdi-stairs"
+              color="primary"
+            />
+          </v-col>
+
           <!-- Validation Message -->
           <v-col v-if="!hasValidInput && showValidationMessage" cols="12">
             <v-alert
@@ -195,7 +208,12 @@ import { ref, computed, reactive, onMounted } from "vue";
 import { useAppStore } from "../stores/app";
 import DataTable from "../components/DataTable.vue";
 import { exportToExcel } from "../modules/genericHelper";
-import type { Employee, EmploymentType, ActiveStatus } from "../types";
+import type {
+  Employee,
+  EmploymentType,
+  ActiveStatus,
+  JobLevel,
+} from "../types";
 
 const appStore = useAppStore();
 
@@ -213,6 +231,7 @@ interface SearchCriteria {
   status?: ActiveStatus;
   managerId?: string;
   employmentType?: EmploymentType;
+  jobLevel?: JobLevel;
 }
 
 // Initialize search criteria
@@ -223,6 +242,7 @@ const searchCriteria = reactive<SearchCriteria>({
   status: undefined,
   managerId: "",
   employmentType: undefined,
+  jobLevel: undefined,
 });
 
 // Computed options for dropdowns
@@ -248,7 +268,8 @@ const hasValidInput = computed(() => {
     (searchCriteria.position && searchCriteria.position.trim()) ||
     searchCriteria.status ||
     (searchCriteria.managerId && searchCriteria.managerId.trim()) ||
-    searchCriteria.employmentType
+    searchCriteria.employmentType ||
+    searchCriteria.jobLevel
   );
 });
 
@@ -325,6 +346,7 @@ const clearSearch = () => {
     status: undefined,
     managerId: "",
     employmentType: undefined,
+    jobLevel: undefined,
   });
 
   // Clear results and validation
