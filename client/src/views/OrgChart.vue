@@ -1,107 +1,77 @@
 <template>
   <div class="org-chart">
-    <!-- Header Section -->
-    <v-card class="pa-4 ma-2 mb-4 header-card" elevation="3" rounded="lg">
-      <v-card-title class="pa-0 mb-2">
-        <h5 class="text-h5 text-primary font-weight-bold">
-          Organization Chart
-        </h5>
-      </v-card-title>
-      <v-card-subtitle class="pa-0">
-        <p class="text-body-2 text-medium-emphasis">
-          Hierarchical view of organizational structure and reporting
-          relationships
-        </p>
-      </v-card-subtitle>
-      <v-divider class="mt-4" />
-    </v-card>
+    <!-- Page header -->
+    <div class="page-head">
+      <span class="eyebrow">People</span>
+      <h1 class="page-title">Organization Chart</h1>
+      <p class="page-subtitle">
+        Hierarchical view of organizational structure and reporting
+        relationships.
+      </p>
+    </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center pa-8">
       <v-progress-circular
         indeterminate
         color="primary"
-        size="64"
+        size="56"
       ></v-progress-circular>
-      <p class="mt-4 text-body-1">Loading organization chart...</p>
+      <p class="mt-4 text-body-2 text-muted">Loading organization chart…</p>
     </div>
 
     <!-- Main Content -->
     <div v-else>
       <!-- Summary Cards -->
-      <v-row class="ma-n1 mb-4">
+      <v-row class="mb-2">
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="primary"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-account-group" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ totalEmployees }}</h3>
-                <p class="text-body-2">Total Employees</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon">
+              <v-icon size="24">mdi-account-group</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Total Employees</span>
+              <span class="kpi-value tabular-nums">{{ totalEmployees }}</span>
             </div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="success"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-sitemap" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ maxLevels }}</h3>
-                <p class="text-body-2">Org Levels</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon kpi-icon--success">
+              <v-icon size="24">mdi-sitemap-outline</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Org Levels</span>
+              <span class="kpi-value tabular-nums">{{ maxLevels }}</span>
             </div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="info"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-account-tie" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ totalManagers }}</h3>
-                <p class="text-body-2">Managers</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon kpi-icon--info">
+              <v-icon size="24">mdi-account-tie-outline</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Managers</span>
+              <span class="kpi-value tabular-nums">{{ totalManagers }}</span>
             </div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            class="pa-4 summary-card"
-            elevation="3"
-            rounded="lg"
-            color="warning"
-            variant="tonal"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="mdi-domain" size="40" class="mr-3"></v-icon>
-              <div>
-                <h3 class="text-h3">{{ totalDepartments }}</h3>
-                <p class="text-body-2">Departments</p>
-              </div>
+          <v-card class="kpi-card" flat>
+            <div class="kpi-icon kpi-icon--warning">
+              <v-icon size="24">mdi-domain</v-icon>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Departments</span>
+              <span class="kpi-value tabular-nums">{{ totalDepartments }}</span>
             </div>
           </v-card>
         </v-col>
       </v-row>
 
       <!-- Filters -->
-      <v-card class="pa-4 ma-2 mb-4 filters-card" elevation="3" rounded="lg">
+      <v-card class="pa-4 mb-4 filters-card" flat>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
@@ -157,19 +127,16 @@
       </v-card>
 
       <!-- Organization Chart -->
-      <v-card class="pa-2 ma-2 chart-card" elevation="3" rounded="lg">
-        <v-card-title class="pa-0 mb-2">
-          <h5 class="text-h5 text-primary font-weight-bold">
-            Organizational Hierarchy
-          </h5>
-        </v-card-title>
+      <v-card class="chart-card" flat>
+        <div class="card-head">
+          <v-icon size="20">mdi-sitemap-outline</v-icon>
+          Organizational Hierarchy
+        </div>
 
         <div class="org-chart-container">
-          <div v-if="filteredOrgChart.length === 0" class="text-center pa-8">
-            <v-icon icon="mdi-account-search" size="64" color="grey"></v-icon>
-            <p class="text-body-1 mt-4">
-              No employees found matching your criteria
-            </p>
+          <div v-if="filteredOrgChart.length === 0" class="empty-state ma-4">
+            <v-icon icon="mdi-account-search-outline" size="40"></v-icon>
+            <p class="mt-2 mb-0">No employees found matching your criteria</p>
           </div>
           <div v-else class="org-hierarchy">
             <!-- Root level employees (CEO, top executives) -->

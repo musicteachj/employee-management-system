@@ -41,7 +41,7 @@ const statusColors: Record<string, string> = {
   Inactive: warning,
   Terminated: error,
   "On Leave": info,
-  Probation: "#5e35b1", // indigo for distinction
+  Probation: "#4F46E5", // indigo for distinction
 };
 
 const createChart = () => {
@@ -95,7 +95,6 @@ const createChart = () => {
               if (data.labels && data.datasets.length) {
                 return data.labels.map((label, i) => {
                   const dataset = data.datasets[0];
-                  const value = dataset.data[i] as number;
                   const percentage = props.statusData[i]?.percentage || 0;
                   return {
                     text: `${label} (${percentage}%)`,

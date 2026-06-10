@@ -1,37 +1,44 @@
 /* Utility Classes and Layout Helpers */
 
-/* Page container styling */
+/* Page container padding */
 .analytics,
 .performance-reviews,
 .org-chart {
   padding: 8px;
 }
 
-/* Enhanced spacing */
+/* Spacing */
+.gap-2 {
+  gap: 8px;
+}
 .gap-3 {
   gap: 12px;
 }
+.gap-4 {
+  gap: 16px;
+}
 
-/* Empty state styling */
+/* Empty state */
 .empty-state {
   text-align: center;
-  padding: 16px 16px;
-  background: rgba(245, 247, 250, 0.5);
-  border-radius: 8px;
-  border: 2px dashed rgba(158, 158, 158, 0.3);
+  padding: 24px 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  color: var(--color-gray);
 }
 
 .empty-state .v-icon {
   opacity: 0.6;
 }
 
-/* Employee list styling */
+/* Scrollable employee list */
 .employee-list {
   max-height: 200px;
   overflow-y: auto;
 }
 
-/* Organization chart container */
+/* ----- Organization chart layout ----- */
 .org-chart-container {
   min-height: 400px;
   overflow-x: auto;
@@ -59,77 +66,91 @@
   min-width: fit-content;
 }
 
-/* Responsive adjustments */
 @media (min-width: 1200px) {
   .org-chart-container {
     padding: 40px;
   }
-
   .root-level {
     padding: 0 60px;
   }
 }
 
-/* Common color utilities */
+/* ----- Color text utilities ----- */
 .text-primary {
   color: var(--color-primary) !important;
 }
-
 .text-success {
   color: var(--color-success) !important;
 }
-
 .text-warning {
   color: var(--color-warning) !important;
 }
-
 .text-error {
   color: var(--color-error) !important;
 }
-
 .text-info {
   color: var(--color-info) !important;
 }
+.text-gold {
+  color: var(--color-accent-text) !important;
+}
+.text-ink {
+  color: var(--color-ink) !important;
+}
+.text-slate {
+  color: var(--color-slate) !important;
+}
+.text-muted {
+  color: var(--color-gray) !important;
+}
 
-/* Background utilities */
+/* Eyebrow / overline label (uppercase, gray, spaced) */
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-gray);
+}
+
+/* ----- Background tints ----- */
 .bg-primary-light {
   background: rgba(var(--color-primary-rgb), 0.1) !important;
 }
-
+.bg-primary-pale {
+  background: var(--color-primary-pale) !important;
+}
+.bg-gold-pale {
+  background: var(--color-accent-pale) !important;
+}
 .bg-success-light {
-  background: rgba(var(--color-success-rgb), 0.1) !important;
+  background: rgba(var(--color-success-rgb), 0.12) !important;
 }
-
 .bg-warning-light {
-  background: rgba(var(--color-warning-rgb), 0.1) !important;
+  background: rgba(var(--color-warning-rgb), 0.12) !important;
 }
-
 .bg-error-light {
-  background: rgba(var(--color-error-rgb), 0.1) !important;
+  background: rgba(var(--color-error-rgb), 0.12) !important;
 }
 
-/* Shadow utilities */
+/* ----- Shadow utilities (single scale) ----- */
 .shadow-light {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-xs);
 }
-
 .shadow-medium {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
-
 .shadow-heavy {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Transition utilities */
+/* ----- Transitions ----- */
 .transition-all {
-  transition: all 0.3s ease;
-}
-
-.transition-fast {
   transition: all 0.2s ease;
 }
-
+.transition-fast {
+  transition: all 0.15s ease;
+}
 .transition-slow {
-  transition: all 0.5s ease;
+  transition: all 0.4s ease;
 }

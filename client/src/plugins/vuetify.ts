@@ -19,27 +19,35 @@ export default createVuetify({
     defaultTheme: "light",
     themes: {
       light: {
+        dark: false,
         colors: {
-          primary: "#00897b", // Teal
-          secondary: "#37474f", // Dark blue-gray
-          accent: "#26c6da", // Light cyan
-          error: "#f44336",
-          warning: "#ff9800",
-          info: "#1565c0",
-          success: "#4caf50",
+          primary: "#4F46E5", // Indigo
+          secondary: "#3F3F46", // Slate (neutral text)
+          accent: "#EAB308", // Gold
+          error: "#DC2626",
+          warning: "#D97706",
+          info: "#0EA5E9",
+          success: "#059669",
+          background: "#F4F4F5", // Page surface
+          surface: "#FFFFFF", // Cards, panels
+          "surface-variant": "#F1F1F4",
+          "on-surface": "#18181B", // Ink
+          "on-background": "#18181B",
+        },
+        variables: {
+          "border-color": "#E4E4E7",
+          "border-opacity": 1,
+          "high-emphasis-opacity": 0.92,
+          "medium-emphasis-opacity": 0.66,
         },
       },
-      // dark: {
-      //   colors: {
-      //     primary: "#42b883",
-      //     secondary: "#34495e",
-      //     accent: "#646cff",
-      //     error: "#f44336",
-      //     warning: "#ff9800",
-      //     info: "#2196f3",
-      //     success: "#4caf50",
-      //   },
-      // },
     },
+  },
+  defaults: {
+    VCard: { rounded: "lg" },
+    VTextField: { color: "primary" },
+    VSelect: { color: "primary" },
+    VTextarea: { color: "primary" },
+    VAutocomplete: { color: "primary" },
   },
 });

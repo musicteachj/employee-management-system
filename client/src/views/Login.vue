@@ -1,116 +1,131 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <v-row align="center" justify="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card elevation="8" class="pa-4">
-          <v-card-title class="text-h4 text-center text-primary mb-4">
-            <v-icon
-              icon="mdi-account-circle"
-              size="large"
-              class="mr-2"
-              color="primary"
-            ></v-icon>
-            Login
-          </v-card-title>
+  <div class="auth-shell">
+    <!-- Brand panel -->
+    <aside class="auth-brand">
+      <div class="auth-brand-top">
+        <div class="auth-brand-tile">
+          <v-icon size="22" color="#EAB308">mdi-account-group</v-icon>
+        </div>
+        <div class="auth-brand-lockup">
+          <span class="auth-brand-name">EMS</span>
+          <span class="auth-brand-sub">Employee Console</span>
+        </div>
+      </div>
 
-          <v-card-text>
-            <v-alert
-              v-if="authStore.error"
-              type="error"
-              class="mb-4"
-              closable
-              @click:close="authStore.clearError()"
-            >
-              {{ authStore.error }}
-            </v-alert>
+      <div class="auth-brand-mid">
+        <h1 class="auth-headline">
+          Your workforce,<br />in one clear view.
+        </h1>
+        <p class="auth-subhead">
+          Hiring, performance, org structure, and reporting — managed from a
+          single enterprise console.
+        </p>
+        <ul class="auth-features">
+          <li>
+            <v-icon size="18" color="#818CF8">mdi-check-circle</v-icon>
+            Real-time headcount &amp; analytics
+          </li>
+          <li>
+            <v-icon size="18" color="#818CF8">mdi-check-circle</v-icon>
+            Performance review tracking
+          </li>
+          <li>
+            <v-icon size="18" color="#818CF8">mdi-check-circle</v-icon>
+            Org chart &amp; reporting lines
+          </li>
+        </ul>
+      </div>
 
-            <!-- Demo Credentials Info -->
-            <v-alert
-              type="info"
-              variant="tonal"
-              class="mb-6"
-              prominent
-              border="start"
-            >
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-subtitle-2 font-weight-bold mb-1">
-                    Demo Credentials
-                  </div>
-                  <div class="text-body-2">
-                    <strong>Email:</strong> test@example.com<br />
-                    <strong>Password:</strong> Test123!
-                  </div>
-                </div>
-                <v-btn
-                  color="info"
-                  variant="elevated"
-                  size="small"
-                  @click="fillDemoCredentials"
-                  class="ml-4"
-                >
-                  Use Demo
-                </v-btn>
-              </div>
-            </v-alert>
+      <div class="auth-brand-foot">
+        © {{ new Date().getFullYear() }} Employee Management System
+      </div>
+    </aside>
 
-            <v-form @submit.prevent="handleLogin">
-              <v-text-field
-                v-model="email"
-                label="Email"
-                type="email"
-                prepend-icon="mdi-email"
-                :error-messages="emailError"
-                required
-                variant="outlined"
-                class="mb-2"
-                color="primary"
-              ></v-text-field>
+    <!-- Form panel -->
+    <main class="auth-form-wrap">
+      <div class="auth-form">
+        <div class="auth-form-head">
+          <h2 class="auth-title">Sign in</h2>
+          <p class="auth-desc">Welcome back. Enter your credentials to continue.</p>
+        </div>
 
-              <v-text-field
-                v-model="password"
-                label="Password"
-                :type="showPassword ? 'text' : 'password'"
-                prepend-icon="mdi-lock"
-                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append-inner="showPassword = !showPassword"
-                :error-messages="passwordError"
-                required
-                variant="outlined"
-                class="mb-2"
-                color="primary"
-              ></v-text-field>
+        <v-alert
+          v-if="authStore.error"
+          type="error"
+          variant="tonal"
+          class="mb-4"
+          closable
+          @click:close="authStore.clearError()"
+        >
+          {{ authStore.error }}
+        </v-alert>
 
-              <v-btn
-                type="submit"
-                color="primary"
-                block
-                size="large"
-                :loading="authStore.isLoading"
-                class="mt-4"
-              >
-                Login
-              </v-btn>
-            </v-form>
-
-            <v-divider class="my-6"></v-divider>
-
-            <div class="text-center">
-              <p class="text-body-2">
-                Don't have an account?
-                <router-link
-                  to="/register"
-                  class="text-primary text-decoration-none"
-                >
-                  Register here
-                </router-link>
-              </p>
+        <!-- Demo Credentials Info -->
+        <div class="demo-box">
+          <div>
+            <div class="demo-title">Demo credentials</div>
+            <div class="demo-creds">
+              test@example.com&nbsp;·&nbsp;Test123!
             </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+          </div>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            size="small"
+            @click="fillDemoCredentials"
+          >
+            Use demo
+          </v-btn>
+        </div>
+
+        <v-form @submit.prevent="handleLogin">
+          <v-text-field
+            v-model="email"
+            label="Email"
+            type="email"
+            prepend-inner-icon="mdi-email-outline"
+            :error-messages="emailError"
+            required
+            variant="outlined"
+            density="comfortable"
+            class="mb-3"
+            color="primary"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="password"
+            label="Password"
+            :type="showPassword ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="showPassword = !showPassword"
+            :error-messages="passwordError"
+            required
+            variant="outlined"
+            density="comfortable"
+            class="mb-2"
+            color="primary"
+          ></v-text-field>
+
+          <v-btn
+            type="submit"
+            color="primary"
+            block
+            size="large"
+            :loading="authStore.isLoading"
+            class="mt-3"
+          >
+            Sign in
+          </v-btn>
+        </v-form>
+
+        <div class="auth-foot">
+          Don't have an account?
+          <router-link to="/register" class="auth-link">Create one</router-link>
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -156,8 +171,4 @@ const handleLogin = handleSubmit(async (values) => {
 });
 </script>
 
-<style scoped>
-.v-card {
-  border-radius: 16px;
-}
-</style>
+<style scoped></style>

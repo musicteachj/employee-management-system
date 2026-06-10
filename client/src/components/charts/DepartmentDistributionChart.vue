@@ -29,20 +29,18 @@ const props = defineProps<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: ChartJS | null = null;
 
-// Teal-aligned categorical palette
+// Indigo + gold categorical palette (EMS chart series order)
 const colors = [
-  getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-primary")
-    .trim() || "#00897b",
-  "#26c6da", // accent cyan
-  "#4caf50", // success green
-  "#ffb74d", // soft orange
-  "#5e35b1", // indigo/purple accent
-  "#009688", // teal variant
-  "#90a4ae", // blue-grey
-  "#8d6e63", // brown
-  "#42a5f5", // light blue for contrast
-  "#ef5350", // soft red
+  "#4F46E5", // indigo (primary series)
+  "#EAB308", // gold
+  "#059669", // green
+  "#EC4899", // pink
+  "#0891B2", // cyan
+  "#818CF8", // soft violet
+  "#A16207", // deep gold
+  "#0EA5E9", // info blue
+  "#DB2777", // deep pink
+  "#A1A1AA", // gray (other/neutral)
 ];
 
 const createChart = () => {

@@ -5,24 +5,147 @@
 @import "./forms.css";
 @import "./components.css";
 @import "./utilities.css";
+@import "./auth.css";
 
-/* Theme variables aligned with Vuetify teal theme */
+/* ==========================================================================
+   EMS Design Tokens — Indigo primary + warm gold accent. Light enterprise
+   console. Variable names are kept stable (primary/secondary/accent/...) so
+   existing rgba() usages keep working; only the values changed.
+   ========================================================================== */
 :root {
-  /* Base hex colors */
-  --color-primary: #00897b; /* Teal */
-  --color-secondary: #37474f; /* Dark blue-gray */
-  --color-accent: #26c6da; /* Light cyan */
-  --color-error: #f44336;
-  --color-warning: #ff9800;
-  --color-info: #1565c0;
-  --color-success: #4caf50;
+  /* Brand primary — indigo */
+  --color-primary: #4f46e5; /* buttons, links, actions, focus rings */
+  --color-primary-hover: #818cf8; /* hover, secondary, active nav indicator */
+  --color-primary-pale: #e0e0fb; /* selected rows, info bg, complete badge */
+  --color-sidebar: #1e1b4b; /* midnight indigo — sidebar / dark nav */
+  --color-sidebar-2: #2a2566; /* slightly lifted sidebar surface */
+
+  /* Accent — gold (complement to indigo) */
+  --color-accent: #eab308; /* fills, chart accents, icons (not small text) */
+  --color-accent-text: #a16207; /* gold TEXT only (contrast on white) */
+  --color-accent-pale: #fef6da; /* accent background blocks, callouts */
+
+  /* Neutrals */
+  --color-ink: #18181b; /* primary text */
+  --color-slate: #3f3f46; /* secondary text */
+  --color-gray: #a1a1aa; /* labels, hints, placeholders */
+  --color-border: #e4e4e7; /* dividers, input borders */
+  --color-surface: #f4f4f5; /* page background */
+  --color-white: #ffffff; /* cards, panels */
+
+  /* Legacy alias kept for existing markup — maps to slate */
+  --color-secondary: #3f3f46;
+
+  /* Semantic */
+  --color-success: #059669; /* active, hired, complete */
+  --color-warning: #d97706; /* pending, expiring soon */
+  --color-error: #dc2626; /* errors, terminations */
+  --color-info: #0ea5e9; /* tooltips, info states */
+
+  /* Status badge recipes (text / bg) */
+  --badge-active-text: #065f46;
+  --badge-active-bg: #d1fae5;
+  --badge-pending-text: #92400e;
+  --badge-pending-bg: #fef3c7;
+  --badge-complete-text: #3730a3;
+  --badge-complete-bg: #e0e0fb;
+  --badge-terminated-text: #991b1b;
+  --badge-terminated-bg: #fee2e2;
 
   /* RGB triplets for alpha usage */
-  --color-primary-rgb: 0, 137, 123;
-  --color-secondary-rgb: 55, 71, 79;
-  --color-accent-rgb: 38, 198, 218;
-  --color-error-rgb: 244, 67, 54;
-  --color-warning-rgb: 255, 152, 0;
-  --color-info-rgb: 21, 101, 192;
-  --color-success-rgb: 76, 175, 80;
+  --color-primary-rgb: 79, 70, 229;
+  --color-primary-hover-rgb: 129, 140, 248;
+  --color-sidebar-rgb: 30, 27, 75;
+  --color-secondary-rgb: 63, 63, 70;
+  --color-accent-rgb: 234, 179, 8;
+  --color-error-rgb: 220, 38, 38;
+  --color-warning-rgb: 217, 119, 6;
+  --color-info-rgb: 14, 165, 233;
+  --color-success-rgb: 5, 150, 105;
+  --color-ink-rgb: 24, 24, 27;
+
+  /* Elevation scale — single, restrained system */
+  --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.06);
+  --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.08), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08);
+  --shadow-lg: 0 12px 28px rgba(24, 24, 27, 0.12);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+}
+
+/* ==========================================================================
+   Base typography — Plus Jakarta Sans (loaded in index.html)
+   ========================================================================== */
+html,
+body {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+/* Apply across the whole Vuetify app and its component slots */
+.v-application,
+.v-application .text-h1,
+.v-application .text-h2,
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .text-h6,
+.v-application .text-subtitle-1,
+.v-application .text-subtitle-2,
+.v-application .text-body-1,
+.v-application .text-body-2,
+.v-application .text-button,
+.v-application .text-caption,
+.v-application .text-overline {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI",
+    sans-serif !important;
+}
+
+/* Page surface for the main content region */
+.v-main {
+  background-color: var(--color-surface);
+}
+
+/* Headings: tighten and firm up weight */
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5 {
+  font-weight: 800 !important;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.v-application .text-h6 {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+/* Tabular figures for numeric data so columns/metrics don't shift */
+.tabular-nums,
+.kpi-value,
+.v-data-table td,
+.v-data-table th {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Buttons: no shouty uppercase, slightly tighter */
+.v-btn {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

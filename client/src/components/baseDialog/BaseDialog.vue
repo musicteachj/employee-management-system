@@ -5,18 +5,18 @@
     :persistent="dialogStore.dialogState.persistent ?? true"
     :width="dialogWidth"
   >
-    <v-card>
-      <v-card-title class="d-flex">
-        <p>{{ dialogStore.dialogState.header }}</p>
-        <v-spacer></v-spacer>
-        <v-icon
+    <v-card class="dialog-card" rounded="lg">
+      <div class="dialog-header">
+        <span class="dialog-title">{{ dialogStore.dialogState.header }}</span>
+        <v-btn
           icon="mdi-close"
-          size="x-small"
-          class="mt-1"
+          variant="text"
+          size="small"
+          density="comfortable"
           @click="dialogStore.closeAndResetDialog()"
-        ></v-icon>
-      </v-card-title>
-      <v-card-text class="ml-n1 mr-n1">
+        ></v-btn>
+      </div>
+      <v-card-text class="dialog-body">
         <slot />
       </v-card-text>
     </v-card>
@@ -45,3 +45,22 @@ const dialogWidth = computed(() => {
   }
 });
 </script>
+
+<style scoped>
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+.dialog-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.dialog-body {
+  padding: 20px !important;
+}
+</style>
