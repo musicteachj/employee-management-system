@@ -8,7 +8,11 @@ from tests.conftest import FakeStream, final_message, text_block, tool_use_block
 
 
 async def _collect(agen):
-    return "".join([chunk async for chunk in agen])
+    return "".join([e["text"] async for e in agen if e.get("type") == "text"])
+
+
+async def _events(agen):
+    return [e async for e in agen]
 
 
 @pytest.mark.asyncio
@@ -103,3 +107,25 @@ async def test_empty_messages_short_circuits():
 
     assert "didn't get a question" in out
     assert svc.client.messages.stream.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_emits_tool_and_employees_events(monkeypatch):
+    svc = AIService()
+    svc.client = MagicMock()
+    tu = tool_use_block("t1", "search_employees", {"department": "Engineering"})
+    turn1 = FakeStream([], final_message("tool_use", [tu]))
+    turn2 = FakeStream(["ok"], final_message("end_turn", [text_block("ok")]))
+    svc.client.messages.stream = MagicMock(side_effect=[turn1, turn2])
+
+    async def fake_dispatch(name, tool_input):
+        return '{"count": 1, "employees": [{"id": "e1", "fullName": "Jane Doe"}]}', False
+
+    monkeypatch.setattr("app.services.ai_service.dispatch_tool", fake_dispatch)
+    events = await _events(svc.stream_chat([ChatMessage(role="user", content="hi")]))
+    types = [e["type"] for e in events]
+    assert "tool" in types and "employees" in types and "text" in types
+    tool_ev = next(e for e in events if e["type"] == "tool")
+    assert tool_ev["name"] == "search_employees"
+    emp_ev = next(e for e in events if e["type"] == "employees")
+    assert emp_ev["items"][0]["fullName"] == "Jane Doe"

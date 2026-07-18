@@ -6,13 +6,14 @@ the results back; repeat until Claude answers (end_turn) or an iteration cap is
 hit. Answer text streams to the caller token-by-token; thinking stays server-side.
 """
 
+import json
 from typing import AsyncGenerator, List
 
 from anthropic import AsyncAnthropic
 
 from app.config import settings
 from app.models.ai import ChatMessage
-from app.services.ai_tools import TOOLS, dispatch_tool
+from app.services.ai_tools import TOOLS, dispatch_tool, EMPLOYEE_RESULT_KEYS
 
 MAX_TOKENS = 8192  # room for adaptive thinking + a concise grounded answer
 
@@ -72,10 +73,13 @@ class AIService:
 
     async def stream_chat(
         self, messages: List[ChatMessage]
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[dict, None]:
         """Stream a grounded assistant reply, running tools as needed."""
         if not messages:
-            yield "I didn't get a question — ask me something about your workforce."
+            yield {
+                "type": "text",
+                "text": "I didn't get a question — ask me something about your workforce.",
+            }
             return
         convo: list = [{"role": m.role, "content": m.content} for m in messages]
 
@@ -84,7 +88,7 @@ class AIService:
                 **self._request_kwargs(convo)
             ) as stream:
                 async for text in stream.text_stream:
-                    yield text
+                    yield {"type": "text", "text": text}
                 final = await stream.get_final_message()
 
             self.iterations += 1
@@ -106,6 +110,7 @@ class AIService:
 
             results = []
             for block in tool_uses:
+                yield {"type": "tool", "name": block.name}
                 content, is_error = await dispatch_tool(block.name, block.input)
                 results.append(
                     {
@@ -115,7 +120,21 @@ class AIService:
                         "is_error": is_error,
                     }
                 )
+                if not is_error:
+                    key = EMPLOYEE_RESULT_KEYS.get(block.name)
+                    if key:
+                        try:
+                            payload = json.loads(content)
+                            data = payload.get(key)
+                            items = [data] if key == "employee" and data else (data or [])
+                            if items:
+                                yield {"type": "employees", "items": items}
+                        except (ValueError, TypeError):
+                            pass
             convo.append({"role": "user", "content": results})
 
-        yield "\n\n(I reached the maximum number of steps for this question. " \
-              "Try narrowing it down.)"
+        yield {
+            "type": "text",
+            "text": "\n\n(I reached the maximum number of steps for this question. "
+            "Try narrowing it down.)",
+        }

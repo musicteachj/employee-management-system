@@ -127,7 +127,47 @@ TOOLS = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "get_managers",
+        "description": (
+            "List employees who are managers (they have direct reports or a "
+            "manager-level job level). Call this for 'who are the managers' or to "
+            "find a manager's id before calling get_direct_reports."
+        ),
+        "input_schema": {"type": "object", "properties": {}, "additionalProperties": False},
+    },
+    {
+        "name": "get_employee",
+        "description": (
+            "Fetch a single employee's profile by their id. Call this when you "
+            "already have an employee id and need that one person's details."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {"employee_id": {"type": "string", "description": "The employee's id."}},
+            "required": ["employee_id"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "get_performance_analytics",
+        "description": (
+            "Aggregate performance metrics: total reviews, overdue count, average "
+            "rating, rating distribution, and per-department performance. Call this "
+            "for questions about ratings or review health across the org."
+        ),
+        "input_schema": {"type": "object", "properties": {}, "additionalProperties": False},
+    },
 ]
+
+
+# Tool -> the payload key whose list holds PII-safe employee rows for the UI.
+EMPLOYEE_RESULT_KEYS = {
+    "search_employees": "employees",
+    "get_direct_reports": "reports",
+    "get_managers": "managers",
+    "get_employee": "employee",  # single object, not a list
+}
 
 
 def _ok(payload: Any) -> Tuple[str, bool]:
@@ -179,6 +219,26 @@ async def dispatch_tool(name: str, tool_input: Dict[str, Any]) -> Tuple[str, boo
             if len(reports) > RESULT_LIMIT:
                 payload["note"] = f"Showing the first {RESULT_LIMIT} of {len(reports)}."
             return _ok(payload)
+
+        if name == "get_managers":
+            managers = await EmployeeService().get_managers()
+            trimmed = [_safe_employee_view(e) for e in managers[:RESULT_LIMIT]]
+            payload = {"count": len(managers), "returned": len(trimmed), "managers": trimmed}
+            if len(managers) > RESULT_LIMIT:
+                payload["note"] = f"Showing the first {RESULT_LIMIT} of {len(managers)}."
+            return _ok(payload)
+
+        if name == "get_employee":
+            emp_id = (tool_input or {}).get("employee_id")
+            if not emp_id:
+                return _err("employee_id is required for get_employee.")
+            emp = await EmployeeService().get_employee(emp_id)
+            if emp is None:
+                return _err(f"No employee found with id {emp_id}.")
+            return _ok({"employee": _safe_employee_view(emp)})
+
+        if name == "get_performance_analytics":
+            return _ok(await PerformanceService().get_performance_analytics())
 
         return _err(f"Unknown tool: {name}")
     except Exception:  # log details server-side; hand the model a generic message

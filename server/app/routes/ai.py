@@ -33,11 +33,11 @@ async def chat(
 
     async def event_stream() -> AsyncGenerator[str, None]:
         try:
-            async for chunk in service.stream_chat(request.messages):
-                yield f"data: {json.dumps({'text': chunk})}\n\n"
+            async for event in service.stream_chat(request.messages):
+                yield f"data: {json.dumps(event)}\n\n"
         except Exception:  # log server-side; don't leak internals to the client
             logger.exception("AI chat stream failed")
-            yield f"data: {json.dumps({'error': 'The assistant hit an unexpected error. Please try again.'})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'The assistant hit an unexpected error. Please try again.'})}\n\n"
         finally:
             if service.iterations > 0:
                 try:

@@ -3,9 +3,20 @@ import { ref } from "vue";
 import { useAuthStore } from "./auth";
 import { useNotificationStore } from "./notification";
 
+export interface EmployeeCard {
+  id: string;
+  fullName: string;
+  department?: string;
+  position?: string;
+  jobLevel?: string;
+  status?: string;
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  tools?: string[]; // tool names, in call order (trace)
+  employees?: EmployeeCard[];
 }
 
 // Workforce Insights Assistant store (Phase 0: toolless streaming chat).
@@ -43,7 +54,7 @@ export const useAiStore = defineStore("ai", () => {
 
     messages.value.push({ role: "user", content: text });
     // Append an empty assistant message we'll fill in as tokens stream.
-    messages.value.push({ role: "assistant", content: "" });
+    messages.value.push({ role: "assistant", content: "", tools: [], employees: [] });
     const assistantIdx = messages.value.length - 1;
     isStreaming.value = true;
 
@@ -89,11 +100,20 @@ export const useAiStore = defineStore("ai", () => {
           if (!data || data === "[DONE]") continue;
           try {
             const parsed = JSON.parse(data);
-            if (parsed.text) {
+            const msg = messages.value[assistantIdx];
+            if (parsed.type === "text") {
               // Update via index so the change goes through the reactive proxy.
-              messages.value[assistantIdx].content += parsed.text;
-            } else if (parsed.error) {
-              notificationStore.showError(parsed.error);
+              msg.content += parsed.text;
+            } else if (parsed.type === "tool") {
+              msg.tools = [...(msg.tools ?? []), parsed.name];
+            } else if (parsed.type === "employees") {
+              const seen = new Set((msg.employees ?? []).map((e) => e.id));
+              const fresh = (parsed.items ?? []).filter(
+                (e: EmployeeCard) => e.id && !seen.has(e.id)
+              );
+              msg.employees = [...(msg.employees ?? []), ...fresh];
+            } else if (parsed.type === "error") {
+              notificationStore.showError(parsed.message);
             }
           } catch {
             // Ignore partial/non-JSON lines.
@@ -105,7 +125,8 @@ export const useAiStore = defineStore("ai", () => {
         notificationStore.showError(err.message || "AI request failed");
       }
       // Drop the assistant placeholder if nothing streamed in.
-      if (messages.value[assistantIdx]?.content === "") {
+      const msg = messages.value[assistantIdx];
+      if (msg && !msg.content && !msg.tools?.length && !msg.employees?.length) {
         messages.value.splice(assistantIdx, 1);
       }
     } finally {
