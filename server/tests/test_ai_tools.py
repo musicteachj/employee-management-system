@@ -39,13 +39,30 @@ def test_safe_view_excludes_pii_and_salary():
 
 def test_tool_names_now_seven():
     names = {t["name"] for t in ai_tools.TOOLS}
-    assert names == {
-        "search_employees", "get_workforce_analytics", "get_overdue_reviews",
-        "get_direct_reports", "get_managers", "get_employee",
-        "get_performance_analytics",
-    }
+    read = {"search_employees", "get_workforce_analytics", "get_overdue_reviews",
+            "get_direct_reports", "get_managers", "get_employee", "get_performance_analytics"}
+    assert read <= names
+    assert len(names) == 9  # 7 read + 2 write
     for t in ai_tools.TOOLS:
         assert t["description"] and t["input_schema"]["type"] == "object"
+
+
+def test_write_tools_present_and_flagged():
+    names = {t["name"] for t in ai_tools.TOOLS}
+    assert {"schedule_reviews", "bulk_assign_manager"} <= names
+    assert ai_tools.WRITE_TOOL_NAMES == {"schedule_reviews", "bulk_assign_manager"}
+
+
+def test_proposal_summary_has_count_and_date():
+    s = ai_tools.proposal_summary(
+        "schedule_reviews", {"employee_ids": ["a", "b"], "review_date": "2026-08-01"}
+    )
+    assert "2" in s and "2026-08-01" in s
+
+
+def test_proposal_summary_handles_non_list_ids():
+    s = ai_tools.proposal_summary("schedule_reviews", {"employee_ids": "e1", "review_date": "2026-08-01"})
+    assert "0 employee(s)" in s
 
 
 @pytest.mark.asyncio

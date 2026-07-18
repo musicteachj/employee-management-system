@@ -129,3 +129,25 @@ async def test_emits_tool_and_employees_events(monkeypatch):
     assert tool_ev["name"] == "search_employees"
     emp_ev = next(e for e in events if e["type"] == "employees")
     assert emp_ev["items"][0]["fullName"] == "Jane Doe"
+
+
+@pytest.mark.asyncio
+async def test_write_tool_emits_proposal_and_stops(monkeypatch):
+    svc = AIService()
+    svc.client = MagicMock()
+    wu = tool_use_block("w1", "schedule_reviews", {"employee_ids": ["e1", "e2"], "review_date": "2026-08-01"})
+    svc.client.messages.stream = MagicMock(side_effect=[FakeStream([], final_message("tool_use", [wu]))])
+    dispatched = {"v": False}
+
+    async def fake_dispatch(name, tool_input):
+        dispatched["v"] = True
+        return "{}", False
+
+    monkeypatch.setattr("app.services.ai_service.dispatch_tool", fake_dispatch)
+    events = await _events(svc.stream_chat([ChatMessage(role="user", content="schedule reviews")]))
+    proposals = [e for e in events if e["type"] == "proposal"]
+    assert len(proposals) == 1
+    assert proposals[0]["action"] == "schedule_reviews"
+    assert proposals[0]["input"]["review_date"] == "2026-08-01" and proposals[0]["summary"]
+    assert dispatched["v"] is False           # write NOT executed
+    assert svc.client.messages.stream.call_count == 1  # loop stopped

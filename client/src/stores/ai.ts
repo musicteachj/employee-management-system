@@ -12,11 +12,20 @@ export interface EmployeeCard {
   status?: string;
 }
 
+export interface Proposal {
+  action: string;
+  input: Record<string, any>;
+  summary: string;
+  status: "pending" | "confirmed" | "cancelled" | "error";
+  result?: { updatedCount?: number; failedCount?: number; message?: string };
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   tools?: string[]; // tool names, in call order (trace)
   employees?: EmployeeCard[];
+  proposal?: Proposal;
 }
 
 // Workforce Insights Assistant store (Phase 0: toolless streaming chat).
@@ -112,6 +121,13 @@ export const useAiStore = defineStore("ai", () => {
                 (e: EmployeeCard) => e.id && !seen.has(e.id)
               );
               msg.employees = [...(msg.employees ?? []), ...fresh];
+            } else if (parsed.type === "proposal") {
+              msg.proposal = {
+                action: parsed.action,
+                input: parsed.input,
+                summary: parsed.summary,
+                status: "pending",
+              };
             } else if (parsed.type === "error") {
               notificationStore.showError(parsed.message);
             }
@@ -126,7 +142,7 @@ export const useAiStore = defineStore("ai", () => {
       }
       // Drop the assistant placeholder if nothing streamed in.
       const msg = messages.value[assistantIdx];
-      if (msg && !msg.content && !msg.tools?.length && !msg.employees?.length) {
+      if (msg && !msg.content && !msg.tools?.length && !msg.employees?.length && !msg.proposal) {
         messages.value.splice(assistantIdx, 1);
       }
     } finally {
@@ -134,5 +150,46 @@ export const useAiStore = defineStore("ai", () => {
     }
   };
 
-  return { messages, isStreaming, isOpen, toggleOpen, clear, streamChat };
+  const confirmAction = async (idx: number) => {
+    const authStore = useAuthStore();
+    const notificationStore = useNotificationStore();
+    const msg = messages.value[idx];
+    if (!msg?.proposal || msg.proposal.status !== "pending") return;
+    try {
+      const response = await fetch("/api/ai/confirm-action", {
+        method: "POST",
+        headers: buildHeaders(),
+        body: JSON.stringify({ action: msg.proposal.action, input: msg.proposal.input }),
+      });
+      if (response.status === 401) {
+        authStore.logout();
+        notificationStore.showError("Session expired. Please log in again.");
+        return;
+      }
+      if (!response.ok) throw new Error(`Action failed: ${response.status}`);
+      const result = await response.json();
+      msg.proposal.status = "confirmed";
+      msg.proposal.result = result;
+      notificationStore.showSuccess(result.message || "Done.");
+    } catch (e: any) {
+      msg.proposal.status = "error";
+      notificationStore.showError(e.message || "Action failed");
+    }
+  };
+
+  const cancelAction = (idx: number) => {
+    const msg = messages.value[idx];
+    if (msg?.proposal && msg.proposal.status === "pending") msg.proposal.status = "cancelled";
+  };
+
+  return {
+    messages,
+    isStreaming,
+    isOpen,
+    toggleOpen,
+    clear,
+    streamChat,
+    confirmAction,
+    cancelAction,
+  };
 });

@@ -145,6 +145,29 @@ watch(
                 }}</span>
               </button>
             </div>
+            <div v-if="msg.proposal" class="ai-proposal">
+              <div class="ai-proposal__summary">
+                <v-icon icon="mdi-shield-alert-outline" size="16" class="mr-1" />
+                {{ msg.proposal.summary }}
+              </div>
+              <div v-if="msg.proposal.status === 'pending'" class="ai-proposal__actions">
+                <v-btn
+                  size="small"
+                  color="primary"
+                  variant="flat"
+                  @click="aiStore.confirmAction(i)"
+                  >Confirm</v-btn
+                >
+                <v-btn size="small" variant="text" @click="aiStore.cancelAction(i)">Cancel</v-btn>
+              </div>
+              <div v-else-if="msg.proposal.status === 'confirmed'" class="ai-proposal__done">
+                ✅ {{ msg.proposal.result?.message || "Done." }}
+              </div>
+              <div v-else-if="msg.proposal.status === 'cancelled'" class="ai-proposal__muted">
+                Cancelled.
+              </div>
+              <div v-else class="ai-proposal__muted">Something went wrong — nothing was changed.</div>
+            </div>
           </div>
         </template>
         <div v-else class="ai-msg__bubble">{{ msg.content }}</div>
@@ -330,6 +353,43 @@ watch(
 }
 .ai-card__meta {
   font-size: 0.72rem;
+  color: var(--color-gray, #a1a1aa);
+}
+
+.ai-proposal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 11px;
+  background: var(--color-accent-pale, #fef6da);
+  border: 1px solid var(--color-border, #e4e4e7);
+  border-left: 3px solid var(--color-accent, #eab308);
+  border-radius: 8px;
+}
+.ai-proposal__summary {
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-ink, #18181b);
+}
+.ai-proposal__summary .v-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-accent, #eab308);
+}
+.ai-proposal__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-proposal__done {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-success, #059669);
+}
+.ai-proposal__muted {
+  font-size: 0.78rem;
   color: var(--color-gray, #a1a1aa);
 }
 
