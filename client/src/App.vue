@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import BaseDialog from "./components/baseDialog/BaseDialog.vue";
+import AiChatPanel from "./components/AiChatPanel.vue";
 import { dialogRegistry, dialogMeta } from "./components/baseDialog/registry";
 import { useDialogStore } from "./stores/dialog";
 import { useNotificationStore } from "./stores/notification";
@@ -313,6 +314,9 @@ watch(
           ></v-btn>
         </template>
       </v-snackbar>
+
+      <!-- Workforce Insights Assistant (Phase 0) -->
+      <AiChatPanel v-if="authStore.isAuthenticated" />
     </v-layout>
   </v-app>
 </template>
