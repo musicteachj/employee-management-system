@@ -158,6 +158,47 @@ TOOLS = [
         ),
         "input_schema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
+    {
+        "name": "schedule_reviews",
+        "description": (
+            "PROPOSE setting the next performance-review date for one or more employees. "
+            "This does NOT take effect immediately — it returns a proposal the user must "
+            "confirm before anything changes. Call this when the user asks to schedule or "
+            "set review dates for specific people (find their ids first with search tools)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "employee_ids": {
+                    "type": "array", "items": {"type": "string"},
+                    "description": "Ids of the employees to schedule.",
+                },
+                "review_date": {"type": "string", "description": "Next review date, YYYY-MM-DD."},
+            },
+            "required": ["employee_ids", "review_date"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "bulk_assign_manager",
+        "description": (
+            "PROPOSE reassigning one or more employees to report to a different manager. "
+            "This does NOT take effect immediately — it returns a proposal the user must "
+            "confirm. Requires the target manager's employee id."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "employee_ids": {
+                    "type": "array", "items": {"type": "string"},
+                    "description": "Ids of the employees to reassign.",
+                },
+                "manager_id": {"type": "string", "description": "Id of the new manager."},
+            },
+            "required": ["employee_ids", "manager_id"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -168,6 +209,21 @@ EMPLOYEE_RESULT_KEYS = {
     "get_managers": "managers",
     "get_employee": "employee",  # single object, not a list
 }
+
+# Tools that MUTATE data. These are never dispatched inside the loop — the loop
+# emits a "proposal" the user must confirm, and the confirm endpoint runs them.
+WRITE_TOOL_NAMES = {"schedule_reviews", "bulk_assign_manager"}
+
+
+def proposal_summary(name: str, tool_input: dict) -> str:
+    """A short human sentence describing a proposed write, shown on the confirm card."""
+    ids = (tool_input or {}).get("employee_ids")
+    n = len(ids) if isinstance(ids, list) else 0
+    if name == "schedule_reviews":
+        return f"Set the next review date to {tool_input.get('review_date', '?')} for {n} employee(s)."
+    if name == "bulk_assign_manager":
+        return f"Reassign {n} employee(s) to manager id {tool_input.get('manager_id', '?')}."
+    return f"Run {name} for {n} employee(s)."
 
 
 def _ok(payload: Any) -> Tuple[str, bool]:

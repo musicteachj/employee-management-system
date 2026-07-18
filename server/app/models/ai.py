@@ -5,7 +5,7 @@ now but is not written until Phase 2 (rate limiting + usage logging).
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,6 +22,13 @@ class ChatRequest(BaseModel):
     history and sends the full message list each turn (backend is stateless)."""
 
     messages: List[ChatMessage]
+
+
+class ConfirmActionRequest(BaseModel):
+    """Body for POST /api/ai/confirm-action — a user-confirmed write proposal."""
+
+    action: str
+    input: Dict[str, Any] = Field(default_factory=dict)
 
 
 class AIUsageLog(BaseModel):

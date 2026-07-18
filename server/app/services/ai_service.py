@@ -13,7 +13,9 @@ from anthropic import AsyncAnthropic
 
 from app.config import settings
 from app.models.ai import ChatMessage
-from app.services.ai_tools import TOOLS, dispatch_tool, EMPLOYEE_RESULT_KEYS
+from app.services.ai_tools import (
+    TOOLS, dispatch_tool, EMPLOYEE_RESULT_KEYS, WRITE_TOOL_NAMES, proposal_summary,
+)
 
 MAX_TOKENS = 8192  # room for adaptive thinking + a concise grounded answer
 
@@ -104,6 +106,17 @@ class AIService:
             tool_uses = [b for b in final.content if getattr(b, "type", None) == "tool_use"]
             if not tool_uses:  # defensive: tool_use stop but no blocks
                 return
+
+            write_uses = [b for b in tool_uses if b.name in WRITE_TOOL_NAMES]
+            if write_uses:
+                block = write_uses[0]
+                yield {
+                    "type": "proposal",
+                    "action": block.name,
+                    "input": block.input,
+                    "summary": proposal_summary(block.name, block.input),
+                }
+                return  # never auto-execute a write; wait for confirm-action
 
             # Preserve the full assistant turn (thinking + tool_use blocks).
             convo.append({"role": "assistant", "content": final.content})

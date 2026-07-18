@@ -78,3 +78,29 @@ def test_over_cap_returns_429():
     finally:
         app.dependency_overrides.clear()
     assert r.status_code == 429
+
+
+def test_confirm_action_requires_auth():
+    client = TestClient(app)
+    r = client.post("/api/ai/confirm-action", json={"action": "schedule_reviews", "input": {}})
+    assert r.status_code == 403
+
+
+def test_confirm_action_executes(monkeypatch):
+    async def fake_exec(action, tool_input, current_user):
+        return {"success": True, "updatedCount": 2, "message": "ok"}
+
+    monkeypatch.setattr("app.routes.ai.execute_confirmed_action", fake_exec)
+    app.dependency_overrides[get_current_user] = lambda: UserInDB(
+        email="test@example.com", hashed_password="x", full_name="T"
+    )
+    try:
+        client = TestClient(app)
+        r = client.post(
+            "/api/ai/confirm-action",
+            headers={"Authorization": "Bearer x"},
+            json={"action": "schedule_reviews", "input": {"employee_ids": ["e1"], "review_date": "2026-08-01"}},
+        )
+    finally:
+        app.dependency_overrides.clear()
+    assert r.status_code == 200 and r.json()["updatedCount"] == 2

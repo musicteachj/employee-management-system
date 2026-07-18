@@ -12,8 +12,9 @@ from typing import AsyncGenerator
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
-from app.models.ai import ChatRequest
+from app.models.ai import ChatRequest, ConfirmActionRequest
 from app.models.user import UserInDB
+from app.services.ai_actions_service import execute_confirmed_action
 from app.services.ai_service import AIService
 from app.services.ai_usage_service import enforce_ai_rate_limit, record_ai_usage
 from app.utils.dependencies import get_current_user
@@ -53,3 +54,12 @@ async def chat(
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@router.post("/ai/confirm-action")
+async def confirm_action(
+    request: ConfirmActionRequest,
+    current_user: UserInDB = Depends(get_current_user),
+):
+    """Execute a user-confirmed write proposal. No model call; auth required."""
+    return await execute_confirmed_action(request.action, request.input, current_user)
