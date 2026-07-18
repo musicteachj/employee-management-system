@@ -37,11 +37,12 @@ def test_safe_view_excludes_pii_and_salary():
         assert banned not in v
 
 
-def test_tool_names_match_the_four_read_tools():
+def test_tool_names_now_seven():
     names = {t["name"] for t in ai_tools.TOOLS}
     assert names == {
-        "search_employees", "get_workforce_analytics",
-        "get_overdue_reviews", "get_direct_reports",
+        "search_employees", "get_workforce_analytics", "get_overdue_reviews",
+        "get_direct_reports", "get_managers", "get_employee",
+        "get_performance_analytics",
     }
     for t in ai_tools.TOOLS:
         assert t["description"] and t["input_schema"]["type"] == "object"
@@ -112,3 +113,30 @@ async def test_dispatch_exception_returns_generic_message():
     assert is_err is True
     assert "secret" not in content and "internal detail" not in content
     assert "failed to run" in content
+
+
+@pytest.mark.asyncio
+async def test_dispatch_get_employee_returns_safe_view():
+    with patch.object(ai_tools, "EmployeeService") as ES:
+        ES.return_value.get_employee = AsyncMock(return_value=make_emp())
+        content, is_err = await ai_tools.dispatch_tool("get_employee", {"employee_id": "e1"})
+    assert is_err is False
+    emp = json.loads(content)["employee"]
+    assert emp["fullName"] == "Jane Doe" and "salary" not in emp
+
+
+@pytest.mark.asyncio
+async def test_dispatch_get_employee_not_found():
+    with patch.object(ai_tools, "EmployeeService") as ES:
+        ES.return_value.get_employee = AsyncMock(return_value=None)
+        content, is_err = await ai_tools.dispatch_tool("get_employee", {"employee_id": "nope"})
+    assert is_err is True
+
+
+@pytest.mark.asyncio
+async def test_dispatch_get_managers_trims():
+    with patch.object(ai_tools, "EmployeeService") as ES:
+        ES.return_value.get_managers = AsyncMock(return_value=[make_emp()])
+        content, is_err = await ai_tools.dispatch_tool("get_managers", {})
+    assert is_err is False
+    assert json.loads(content)["managers"][0]["fullName"] == "Jane Doe"

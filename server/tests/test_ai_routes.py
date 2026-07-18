@@ -38,8 +38,8 @@ def test_bad_token_returns_401(monkeypatch):
 
 def test_authenticated_request_streams_sse(monkeypatch):
     async def fake_stream_chat(self, messages):
-        yield "Hello "
-        yield "world"
+        yield {"type": "text", "text": "Hello "}
+        yield {"type": "text", "text": "world"}
 
     monkeypatch.setattr(AIService, "stream_chat", fake_stream_chat)
     app.dependency_overrides[get_current_user] = lambda: UserInDB(
