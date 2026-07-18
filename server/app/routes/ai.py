@@ -5,6 +5,7 @@ POST /api/ai/chat streams a toolless Claude reply over SSE. Requires auth via
 """
 
 import json
+import logging
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends
@@ -16,6 +17,7 @@ from app.services.ai_service import AIService
 from app.utils.dependencies import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/ai/chat")
@@ -30,8 +32,9 @@ async def chat(
         try:
             async for chunk in service.stream_chat(request.messages):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
-        except Exception as exc:  # surface errors to the client without crashing the stream
-            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+        except Exception:  # log server-side; don't leak internals to the client
+            logger.exception("AI chat stream failed")
+            yield f"data: {json.dumps({'error': 'The assistant hit an unexpected error. Please try again.'})}\n\n"
         finally:
             yield "data: [DONE]\n\n"
 
