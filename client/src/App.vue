@@ -107,6 +107,20 @@ const notificationStore = useNotificationStore();
 const appStore = useAppStore();
 const authStore = useAuthStore();
 
+// When the session is cleared mid-app — e.g. an API call returns 401 and a store
+// calls authStore.logout() — no route change happens, so the router guard never
+// fires. Reactively send the user to the login page when they become
+// unauthenticated on a protected route (covers every logout path, not just the
+// toolbar button).
+watch(
+  () => authStore.isAuthenticated,
+  (isAuthed) => {
+    if (!isAuthed && route.meta.requiresAuth) {
+      router.push("/login");
+    }
+  }
+);
+
 const currentDialog = computed(() => {
   const t = dialogStore.dialogState.type as keyof typeof dialogRegistry | null;
   return t ? dialogRegistry[t] : null;
