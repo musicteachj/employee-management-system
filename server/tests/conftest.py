@@ -16,8 +16,12 @@ def text_block(text):
     return SimpleNamespace(type="text", text=text)
 
 
-def final_message(stop_reason, content):
-    return SimpleNamespace(stop_reason=stop_reason, content=content)
+def final_message(stop_reason, content, usage=None):
+    if usage is None:
+        usage = SimpleNamespace(
+            input_tokens=0, output_tokens=0, cache_read_input_tokens=0
+        )
+    return SimpleNamespace(stop_reason=stop_reason, content=content, usage=usage)
 
 
 class FakeStream:

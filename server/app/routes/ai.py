@@ -1,7 +1,8 @@
-"""AI assistant API routes (Phase 0 scaffolding).
+"""AI assistant API routes.
 
-POST /api/ai/chat streams a toolless Claude reply over SSE. Requires auth via
-``get_current_user`` (unauthenticated requests get a 401 for free).
+POST /api/ai/chat streams a grounded, tool-using Claude reply over SSE. Requires
+auth (``get_current_user``) and enforces per-user rate limits
+(``enforce_ai_rate_limit``); one usage row is logged per call.
 """
 
 import json
@@ -14,6 +15,7 @@ from fastapi.responses import StreamingResponse
 from app.models.ai import ChatRequest
 from app.models.user import UserInDB
 from app.services.ai_service import AIService
+from app.services.ai_usage_service import enforce_ai_rate_limit, record_ai_usage
 from app.utils.dependencies import get_current_user
 
 router = APIRouter()
@@ -25,6 +27,7 @@ async def chat(
     request: ChatRequest,
     service: AIService = Depends(),
     current_user: UserInDB = Depends(get_current_user),
+    _rate: None = Depends(enforce_ai_rate_limit),
 ):
     """Stream a Claude reply token-by-token as Server-Sent Events."""
 
@@ -36,6 +39,17 @@ async def chat(
             logger.exception("AI chat stream failed")
             yield f"data: {json.dumps({'error': 'The assistant hit an unexpected error. Please try again.'})}\n\n"
         finally:
+            if service.iterations > 0:
+                try:
+                    await record_ai_usage(
+                        current_user.email,
+                        service.tokens_in,
+                        service.tokens_out,
+                        service.cache_read,
+                        service.iterations,
+                    )
+                except Exception:  # logging must never break the response
+                    logger.exception("Failed to record AI usage")
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")

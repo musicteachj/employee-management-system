@@ -44,6 +44,12 @@ class AIService:
 
     def __init__(self) -> None:
         self.client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+        # Usage accumulated across the agentic loop for this request (read by the
+        # route to write an ai_usage row).
+        self.tokens_in = 0
+        self.tokens_out = 0
+        self.cache_read = 0
+        self.iterations = 0
 
     def _request_kwargs(self, convo: list) -> dict:
         return dict(
@@ -80,6 +86,13 @@ class AIService:
                 async for text in stream.text_stream:
                     yield text
                 final = await stream.get_final_message()
+
+            self.iterations += 1
+            usage = getattr(final, "usage", None)
+            if usage is not None:
+                self.tokens_in += getattr(usage, "input_tokens", 0) or 0
+                self.tokens_out += getattr(usage, "output_tokens", 0) or 0
+                self.cache_read += getattr(usage, "cache_read_input_tokens", 0) or 0
 
             if final.stop_reason != "tool_use":
                 return

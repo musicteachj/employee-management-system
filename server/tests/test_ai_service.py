@@ -70,6 +70,30 @@ async def test_iteration_cap_stops_the_loop(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_usage_is_accumulated_across_turns(monkeypatch):
+    from types import SimpleNamespace
+    svc = AIService()
+    svc.client = MagicMock()
+    u1 = SimpleNamespace(input_tokens=100, output_tokens=20, cache_read_input_tokens=0)
+    u2 = SimpleNamespace(input_tokens=150, output_tokens=30, cache_read_input_tokens=90)
+    turn1 = FakeStream([], final_message("tool_use", [tool_use_block("t1", "get_overdue_reviews", {})], usage=u1))
+    turn2 = FakeStream(["done"], final_message("end_turn", [text_block("done")], usage=u2))
+    svc.client.messages.stream = MagicMock(side_effect=[turn1, turn2])
+
+    async def fake_dispatch(name, tool_input):
+        return "{}", False
+
+    monkeypatch.setattr("app.services.ai_service.dispatch_tool", fake_dispatch)
+
+    await _collect(svc.stream_chat([ChatMessage(role="user", content="hi")]))
+
+    assert svc.iterations == 2
+    assert svc.tokens_in == 250
+    assert svc.tokens_out == 50
+    assert svc.cache_read == 90
+
+
+@pytest.mark.asyncio
 async def test_empty_messages_short_circuits():
     svc = AIService()
     svc.client = MagicMock()
