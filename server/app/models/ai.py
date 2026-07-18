@@ -32,6 +32,7 @@ class AIUsageLog(BaseModel):
     tokens_in: int = Field(0, alias="tokensIn")
     tokens_out: int = Field(0, alias="tokensOut")
     iterations: int = Field(1, alias="iterations")
+    cache_read_tokens: int = Field(0, alias="cacheReadTokens")
     created_at: Optional[datetime] = Field(None, alias="createdAt")
 
     model_config = ConfigDict(populate_by_name=True)

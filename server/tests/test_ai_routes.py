@@ -7,6 +7,7 @@ from app.database import db as mongo_db
 from app.main import app
 from app.models.user import UserInDB
 from app.services.ai_service import AIService
+from app.services.ai_usage_service import enforce_ai_rate_limit
 from app.utils.dependencies import get_current_user
 
 
@@ -44,6 +45,7 @@ def test_authenticated_request_streams_sse(monkeypatch):
     app.dependency_overrides[get_current_user] = lambda: UserInDB(
         email="test@example.com", hashed_password="x", full_name="Test"
     )
+    app.dependency_overrides[enforce_ai_rate_limit] = lambda: None
     try:
         client = TestClient(app)
         r = client.post(
@@ -56,3 +58,23 @@ def test_authenticated_request_streams_sse(monkeypatch):
     assert "Hello " in r.text
     assert "world" in r.text
     assert "[DONE]" in r.text
+
+
+def test_over_cap_returns_429():
+    from fastapi import HTTPException
+
+    def _rate_limited():
+        raise HTTPException(status_code=429, detail="cap")
+
+    app.dependency_overrides[get_current_user] = lambda: UserInDB(
+        email="test@example.com", hashed_password="x", full_name="Test"
+    )
+    app.dependency_overrides[enforce_ai_rate_limit] = _rate_limited
+    try:
+        client = TestClient(app)
+        r = client.post(
+            "/api/ai/chat", json={"messages": [{"role": "user", "content": "hi"}]}
+        )
+    finally:
+        app.dependency_overrides.clear()
+    assert r.status_code == 429
